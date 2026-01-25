@@ -93,22 +93,6 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="home-page">
-      <header className="page-header">
-        <div className="header-content">
-          <h1>Family Game Library</h1>
-          <p className="subtitle">
-            {filteredGames.length} games across {households.length} households
-          </p>
-        </div>
-        {currentUser && (
-          <Link to="/add">
-            <Button intent="primary" icon="add" large>
-              Add Game
-            </Button>
-          </Link>
-        )}
-      </header>
-
       <GameFilters
         filters={filters}
         onFiltersChange={setFilters}
