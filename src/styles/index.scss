@@ -384,6 +384,117 @@ a {
 }
 
 // =============================================================================
+// GAME DETAIL DIALOG
+// =============================================================================
+
+.game-detail-dialog {
+  .bp5-dialog {
+    background: $color-charcoal;
+    border: 1px solid rgba($color-wood, 0.3);
+    border-radius: $radius-xl;
+    max-width: 600px;
+    width: 90vw;
+  }
+
+  .bp5-dialog-header {
+    background: transparent;
+    border-bottom: 1px solid rgba($color-wood, 0.2);
+
+    .bp5-heading {
+      font-family: $font-display;
+      color: $color-cream;
+    }
+  }
+
+  .bp5-dialog-body {
+    padding: $spacing-lg;
+  }
+}
+
+.game-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.game-detail-image {
+  width: 100%;
+  max-height: 300px;
+  border-radius: $radius-md;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: $color-espresso;
+  }
+}
+
+.game-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.game-detail-meta {
+  display: flex;
+  gap: $spacing-lg;
+  flex-wrap: wrap;
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    color: $color-wood-light;
+    font-size: 1rem;
+
+    .bp5-icon {
+      color: $color-primary;
+    }
+  }
+}
+
+.game-detail-owner {
+  margin: $spacing-sm 0;
+}
+
+.game-detail-description {
+  color: $color-cream;
+  line-height: 1.7;
+
+  p {
+    margin: 0;
+  }
+}
+
+.game-detail-section {
+  h4 {
+    font-family: $font-display;
+    font-size: 1rem;
+    color: $color-wood-light;
+    margin-bottom: $spacing-sm;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+  }
+}
+
+.game-notes {
+  color: $color-wood-light;
+  font-style: italic;
+  margin: 0;
+}
+
+.game-detail-links {
+  padding-top: $spacing-md;
+  border-top: 1px solid rgba($color-wood, 0.2);
+}
+
+// =============================================================================
 // AUTH PAGES
 // =============================================================================
 

@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { NonIdealState, Spinner, Button } from '@blueprintjs/core';
 import { Link } from 'react-router-dom';
-import { GameCard, GameFilters } from '../components';
+import { GameCard, GameFilters, GameDetailDialog } from '../components';
 import { useGames } from '../hooks/useGames';
 import { householdsService } from '../services/households';
 import { useAuth } from '../context/AuthContext';
-import type { Household } from '../types';
+import type { Game, Household } from '../types';
 
 export const HomePage: React.FC = () => {
   const { currentUser, loading: authLoading } = useAuth();
   const { filteredGames, loading, error, filters, setFilters } = useGames();
   const [households, setHouseholds] = useState<Household[]>([]);
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -136,10 +137,20 @@ export const HomePage: React.FC = () => {
       ) : (
         <div className="games-grid">
           {filteredGames.map((game) => (
-            <GameCard key={game.id} game={game} />
+            <GameCard
+              key={game.id}
+              game={game}
+              onClick={() => setSelectedGame(game)}
+            />
           ))}
         </div>
       )}
+
+      <GameDetailDialog
+        game={selectedGame}
+        isOpen={selectedGame !== null}
+        onClose={() => setSelectedGame(null)}
+      />
     </div>
   );
 };
