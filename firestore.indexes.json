@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "games",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "householdId", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "games",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "playerCount.min", "order": "ASCENDING" },
+        { "fieldPath": "playerCount.max", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

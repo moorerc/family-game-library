@@ -1,0 +1,37 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Households collection
+    match /households/{householdId} {
+      // Allow read for all authenticated users (family can see all households)
+      allow read: if request.auth != null;
+      
+      // Allow create if user is authenticated
+      allow create: if request.auth != null;
+      
+      // Allow update/delete if user is a member
+      allow update, delete: if request.auth != null && 
+        request.auth.uid in resource.data.members;
+    }
+    
+    // Games collection
+    match /games/{gameId} {
+      // Allow read for all authenticated users (shared library)
+      allow read: if request.auth != null;
+      
+      // Allow create if user is authenticated
+      allow create: if request.auth != null;
+      
+      // Allow update/delete if user owns the game (their household)
+      allow update, delete: if request.auth != null && 
+        request.auth.uid == resource.data.addedBy;
+    }
+    
+    // Users collection for user profiles
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
