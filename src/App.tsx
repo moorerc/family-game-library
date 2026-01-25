@@ -11,7 +11,7 @@ import {
 
 const App: React.FC = () => {
   return (
-    <div className="app bp5-dark">
+    <div className="app">
       <Navbar />
       <main className="app-main">
         <div className="app-container">
