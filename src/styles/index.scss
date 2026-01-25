@@ -235,59 +235,79 @@ a {
 
 .game-filters {
   margin-bottom: $spacing-xl;
-  
-  .filters-row {
-    display: flex;
-    gap: $spacing-md;
-    align-items: flex-end;
-    flex-wrap: wrap;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
 
-  .search-input {
-    flex: 1;
-    min-width: 250px;
+  .search-row {
+    .search-input {
+      width: 100%;
 
-    .bp5-input {
-      background: $color-charcoal;
-      border: 1px solid rgba($color-wood, 0.3);
-      color: $color-cream;
+      .bp5-input-group {
+        .bp5-input {
+          background: $color-white;
+          border: 1px solid $color-border;
+          border-radius: 50px;
+          padding-left: 44px;
+          padding-right: $spacing-lg;
+          height: 48px;
+          font-size: 1rem;
 
-      &::placeholder {
-        color: $color-wood;
-      }
+          &::placeholder {
+            color: $color-text-muted;
+          }
 
-      &:focus {
-        border-color: $color-primary;
-        box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+          &:focus {
+            border-color: $color-primary;
+            box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+          }
+        }
+
+        .bp5-input-left-container {
+          left: $spacing-md;
+        }
       }
     }
   }
 
+  .advanced-filters {
+    display: flex;
+    gap: $spacing-xl;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
   .filter-group {
     display: flex;
-    flex-direction: column;
-    gap: $spacing-xs;
+    align-items: center;
+    gap: $spacing-sm;
   }
 
   .filter-label {
     font-size: 0.85rem;
-    color: $color-wood-light;
+    color: $color-text-secondary;
     font-weight: 500;
+    white-space: nowrap;
   }
 
-  .player-count-input {
-    width: 100px;
+  .player-count-input.bp5-numeric-input {
+    .bp5-input-group {
+      width: 70px;
+    }
+
+    .bp5-button-group.bp5-vertical {
+      position: relative;
+      z-index: 0;
+    }
   }
 
   .household-select {
-    min-width: 180px;
+    min-width: 140px;
   }
 
-  .active-filters {
-    display: flex;
-    gap: $spacing-sm;
-    margin-top: $spacing-md;
-    flex-wrap: wrap;
+  .clear-filters-btn {
+    color: $color-text-muted;
+    margin-left: auto;
   }
 }
 

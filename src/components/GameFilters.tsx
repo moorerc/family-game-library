@@ -54,7 +54,7 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
 
   return (
     <div className="game-filters">
-      <div className="filters-row">
+      <div className="search-row">
         <InputGroup
           large
           leftIcon="search"
@@ -63,7 +63,9 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
           onChange={handleSearchChange}
           className="search-input"
         />
+      </div>
 
+      <div className="advanced-filters">
         <div className="filter-group">
           <label className="filter-label">Players</label>
           <NumericInput
@@ -83,7 +85,7 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
             onChange={handleHouseholdChange}
             className="household-select"
           >
-            <option value="">All Households</option>
+            <option value="">All</option>
             {households.map((household) => (
               <option key={household.id} value={household.id}>
                 {household.name}
@@ -95,46 +97,14 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
         {hasActiveFilters && (
           <Button
             minimal
+            small
             icon="cross"
-            text="Clear"
+            text="Clear filters"
             onClick={clearFilters}
             className="clear-filters-btn"
           />
         )}
       </div>
-
-      {hasActiveFilters && (
-        <div className="active-filters">
-          {filters.searchQuery && (
-            <Tag
-              minimal
-              onRemove={() => onFiltersChange({ ...filters, searchQuery: '' })}
-            >
-              Search: {filters.searchQuery}
-            </Tag>
-          )}
-          {filters.playerCount && (
-            <Tag
-              minimal
-              onRemove={() =>
-                onFiltersChange({ ...filters, playerCount: undefined })
-              }
-            >
-              {filters.playerCount} players
-            </Tag>
-          )}
-          {filters.householdId && (
-            <Tag
-              minimal
-              onRemove={() =>
-                onFiltersChange({ ...filters, householdId: undefined })
-              }
-            >
-              {households.find((h) => h.id === filters.householdId)?.name}
-            </Tag>
-          )}
-        </div>
-      )}
     </div>
   );
 };
