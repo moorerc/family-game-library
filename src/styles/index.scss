@@ -199,6 +199,38 @@ a {
   color: $color-wood-light;
 }
 
+.welcome-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+
+  .bp5-non-ideal-state {
+    max-width: 450px;
+
+    .bp5-non-ideal-state-icon .bp5-icon {
+      color: $color-primary;
+    }
+
+    .bp5-non-ideal-state-title {
+      font-family: $font-display;
+      color: $color-cream;
+    }
+
+    .bp5-non-ideal-state-description {
+      color: $color-wood-light;
+      font-size: 1.1rem;
+    }
+  }
+
+  .welcome-actions {
+    display: flex;
+    gap: $spacing-md;
+    justify-content: center;
+    margin-top: $spacing-md;
+  }
+}
+
 // =============================================================================
 // GAME FILTERS
 // =============================================================================

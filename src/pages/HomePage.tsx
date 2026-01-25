@@ -8,11 +8,13 @@ import { useAuth } from '../context/AuthContext';
 import type { Household } from '../types';
 
 export const HomePage: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, loading: authLoading } = useAuth();
   const { filteredGames, loading, error, filters, setFilters } = useGames();
   const [households, setHouseholds] = useState<Household[]>([]);
 
   useEffect(() => {
+    if (!currentUser) return;
+
     const fetchHouseholds = async () => {
       try {
         const data = await householdsService.getAllHouseholds();
@@ -22,7 +24,45 @@ export const HomePage: React.FC = () => {
       }
     };
     fetchHouseholds();
-  }, []);
+  }, [currentUser]);
+
+  // Show loading while checking auth state
+  if (authLoading) {
+    return (
+      <div className="page-loading">
+        <Spinner size={50} />
+      </div>
+    );
+  }
+
+  // Show welcome screen for unauthenticated users
+  if (!currentUser) {
+    return (
+      <div className="home-page">
+        <div className="welcome-screen">
+          <NonIdealState
+            icon="home"
+            title="Welcome to Family Game Library"
+            description="Track and share board games across your family's households. Log in to view your collection and add new games."
+            action={
+              <div className="welcome-actions">
+                <Link to="/login">
+                  <Button intent="primary" large icon="log-in">
+                    Log In
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button large icon="new-person">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
