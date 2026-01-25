@@ -387,7 +387,7 @@ a {
 // GAME DETAIL DIALOG
 // =============================================================================
 
-.game-detail-dialog {
+.game-detail-dialog.bp5-dialog-container {
   .bp5-dialog {
     background: $color-charcoal;
     border: 1px solid rgba($color-wood, 0.3);
@@ -399,15 +399,22 @@ a {
   .bp5-dialog-header {
     background: transparent;
     border-bottom: 1px solid rgba($color-wood, 0.2);
+    box-shadow: none;
 
     .bp5-heading {
       font-family: $font-display;
       color: $color-cream;
     }
+
+    .bp5-dialog-close-button .bp5-icon {
+      color: $color-wood-light;
+    }
   }
 
   .bp5-dialog-body {
     padding: $spacing-lg;
+    background: $color-charcoal;
+    color: $color-cream;
   }
 }
 
@@ -446,7 +453,7 @@ a {
     display: flex;
     align-items: center;
     gap: $spacing-sm;
-    color: $color-wood-light;
+    color: $color-cream;
     font-size: 1rem;
 
     .bp5-icon {

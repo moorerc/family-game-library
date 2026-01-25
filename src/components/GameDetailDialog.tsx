@@ -32,7 +32,7 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={game.name}
-      className="game-detail-dialog"
+      className="game-detail-dialog bp5-dark"
     >
       <DialogBody>
         <div className="game-detail-content">
