@@ -102,7 +102,23 @@ export const gamesService = {
         if (!hasCategory) return false;
       }
 
+      // Play time filter
+      if (filters.maxPlayTime && game.playTimeMinutes) {
+        if (game.playTimeMinutes > filters.maxPlayTime) {
+          return false;
+        }
+      }
+
       return true;
     });
+  },
+
+  // Get all unique categories from games
+  getUniqueCategories(games: Game[]): string[] {
+    const categories = new Set<string>();
+    games.forEach((game) => {
+      game.categories?.forEach((cat) => categories.add(cat));
+    });
+    return Array.from(categories).sort();
   },
 };

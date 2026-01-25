@@ -39,6 +39,7 @@ export interface GameFilters {
   playerCount?: number;
   householdId?: string;
   categories?: string[];
+  maxPlayTime?: number;
 }
 
 export type SortOption = 'name' | 'recentlyAdded' | 'playerCount' | 'household';

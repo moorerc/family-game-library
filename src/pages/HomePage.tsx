@@ -1,17 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { NonIdealState, Spinner, Button } from '@blueprintjs/core';
 import { Link } from 'react-router-dom';
 import { GameCard, GameFilters, GameDetailDialog } from '../components';
 import { useGames } from '../hooks/useGames';
 import { householdsService } from '../services/households';
+import { gamesService } from '../services/games';
 import { useAuth } from '../context/AuthContext';
 import type { Game, Household } from '../types';
 
 export const HomePage: React.FC = () => {
   const { currentUser, loading: authLoading } = useAuth();
-  const { filteredGames, loading, error, filters, setFilters } = useGames();
+  const { games, filteredGames, loading, error, filters, setFilters } = useGames();
   const [households, setHouseholds] = useState<Household[]>([]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+
+  const availableCategories = useMemo(
+    () => gamesService.getUniqueCategories(games),
+    [games]
+  );
 
   useEffect(() => {
     if (!currentUser) return;
@@ -97,6 +103,7 @@ export const HomePage: React.FC = () => {
         filters={filters}
         onFiltersChange={setFilters}
         households={households}
+        availableCategories={availableCategories}
       />
 
       {filteredGames.length === 0 ? (
@@ -104,7 +111,7 @@ export const HomePage: React.FC = () => {
           icon="search"
           title="No games found"
           description={
-            filters.searchQuery || filters.playerCount || filters.householdId
+            filters.searchQuery || filters.playerCount || filters.householdId || filters.categories || filters.maxPlayTime
               ? "Try adjusting your filters"
               : "Be the first to add a game to the library!"
           }

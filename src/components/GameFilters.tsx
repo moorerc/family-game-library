@@ -4,7 +4,6 @@ import {
   Button,
   HTMLSelect,
   NumericInput,
-  Tag,
 } from '@blueprintjs/core';
 import type { GameFilters as GameFiltersType, Household } from '../types';
 
@@ -12,12 +11,23 @@ interface GameFiltersProps {
   filters: GameFiltersType;
   onFiltersChange: (filters: GameFiltersType) => void;
   households: Household[];
+  availableCategories: string[];
 }
+
+const PLAY_TIME_OPTIONS = [
+  { value: '', label: 'Any' },
+  { value: '30', label: '30 min or less' },
+  { value: '60', label: '1 hour or less' },
+  { value: '90', label: '1.5 hours or less' },
+  { value: '120', label: '2 hours or less' },
+  { value: '180', label: '3 hours or less' },
+];
 
 export const GameFilters: React.FC<GameFiltersProps> = ({
   filters,
   onFiltersChange,
   households,
+  availableCategories,
 }) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onFiltersChange({ ...filters, searchQuery: e.target.value });
@@ -37,20 +47,37 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
     });
   };
 
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    onFiltersChange({
+      ...filters,
+      categories: value ? [value] : undefined,
+    });
+  };
+
+  const handlePlayTimeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    onFiltersChange({
+      ...filters,
+      maxPlayTime: value ? parseInt(value, 10) : undefined,
+    });
+  };
+
   const clearFilters = () => {
     onFiltersChange({
       searchQuery: '',
       playerCount: undefined,
       householdId: undefined,
       categories: undefined,
+      maxPlayTime: undefined,
     });
   };
 
   const hasActiveFilters =
-    filters.searchQuery ||
     filters.playerCount ||
     filters.householdId ||
-    (filters.categories && filters.categories.length > 0);
+    (filters.categories && filters.categories.length > 0) ||
+    filters.maxPlayTime;
 
   return (
     <div className="game-filters">
@@ -79,6 +106,37 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
         </div>
 
         <div className="filter-group">
+          <label className="filter-label">Play Time</label>
+          <HTMLSelect
+            value={filters.maxPlayTime?.toString() || ''}
+            onChange={handlePlayTimeChange}
+            className="playtime-select"
+          >
+            {PLAY_TIME_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </HTMLSelect>
+        </div>
+
+        <div className="filter-group">
+          <label className="filter-label">Category</label>
+          <HTMLSelect
+            value={filters.categories?.[0] || ''}
+            onChange={handleCategoryChange}
+            className="category-select"
+          >
+            <option value="">All</option>
+            {availableCategories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </HTMLSelect>
+        </div>
+
+        <div className="filter-group">
           <label className="filter-label">Household</label>
           <HTMLSelect
             value={filters.householdId || ''}
@@ -99,7 +157,7 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
             minimal
             small
             icon="cross"
-            text="Clear filters"
+            text="Clear"
             onClick={clearFilters}
             className="clear-filters-btn"
           />
