@@ -43,3 +43,23 @@ export interface GameFilters {
 }
 
 export type SortOption = 'name' | 'recentlyAdded' | 'playerCount' | 'household';
+
+// BoardGameGeek API types
+export interface BGGSearchResult {
+  bggId: string;
+  name: string;
+  yearPublished?: number;
+  thumbnail?: string;
+}
+
+export interface BGGGameDetails {
+  bggId: string;
+  name: string;
+  description: string;
+  minPlayers?: number;
+  maxPlayers?: number;
+  playTimeMinutes?: number;
+  yearPublished?: number;
+  imageUrl?: string;
+  categories: string[];
+}

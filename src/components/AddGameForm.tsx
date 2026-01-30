@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   FormGroup,
   InputGroup,
@@ -10,7 +11,23 @@ import {
   TagInput,
 } from '@blueprintjs/core';
 import { useAuth } from '../context/AuthContext';
-import type { Game } from '../types';
+import { useBGGSearch } from '../hooks/useBGGSearch';
+import { BGGSearchPanel } from './BGGSearchPanel';
+import type { Game, BGGGameDetails } from '../types';
+
+// Strip HTML tags from BGG descriptions
+function stripHtml(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#10;/g, '\n')
+    .replace(/&nbsp;/g, ' ')
+    .trim();
+}
 
 interface AddGameFormProps {
   onSubmit: (game: Omit<Game, 'id'>) => Promise<void>;
@@ -23,10 +40,11 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({
   householdId,
   householdName,
 }) => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [populatedFromBGG, setPopulatedFromBGG] = useState(false);
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -39,6 +57,35 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({
   const [categories, setCategories] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
 
+  const bggSearch = useBGGSearch();
+
+  // Populate form when a game is selected from BGG search
+  const populateFromBGG = (game: BGGGameDetails) => {
+    setName(game.name);
+    setDescription(stripHtml(game.description));
+    if (game.minPlayers) setMinPlayers(game.minPlayers);
+    if (game.maxPlayers) setMaxPlayers(game.maxPlayers);
+    setPlayTimeMinutes(game.playTimeMinutes);
+    setYearPublished(game.yearPublished);
+    setImageUrl(game.imageUrl || '');
+    setBggId(game.bggId);
+    setCategories(game.categories);
+    setPopulatedFromBGG(true);
+    bggSearch.clearSelection();
+  };
+
+  // Handle BGG game selection
+  useEffect(() => {
+    if (bggSearch.selectedGame) {
+      populateFromBGG(bggSearch.selectedGame);
+    }
+  }, [bggSearch.selectedGame]);
+
+  const clearBGGData = () => {
+    setPopulatedFromBGG(false);
+    resetForm();
+  };
+
   const resetForm = () => {
     setName('');
     setDescription('');
@@ -50,6 +97,7 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({
     setBggId('');
     setCategories([]);
     setNotes('');
+    setPopulatedFromBGG(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,175 +115,200 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({
 
     setLoading(true);
     setError(null);
-    setSuccess(false);
 
     try {
-      await onSubmit({
+      // Build game object, omitting undefined fields (Firestore doesn't accept undefined)
+      const gameData: Omit<Game, 'id'> = {
         name: name.trim(),
-        description: description.trim() || undefined,
         minPlayers,
         maxPlayers,
-        playTimeMinutes,
-        yearPublished,
-        imageUrl: imageUrl.trim() || undefined,
-        bggId: bggId.trim() || undefined,
         householdId,
         householdName,
         addedBy: currentUser.uid,
         addedAt: new Date(),
-        categories: categories.length > 0 ? categories : undefined,
-        notes: notes.trim() || undefined,
-      });
+      };
 
-      setSuccess(true);
-      resetForm();
+      // Only add optional fields if they have values
+      if (description.trim()) gameData.description = description.trim();
+      if (playTimeMinutes) gameData.playTimeMinutes = playTimeMinutes;
+      if (yearPublished) gameData.yearPublished = yearPublished;
+      if (imageUrl.trim()) gameData.imageUrl = imageUrl.trim();
+      if (bggId.trim()) gameData.bggId = bggId.trim();
+      if (categories.length > 0) gameData.categories = categories;
+      if (notes.trim()) gameData.notes = notes.trim();
+
+      await onSubmit(gameData);
+
+      // Navigate back to library on success
+      navigate('/');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add game');
-    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="add-game-form">
-      {error && (
-        <Callout intent={Intent.DANGER} className="form-callout">
-          {error}
-        </Callout>
-      )}
+    <div className="add-game-container">
+      <BGGSearchPanel
+        onGameSelect={populateFromBGG}
+        searchResults={bggSearch.searchResults}
+        searching={bggSearch.searching}
+        loadingDetails={bggSearch.loadingDetails}
+        error={bggSearch.error}
+        onSearch={bggSearch.search}
+        onSelectResult={bggSearch.selectGame}
+        onClearResults={bggSearch.clearResults}
+      />
 
-      {success && (
-        <Callout intent={Intent.SUCCESS} className="form-callout">
-          Game added successfully! Add another or return to the library.
-        </Callout>
-      )}
+      <form onSubmit={handleSubmit} className="add-game-form">
+        {error && (
+          <Callout intent={Intent.DANGER} className="form-callout">
+            {error}
+          </Callout>
+        )}
 
-      <FormGroup label="Game Name" labelInfo="(required)" labelFor="game-name">
-        <InputGroup
-          id="game-name"
-          large
-          placeholder="e.g., Settlers of Catan"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </FormGroup>
+        {populatedFromBGG && (
+          <Callout intent={Intent.PRIMARY} className="form-callout bgg-populated-callout">
+            <div className="bgg-populated-content">
+              <span>Form populated from BoardGameGeek. You can edit any field before submitting.</span>
+              <Button
+                minimal
+                small
+                icon="cross"
+                onClick={clearBGGData}
+                aria-label="Clear BGG data"
+              />
+            </div>
+          </Callout>
+        )}
 
-      <FormGroup label="Description" labelFor="game-description">
-        <TextArea
-          id="game-description"
-          fill
-          placeholder="Brief description of the game..."
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-        />
-      </FormGroup>
-
-      <div className="form-row">
-        <FormGroup label="Min Players" labelFor="min-players">
-          <NumericInput
-            id="min-players"
-            min={1}
-            max={99}
-            value={minPlayers}
-            onValueChange={(val) => setMinPlayers(val)}
+        <FormGroup label="Game Name" labelInfo="(required)" labelFor="game-name">
+          <InputGroup
+            id="game-name"
+            large
+            placeholder="e.g., Settlers of Catan"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
         </FormGroup>
 
-        <FormGroup label="Max Players" labelFor="max-players">
-          <NumericInput
-            id="max-players"
-            min={1}
-            max={99}
-            value={maxPlayers}
-            onValueChange={(val) => setMaxPlayers(val)}
+        <FormGroup label="Description" labelFor="game-description">
+          <TextArea
+            id="game-description"
+            fill
+            placeholder="Brief description of the game..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
           />
         </FormGroup>
 
-        <FormGroup label="Play Time (min)" labelFor="play-time">
-          <NumericInput
-            id="play-time"
-            min={1}
-            placeholder="Optional"
-            value={playTimeMinutes ?? ''}
-            onValueChange={(val) =>
-              setPlayTimeMinutes(val > 0 ? val : undefined)
-            }
+        <div className="form-row">
+          <FormGroup label="Min Players" labelFor="min-players">
+            <NumericInput
+              id="min-players"
+              min={1}
+              max={99}
+              value={minPlayers}
+              onValueChange={(val) => setMinPlayers(val)}
+            />
+          </FormGroup>
+
+          <FormGroup label="Max Players" labelFor="max-players">
+            <NumericInput
+              id="max-players"
+              min={1}
+              max={99}
+              value={maxPlayers}
+              onValueChange={(val) => setMaxPlayers(val)}
+            />
+          </FormGroup>
+
+          <FormGroup label="Play Time (min)" labelFor="play-time">
+            <NumericInput
+              id="play-time"
+              min={1}
+              placeholder="Optional"
+              value={playTimeMinutes ?? ''}
+              onValueChange={(val) =>
+                setPlayTimeMinutes(val > 0 ? val : undefined)
+              }
+            />
+          </FormGroup>
+
+          <FormGroup label="Year Published" labelFor="year-published">
+            <NumericInput
+              id="year-published"
+              min={1900}
+              max={new Date().getFullYear()}
+              placeholder="Optional"
+              value={yearPublished ?? ''}
+              onValueChange={(val) =>
+                setYearPublished(val > 0 ? val : undefined)
+              }
+            />
+          </FormGroup>
+        </div>
+
+        <FormGroup label="Categories">
+          <TagInput
+            values={categories}
+            onChange={(values) => setCategories(values as string[])}
+            placeholder="Add categories (press Enter)"
+            addOnBlur
+            addOnPaste
           />
         </FormGroup>
 
-        <FormGroup label="Year Published" labelFor="year-published">
-          <NumericInput
-            id="year-published"
-            min={1900}
-            max={new Date().getFullYear()}
-            placeholder="Optional"
-            value={yearPublished ?? ''}
-            onValueChange={(val) =>
-              setYearPublished(val > 0 ? val : undefined)
-            }
+        <FormGroup
+          label="Image URL"
+          labelFor="image-url"
+          helperText="Link to a game box image"
+        >
+          <InputGroup
+            id="image-url"
+            placeholder="https://..."
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
           />
         </FormGroup>
-      </div>
 
-      <FormGroup label="Categories">
-        <TagInput
-          values={categories}
-          onChange={(values) => setCategories(values as string[])}
-          placeholder="Add categories (press Enter)"
-          addOnBlur
-          addOnPaste
-        />
-      </FormGroup>
+        <FormGroup
+          label="BoardGameGeek ID"
+          labelFor="bgg-id"
+          helperText="Optional - link to the game on BoardGameGeek"
+        >
+          <InputGroup
+            id="bgg-id"
+            placeholder="e.g., 13"
+            value={bggId}
+            onChange={(e) => setBggId(e.target.value)}
+          />
+        </FormGroup>
 
-      <FormGroup
-        label="Image URL"
-        labelFor="image-url"
-        helperText="Link to a game box image"
-      >
-        <InputGroup
-          id="image-url"
-          placeholder="https://..."
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-        />
-      </FormGroup>
-
-      <FormGroup
-        label="BoardGameGeek ID"
-        labelFor="bgg-id"
-        helperText="Optional - link to the game on BoardGameGeek"
-      >
-        <InputGroup
-          id="bgg-id"
-          placeholder="e.g., 13"
-          value={bggId}
-          onChange={(e) => setBggId(e.target.value)}
-        />
-      </FormGroup>
-
-      <FormGroup label="Notes" labelFor="notes">
-        <TextArea
-          id="notes"
-          fill
-          placeholder="Any notes about your copy (condition, expansions included, etc.)"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={2}
-        />
-      </FormGroup>
+        <FormGroup label="Notes" labelFor="notes">
+          <TextArea
+            id="notes"
+            fill
+            placeholder="Any notes about your copy (condition, expansions included, etc.)"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={2}
+          />
+        </FormGroup>
 
       <div className="form-actions">
-        <Button
-          type="submit"
-          intent={Intent.PRIMARY}
-          large
-          loading={loading}
-          icon="add"
-        >
-          Add to Library
-        </Button>
-      </div>
-    </form>
+          <Button
+            type="submit"
+            intent={Intent.PRIMARY}
+            large
+            loading={loading}
+            icon="add"
+          >
+            Add to Library
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
