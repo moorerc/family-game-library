@@ -12,7 +12,7 @@ const bggApiToken = defineSecret('BGG_API_TOKEN');
 
 // Helper to get BGG fetch headers
 function getBggHeaders() {
-  const token = process.env.BGG_API_TOKEN;
+  const token = process.env.BGG_API_TOKEN?.trim();
   const headers = {
     'User-Agent': 'FamilyGameLibrary/1.0',
   };
