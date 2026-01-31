@@ -158,10 +158,32 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
     resetForm();
   };
 
+  const getStepNumber = (stepId: StepId): number => {
+    const step = STEPS.find(s => s.id === stepId);
+    return step?.number || 0;
+  };
+
   const goToStep = (step: StepId) => {
     setError(null);
+    const targetStepNumber = getStepNumber(step);
+    const currentStepNumber = getStepNumber(currentStep);
+
+    // If going backwards, clear future steps from visited
+    if (targetStepNumber < currentStepNumber) {
+      setVisitedSteps(prev => {
+        const newSet = new Set<StepId>();
+        prev.forEach(visitedStep => {
+          if (getStepNumber(visitedStep) <= targetStepNumber) {
+            newSet.add(visitedStep);
+          }
+        });
+        return newSet;
+      });
+    } else {
+      setVisitedSteps(prev => new Set([...prev, step]));
+    }
+
     setCurrentStep(step);
-    setVisitedSteps(prev => new Set([...prev, step]));
   };
 
   const handleSelectResult = async (result: BGGSearchResult) => {
