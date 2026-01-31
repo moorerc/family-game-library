@@ -435,7 +435,7 @@ a {
 
   input {
     width: 100%;
-    padding: 14px 20px 14px 48px;
+    padding: 14px 48px 14px 48px;
     border: 2px solid $color-border;
     border-radius: 12px;
     font-family: $font-body;
@@ -450,7 +450,6 @@ a {
     &:focus {
       outline: none;
       border-color: $color-blue;
-      box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
     }
   }
 
@@ -464,6 +463,39 @@ a {
     stroke: #a0aec0;
     stroke-width: 2;
     fill: none;
+  }
+
+  .search-clear-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: $color-light-gray;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      stroke: $color-gray;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    &:hover {
+      background: $color-border;
+
+      svg {
+        stroke: $color-navy;
+      }
+    }
   }
 }
 
@@ -518,9 +550,14 @@ a {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  outline: none;
 
   &:hover {
     border-color: $color-blue;
+  }
+
+  &:focus {
+    outline: none;
   }
 
   &.active,
@@ -554,15 +591,13 @@ a {
 
 // Filter Dropdown
 .filter-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
+  position: fixed;
   width: 380px;
   background: $color-white;
   border: 1px solid $color-border;
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(10, 22, 40, 0.18);
-  z-index: 100;
+  z-index: 1000;
   display: none;
 
   &.show {

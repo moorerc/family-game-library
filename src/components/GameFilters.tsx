@@ -32,11 +32,13 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
   const [isHouseholdOpen, setIsHouseholdOpen] = useState(false);
   const [categorySearch, setCategorySearch] = useState('');
   const [householdSearch, setHouseholdSearch] = useState('');
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
   // Pending filter state (not applied until "Apply" is clicked)
   const [pendingFilters, setPendingFilters] = useState<GameFiltersType>(filters);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const filterBtnRef = useRef<HTMLButtonElement>(null);
   const categorySearchRef = useRef<HTMLInputElement>(null);
   const householdSearchRef = useRef<HTMLInputElement>(null);
 
@@ -223,13 +225,33 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
             value={filters.searchQuery}
             onChange={handleSearchChange}
           />
+          {filters.searchQuery && (
+            <button
+              className="search-clear-btn"
+              onClick={() => onFiltersChange({ ...filters, searchQuery: '' })}
+              type="button"
+            >
+              <svg viewBox="0 0 24 24">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          )}
         </div>
 
         <div className="filter-btn-wrapper" ref={dropdownRef}>
           <button
+            ref={filterBtnRef}
             className={`filter-btn ${isDropdownOpen ? 'active' : ''} ${hasActiveFilters ? 'has-filters' : ''}`}
             onClick={(e) => {
               e.stopPropagation();
+              if (!isDropdownOpen && filterBtnRef.current) {
+                const rect = filterBtnRef.current.getBoundingClientRect();
+                setDropdownPosition({
+                  top: rect.bottom + 8,
+                  left: rect.left,
+                });
+              }
               setIsDropdownOpen(!isDropdownOpen);
               setIsCategoryOpen(false);
               setIsHouseholdOpen(false);
@@ -245,7 +267,10 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
           </button>
 
           {/* Filter Dropdown */}
-          <div className={`filter-dropdown ${isDropdownOpen ? 'show' : ''}`}>
+          <div
+            className={`filter-dropdown ${isDropdownOpen ? 'show' : ''}`}
+            style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+          >
             <div className="filter-dropdown-header">
               <span className="filter-dropdown-title">Filters</span>
               <button className="clear-filters-btn" onClick={handleClearAll}>
