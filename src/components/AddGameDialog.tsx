@@ -1,25 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
-  Button,
-  InputGroup,
   Spinner,
   Callout,
   Intent,
-  FormGroup,
-  TextArea,
-  NumericInput,
-  TagInput,
-  HTMLSelect,
-  Icon,
-  Tag,
-  Classes,
 } from '@blueprintjs/core';
 import { useBGGSearch } from '../hooks/useBGGSearch';
 import { useAuth } from '../context/AuthContext';
 import { gamesService } from '../services/games';
 import { ownershipService } from '../services/ownership';
 import type { BGGSearchResult, BGGGameDetails, Game, Household, Ownership } from '../types';
+import { stripHtml } from '../utils/text';
 
 type StepId = 'search' | 'details' | 'household';
 
@@ -41,20 +32,6 @@ interface AddGameDialogProps {
   onGameAdded: () => void;
   households: Household[];
   userHouseholdId?: string;
-}
-
-// Strip HTML tags from BGG descriptions
-function stripHtml(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]*>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#10;/g, '\n')
-    .replace(/&nbsp;/g, ' ')
-    .trim();
 }
 
 const DEBOUNCE_MS = 300;
@@ -305,268 +282,322 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
 
   // Render step navigation
   const renderStepNav = () => (
-    <div className="dialog-left-panel">
-      {STEPS.map((step) => {
-        const status = getStepStatus(step);
-        const canNavigate = canNavigateToStep(step);
+    <div className="wizard-sidebar">
+      <div className="step-list">
+        {STEPS.map((step) => {
+          const status = getStepStatus(step);
+          const canNavigate = canNavigateToStep(step);
 
-        return (
-          <div
-            key={step.id}
-            className={`dialog-step ${status} ${canNavigate ? 'clickable' : ''}`}
-            onClick={() => canNavigate && goToStep(step.id)}
-            role={canNavigate ? 'button' : undefined}
-            tabIndex={canNavigate ? 0 : undefined}
-            onKeyDown={(e) => canNavigate && e.key === 'Enter' && goToStep(step.id)}
-          >
-            <div className="dialog-step-icon">
-              {status === 'complete' && step.id !== currentStep ? (
-                <Icon icon="tick" />
-              ) : (
-                step.number
-              )}
+          return (
+            <div
+              key={step.id}
+              className={`step-item ${status === 'current' ? 'active' : ''} ${status === 'complete' && step.id !== currentStep ? 'completed' : ''} ${status === 'incomplete' ? 'pending' : ''}`}
+              onClick={() => canNavigate && goToStep(step.id)}
+              role={canNavigate ? 'button' : undefined}
+              tabIndex={canNavigate ? 0 : undefined}
+              onKeyDown={(e) => canNavigate && e.key === 'Enter' && goToStep(step.id)}
+            >
+              <div className="step-number">
+                {status === 'complete' && step.id !== currentStep ? (
+                  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                ) : (
+                  step.number
+                )}
+              </div>
+              <span className="step-label">{step.title}</span>
             </div>
-            <div className="dialog-step-title">{step.title}</div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 
   // Search step
   const renderSearchStep = () => {
-    // Show selected game state
-    if (selectedResult && !checkingExisting) {
-      return (
-        <div className="step-panel search-step">
-          <div className="selected-game-card">
-            <div className="selected-game-image">
-              {selectedResult.thumbnail ? (
-                <img src={selectedResult.thumbnail} alt={selectedResult.name} />
-              ) : (
-                <div className="image-placeholder">
-                  <Icon icon="cube" size={40} />
-                </div>
-              )}
+    return (
+      <div className="wizard-step-content">
+        <div className="wizard-search-input-wrapper">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input
+            type="text"
+            className="wizard-search-input"
+            placeholder="Type a game name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            autoFocus
+          />
+          {bggSearch.searching && (
+            <div className="wizard-search-spinner">
+              <Spinner size={18} />
             </div>
-            <div className="selected-game-info">
-              <h3>{selectedResult.name}</h3>
-              {selectedResult.yearPublished && (
-                <span className="year">({selectedResult.yearPublished})</span>
-              )}
-              <div className="selected-badge">
-                <Icon icon="tick-circle" intent={Intent.SUCCESS} />
-                <span>Selected</span>
-              </div>
-            </div>
-            <Button
-              minimal
-              icon="cross"
-              className="clear-selection-btn"
-              onClick={handleClearSearch}
-              title="Search for a different game"
-            />
-          </div>
-
-          {error && (
-            <Callout intent={Intent.DANGER} className="step-callout">
-              {error}
-            </Callout>
+          )}
+          {searchQuery && !bggSearch.searching && (
+            <button className="wizard-search-clear-btn" onClick={handleClearSearch}>
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           )}
         </div>
-      );
-    }
 
-    // Show search state
-    return (
-      <div className="step-panel search-step">
-        <InputGroup
-          large
-          leftIcon="search"
-          placeholder="Type a game name..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          autoFocus
-          rightElement={
-            bggSearch.searching ? (
-              <Spinner size={16} className="search-spinner" />
-            ) : searchQuery ? (
-              <Button minimal icon="cross" onClick={handleClearSearch} />
-            ) : undefined
-          }
-        />
-
-        {bggSearch.error && (
-          <Callout intent={Intent.WARNING} className="step-callout">
-            {bggSearch.error}
-          </Callout>
-        )}
-
-        {checkingExisting && (
-          <div className="loading-state">
-            <Spinner size={20} />
-            <span>Loading game details...</span>
+        {(error || bggSearch.error) && (
+          <div className="error-state">
+            <div className="error-state-icon">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <h3 className="error-state-title">Something went wrong</h3>
+            <p className="error-state-description">
+              We couldn't connect to the game database. Please check your connection and try again.
+            </p>
+            <button className="retry-btn" onClick={() => searchQuery && bggSearch.search(searchQuery)}>
+              <svg viewBox="0 0 24 24">
+                <polyline points="23 4 23 10 17 10"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+              </svg>
+              Try again
+            </button>
           </div>
         )}
 
-        <div className="search-results-container">
-          {bggSearch.searchResults.length > 0 && !checkingExisting && (
-            <div className="search-results-list">
-              {bggSearch.searchResults.map((result) => (
+        {!error && !bggSearch.error && bggSearch.searchResults.length > 0 && (
+          <div className="wizard-search-results">
+            {bggSearch.searchResults.map((result) => {
+              const isSelected = selectedResult?.bggId === result.bggId;
+              const isLoading = isSelected && checkingExisting;
+              return (
                 <div
                   key={result.bggId}
-                  className="search-result-item"
-                  onClick={() => handleSelectResult(result)}
+                  className={`search-result-item ${isSelected ? 'selected' : ''} ${isLoading ? 'loading' : ''}`}
+                  onClick={() => !checkingExisting && handleSelectResult(result)}
                   role="button"
                   tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSelectResult(result)}
+                  onKeyDown={(e) => e.key === 'Enter' && !checkingExisting && handleSelectResult(result)}
                 >
-                  <div className="result-thumbnail">
-                    {result.thumbnail ? (
-                      <img src={result.thumbnail} alt="" />
-                    ) : (
-                      <div className="result-placeholder">
-                        <Icon icon="cube" />
-                      </div>
-                    )}
-                  </div>
+                  <img
+                    src={result.thumbnail || 'https://placehold.co/48x48/e2e6ec/4a5568?text=?'}
+                    className="result-image"
+                    alt=""
+                  />
                   <div className="result-info">
-                    <span className="result-name">{result.name}</span>
+                    <div className="result-name">{result.name}</div>
                     {result.yearPublished && (
-                      <span className="result-year">({result.yearPublished})</span>
+                      <div className="result-year">{result.yearPublished}</div>
                     )}
                   </div>
+                  {isLoading ? (
+                    <div className="result-spinner">
+                      <Spinner size={18} />
+                    </div>
+                  ) : (
+                    <div className="result-check">
+                      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
+        )}
 
-          {searchQuery && !bggSearch.searching && !checkingExisting && bggSearch.searchResults.length === 0 && (
-            <div className="empty-state">
-              <Icon icon="search" size={32} />
-              <p>No games found. Try a different search term.</p>
+        {searchQuery && !bggSearch.searching && !bggSearch.error && bggSearch.searchResults.length === 0 && (
+          <div className="no-results-state">
+            <div className="no-results-icon">
+              <svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <line x1="8" y1="8" x2="14" y2="14"/>
+                <line x1="14" y1="8" x2="8" y2="14"/>
+              </svg>
             </div>
-          )}
+            <h3 className="no-results-title">No games found</h3>
+            <p className="no-results-description">We couldn't find any games matching your search.</p>
+            <div className="no-results-hint">
+              <strong>Tip:</strong> Try a shorter or different spelling
+            </div>
+          </div>
+        )}
 
-          {!searchQuery && !checkingExisting && (
-            <div className="empty-state">
-              <Icon icon="cube" size={32} />
-              <p>Search for a board game to get started</p>
+        {!searchQuery && !bggSearch.error && (
+          <div className="empty-state">
+            <div className="empty-state-icon">
+              <svg viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/>
+                <circle cx="15.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/>
+                <circle cx="8.5" cy="15.5" r="1.5" fill="currentColor" stroke="none"/>
+                <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor" stroke="none"/>
+                <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+              </svg>
             </div>
-          )}
-        </div>
+            <h3 className="empty-state-title">Search for a game</h3>
+            <p className="empty-state-description">Type a game name above to search the BoardGameGeek database</p>
+          </div>
+        )}
       </div>
     );
   };
 
   // Details step
   const renderDetailsStep = () => (
-    <div className="step-panel details-step">
+    <div className="wizard-step-content">
       {bggSearch.loadingDetails ? (
-        <div className="loading-state large">
+        <div className="wizard-loading-state large">
           <Spinner size={40} />
           <span>Loading game details...</span>
         </div>
       ) : (
         <>
           {error && (
-            <Callout intent={Intent.DANGER} className="step-callout">
+            <Callout intent={Intent.DANGER} className="wizard-callout">
               {error}
             </Callout>
           )}
 
           {isExistingGame && (
-            <Callout intent={Intent.PRIMARY} icon="info-sign" className="step-callout">
-              This game is already in your family's library, owned by:{' '}
-              <strong>{existingOwnerships.map(o => o.householdName).join(', ')}</strong>
-            </Callout>
+            <div className="info-banner">
+              <div className="info-banner-icon">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="9 12 11 14 15 10"/>
+                </svg>
+              </div>
+              <div className="info-banner-content">
+                <div className="info-banner-title">Already in your family's library</div>
+                <div className="info-banner-description">
+                  This game is owned by <span className="info-banner-owner">{existingOwnerships.map(o => o.householdName).join(', ')}</span>.
+                  You can still add another copy.
+                </div>
+              </div>
+            </div>
           )}
 
           {!isExistingGame && bggId && (
-            <Callout intent={Intent.SUCCESS} icon="tick-circle" className="step-callout">
-              Pre-filled from BoardGameGeek
-            </Callout>
+            <div className="wizard-prefill-banner">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Pre-filled from BoardGameGeek</span>
+            </div>
           )}
 
-          <div className="game-preview-header">
-            <div className="game-image">
-              {imageUrl ? (
-                <img src={imageUrl} alt={name} />
-              ) : (
-                <div className="image-placeholder">
-                  <Icon icon="cube" size={40} />
-                </div>
-              )}
-            </div>
-            <div className="game-title-info">
-              <h3>{name}</h3>
-              {yearPublished && <span className="year">({yearPublished})</span>}
-              <div className="game-tags">
-                <Tag minimal icon="people">
+          <div className="wizard-game-preview">
+            <img
+              src={imageUrl || 'https://placehold.co/80x80/e2e6ec/4a5568?text=?'}
+              className="game-preview-image"
+              alt=""
+            />
+            <div className="game-preview-info">
+              <div className="game-preview-name">{name}</div>
+              {yearPublished && <div className="game-preview-year">{yearPublished}</div>}
+              <div className="game-preview-meta">
+                <span className="meta-chip">
+                  <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                   {minPlayers}-{maxPlayers} players
-                </Tag>
+                </span>
                 {playTimeMinutes && (
-                  <Tag minimal icon="time">
+                  <span className="meta-chip">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     {playTimeMinutes} min
-                  </Tag>
+                  </span>
                 )}
               </div>
             </div>
           </div>
 
           {!isExistingGame && (
-            <div className="editable-fields">
-              <FormGroup label="Game Name" labelInfo="(required)">
-                <InputGroup
+            <div className="wizard-form-fields">
+              <div className="wizard-form-group">
+                <label className="wizard-form-label">Game Name</label>
+                <input
+                  type="text"
+                  className="wizard-form-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g., Settlers of Catan"
                 />
-              </FormGroup>
+              </div>
 
-              <FormGroup label="Description">
-                <TextArea
-                  fill
+              <div className="wizard-form-group">
+                <label className="wizard-form-label">Description <span className="optional">(optional)</span></label>
+                <textarea
+                  className="wizard-form-input wizard-form-textarea"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Brief description..."
                   rows={3}
                 />
-              </FormGroup>
-
-              <div className="form-row">
-                <FormGroup label="Min Players">
-                  <NumericInput min={1} max={99} value={minPlayers} onValueChange={setMinPlayers} fill />
-                </FormGroup>
-                <FormGroup label="Max Players">
-                  <NumericInput min={1} max={99} value={maxPlayers} onValueChange={setMaxPlayers} fill />
-                </FormGroup>
-                <FormGroup label="Play Time (min)">
-                  <NumericInput
-                    min={1}
-                    value={playTimeMinutes ?? ''}
-                    onValueChange={(val) => setPlayTimeMinutes(val > 0 ? val : undefined)}
-                    fill
-                  />
-                </FormGroup>
               </div>
 
-              <FormGroup label="Categories">
-                <TagInput
-                  values={categories}
-                  onChange={(values) => setCategories(values as string[])}
-                  placeholder="Add categories..."
-                  addOnBlur
-                  addOnPaste
-                />
-              </FormGroup>
+              <div className="wizard-form-row">
+                <div className="wizard-form-group">
+                  <label className="wizard-form-label">Min Players</label>
+                  <input
+                    type="number"
+                    className="wizard-form-input"
+                    value={minPlayers}
+                    onChange={(e) => setMinPlayers(parseInt(e.target.value) || 1)}
+                    min={1}
+                    max={99}
+                  />
+                </div>
+                <div className="wizard-form-group">
+                  <label className="wizard-form-label">Max Players</label>
+                  <input
+                    type="number"
+                    className="wizard-form-input"
+                    value={maxPlayers}
+                    onChange={(e) => setMaxPlayers(parseInt(e.target.value) || 1)}
+                    min={1}
+                    max={99}
+                  />
+                </div>
+                <div className="wizard-form-group">
+                  <label className="wizard-form-label">Play Time (min)</label>
+                  <input
+                    type="number"
+                    className="wizard-form-input"
+                    value={playTimeMinutes ?? ''}
+                    onChange={(e) => setPlayTimeMinutes(e.target.value ? parseInt(e.target.value) : undefined)}
+                    min={1}
+                  />
+                </div>
+              </div>
+
+              <div className="wizard-form-group">
+                <label className="wizard-form-label">Categories</label>
+                <div className="wizard-category-tags">
+                  {categories.map((category, index) => (
+                    <span key={index} className="category-tag">
+                      {category}
+                      <button onClick={() => setCategories(categories.filter((_, i) => i !== index))}>
+                        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </span>
+                  ))}
+                  {categories.length === 0 && (
+                    <span className="category-placeholder">No categories</span>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
           {isExistingGame && availableHouseholds.length === 0 && (
-            <Callout intent={Intent.WARNING} className="step-callout">
-              All households already own this game.
-            </Callout>
+            <div className="warning-banner">
+              <div className="warning-banner-icon">
+                <svg viewBox="0 0 24 24">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <div className="warning-banner-content">
+                <div className="warning-banner-title">All households already own this game</div>
+                <div className="warning-banner-description">
+                  Every household in your family has a copy. You can still add another if someone has a second copy.
+                </div>
+              </div>
+            </div>
           )}
         </>
       )}
@@ -575,32 +606,28 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
 
   // Household step
   const renderHouseholdStep = () => (
-    <div className="step-panel household-step">
+    <div className="wizard-step-content">
       {error && (
-        <Callout intent={Intent.DANGER} className="step-callout">
+        <Callout intent={Intent.DANGER} className="wizard-callout">
           {error}
         </Callout>
       )}
 
-      <div className="game-summary">
-        <div className="game-image small">
-          {imageUrl ? (
-            <img src={imageUrl} alt={name} />
-          ) : (
-            <div className="image-placeholder">
-              <Icon icon="cube" size={24} />
-            </div>
-          )}
-        </div>
-        <div className="game-name">{name}</div>
+      <div className="wizard-collection-game-summary">
+        <img
+          src={imageUrl || 'https://placehold.co/56x56/e2e6ec/4a5568?text=?'}
+          className="collection-game-image"
+          alt=""
+        />
+        <div className="collection-game-name">{name}</div>
       </div>
 
-      <FormGroup label="Which household owns this game?" labelInfo="(required)">
-        <HTMLSelect
+      <div className="wizard-form-group">
+        <label className="wizard-form-label">Which household owns this game?</label>
+        <select
+          className="wizard-form-select"
           value={selectedHouseholdId}
           onChange={(e) => setSelectedHouseholdId(e.target.value)}
-          fill
-          large
         >
           <option value="">Select a household...</option>
           {availableHouseholds.map((h) => (
@@ -608,18 +635,19 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
               {h.name} {h.id === userHouseholdId ? '(yours)' : ''}
             </option>
           ))}
-        </HTMLSelect>
-      </FormGroup>
+        </select>
+      </div>
 
-      <FormGroup label="Notes about your copy (optional)">
-        <TextArea
-          fill
+      <div className="wizard-form-group">
+        <label className="wizard-form-label">Notes about your copy <span className="optional">(optional)</span></label>
+        <textarea
+          className="wizard-form-input wizard-form-textarea"
           placeholder="Condition, expansions included, missing pieces, etc."
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={4}
         />
-      </FormGroup>
+      </div>
     </div>
   );
 
@@ -629,51 +657,54 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
     const isLastStep = currentStep === 'household';
 
     return (
-      <div className="dialog-custom-footer">
-        <div className="footer-left-spacer" />
-        <div className="footer-content">
-          <Button onClick={onClose}>Close</Button>
-          <div className="footer-right">
-            {!isFirstStep && (
-              <Button
-                onClick={() => {
-                  if (currentStep === 'details') goToStep('search');
-                  else if (currentStep === 'household') goToStep('details');
-                }}
-              >
-                Back
-              </Button>
-            )}
-            {currentStep === 'search' && (
-              <Button
-                intent={Intent.PRIMARY}
-                disabled={!canProceedFromSearch}
-                onClick={() => goToStep('details')}
-              >
-                Continue
-              </Button>
-            )}
-            {currentStep === 'details' && (
-              <Button
-                intent={Intent.PRIMARY}
-                disabled={!canProceedFromDetails}
-                onClick={() => goToStep('household')}
-              >
-                Continue
-              </Button>
-            )}
-            {isLastStep && (
-              <Button
-                intent={Intent.PRIMARY}
-                icon="add"
-                loading={submitting}
-                disabled={!canSubmit}
-                onClick={handleSubmit}
-              >
-                Add to Library
-              </Button>
-            )}
-          </div>
+      <div className="wizard-footer">
+        <button className="wizard-footer-btn btn-secondary" onClick={onClose}>Close</button>
+        <div className="wizard-footer-actions">
+          {!isFirstStep && (
+            <button
+              className="wizard-footer-btn btn-secondary"
+              onClick={() => {
+                if (currentStep === 'details') goToStep('search');
+                else if (currentStep === 'household') goToStep('details');
+              }}
+            >
+              Back
+            </button>
+          )}
+          {currentStep === 'search' && (
+            <button
+              className="wizard-footer-btn btn-primary"
+              disabled={!canProceedFromSearch}
+              onClick={() => goToStep('details')}
+            >
+              Continue
+            </button>
+          )}
+          {currentStep === 'details' && (
+            <button
+              className="wizard-footer-btn btn-primary"
+              disabled={!canProceedFromDetails}
+              onClick={() => goToStep('household')}
+            >
+              Continue
+            </button>
+          )}
+          {isLastStep && (
+            <button
+              className={`wizard-footer-btn btn-success ${submitting ? 'loading' : ''}`}
+              disabled={!canSubmit || submitting}
+              onClick={handleSubmit}
+            >
+              {submitting ? (
+                <Spinner size={16} />
+              ) : (
+                <>
+                  <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add to Library
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     );
@@ -683,20 +714,27 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title="Add Game"
-      className="add-game-dialog"
+      className="add-game-wizard-dialog"
     >
-      <div className={Classes.DIALOG_BODY}>
-        <div className="dialog-panels">
+      <div className="wizard-modal">
+        <div className="wizard-header">
+          <h2 className="wizard-title">Add Game</h2>
+          <button className="wizard-close-btn" onClick={onClose}>
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div className="wizard-body">
           {renderStepNav()}
-          <div className="dialog-right-panel">
+          <div className="wizard-content">
             {currentStep === 'search' && renderSearchStep()}
             {currentStep === 'details' && renderDetailsStep()}
             {currentStep === 'household' && renderHouseholdStep()}
           </div>
         </div>
+
+        {renderFooter()}
       </div>
-      {renderFooter()}
     </Dialog>
   );
 };

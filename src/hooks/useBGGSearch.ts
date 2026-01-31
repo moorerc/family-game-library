@@ -65,7 +65,6 @@ export const useBGGSearch = (): UseBGGSearchReturn => {
     try {
       const details = await bggService.getGameDetails(bggId);
       setSelectedGame(details);
-      setSearchResults([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load game details');
     } finally {

@@ -666,11 +666,46 @@ a {
   letter-spacing: 0.08em;
 }
 
-// Player Count Input
-.player-count-row {
+// Player Count Filter Toggle
+.player-filter-toggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.toggle-btn {
+  padding: 10px 16px;
+  background: $color-light-gray;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: $font-body;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: $color-navy;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: $color-border;
+  }
+
+  &.active {
+    background: $color-blue;
+    color: $color-white;
+  }
+}
+
+.stepper-group {
   display: flex;
   align-items: center;
   gap: 4px;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+
+  &.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
 }
 
 .player-stepper {
@@ -690,21 +725,15 @@ a {
     align-items: center;
     justify-content: center;
     transition: all 0.1s ease;
+    font-size: 1.1rem;
+    color: $color-navy;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: $color-border;
     }
 
-    &:active {
-      background: #d1d5db;
-    }
-
-    svg {
-      width: 14px;
-      height: 14px;
-      stroke: $color-navy;
-      stroke-width: 2.5;
-      fill: none;
+    &:disabled {
+      cursor: default;
     }
   }
 
@@ -731,10 +760,6 @@ a {
     &:focus {
       outline: none;
     }
-
-    &::placeholder {
-      color: $color-gray;
-    }
   }
 }
 
@@ -742,31 +767,6 @@ a {
   font-size: 0.85rem;
   color: $color-gray;
   margin-left: 8px;
-}
-
-.player-any-btn {
-  margin-left: auto;
-  padding: 6px 10px;
-  background: transparent;
-  border: 1px solid $color-border;
-  border-radius: 6px;
-  font-family: $font-body;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: $color-gray;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    border-color: $color-blue;
-    color: $color-blue;
-  }
-
-  &.active {
-    background: $color-blue;
-    border-color: $color-blue;
-    color: $color-white;
-  }
 }
 
 // Play Time Options
@@ -1326,16 +1326,20 @@ a {
     cursor: pointer;
     transition: all 0.15s ease;
 
-    .bp5-icon {
-      color: #a0aec0;
+    svg {
+      width: 18px;
+      height: 18px;
+      stroke: #a0aec0;
+      stroke-width: 2;
+      fill: none;
       transition: all 0.15s ease;
     }
 
     &:hover {
       background: $color-light-gray;
 
-      .bp5-icon {
-        color: $color-navy;
+      svg {
+        stroke: $color-navy;
       }
     }
 
@@ -1343,8 +1347,9 @@ a {
     &.like.active {
       background: rgba(30, 58, 95, 0.1);
 
-      .bp5-icon {
-        color: $color-blue;
+      svg {
+        stroke: $color-blue;
+        fill: $color-blue;
       }
     }
 
@@ -1352,8 +1357,9 @@ a {
     &.dislike.active {
       background: rgba(10, 22, 40, 0.08);
 
-      .bp5-icon {
-        color: $color-navy;
+      svg {
+        stroke: $color-navy;
+        fill: $color-navy;
         opacity: 0.5;
       }
     }
@@ -1366,8 +1372,9 @@ a {
     &.favorite.active {
       background: rgba(255, 204, 0, 0.15);
 
-      .bp5-icon {
-        color: $color-yellow;
+      svg {
+        stroke: $color-yellow-hover;
+        fill: $color-yellow;
       }
     }
   }
@@ -1406,9 +1413,9 @@ a {
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: none;
   background: $color-light-gray;
   cursor: pointer;
@@ -1433,7 +1440,7 @@ a {
 
 // Left Panel - Image & Quick Stats
 .game-dialog-image-section {
-  background: linear-gradient(135deg, #5c3d7a 0%, #2d1b4e 100%);
+  background: linear-gradient(160deg, #5c4b8a 0%, #3d2a5f 100%);
   padding: 32px;
   display: flex;
   flex-direction: column;
@@ -1480,15 +1487,19 @@ a {
 .game-dialog-stat-icon {
   width: 40px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 
-  .bp5-icon {
-    color: $color-yellow;
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke: $color-white;
+    stroke-width: 2;
+    fill: none;
   }
 }
 
@@ -1498,7 +1509,7 @@ a {
 }
 
 .game-dialog-stat-value {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1rem;
 }
 
@@ -1509,24 +1520,24 @@ a {
 
 // Right Panel - Game Details
 .game-dialog-details {
-  padding: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
 }
 
 .game-dialog-header {
-  margin-bottom: 24px;
-  padding-right: 48px;
+  margin-bottom: 0;
 }
 
 .game-dialog-title {
-  font-family: $font-display;
-  font-size: 2rem;
+  font-family: $font-body;
+  font-size: 1.75rem;
   font-weight: 700;
   color: $color-navy;
-  margin-bottom: 4px;
-  line-height: 1.1;
+  margin-bottom: 20px;
+  line-height: 1.2;
+  padding-right: 48px; // Space for close button
 }
 
 .game-dialog-subtitle {
@@ -1538,13 +1549,12 @@ a {
 // Owners & Rating Row
 .game-dialog-owners-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 0;
-  border-top: 1px solid $color-border;
+  padding-bottom: 20px;
   border-bottom: 1px solid $color-border;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .game-dialog-owners {
@@ -1685,18 +1695,39 @@ a {
   font-weight: 600;
 }
 
+// Description container with scroll fade
+.game-dialog-description-wrapper {
+  position: relative;
+  background: $color-light-gray;
+  border-radius: 10px;
+
+  // Bottom fade gradient to hint at more content
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: linear-gradient(to bottom, transparent, $color-light-gray);
+    border-radius: 0 0 10px 10px;
+    pointer-events: none;
+  }
+}
+
 .game-dialog-description {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: $color-gray;
-  line-height: 1.65;
+  line-height: 1.6;
   margin: 0;
-  max-height: 180px;
+  max-height: 150px;
   overflow-y: auto;
-  padding-right: 8px;
+  padding: 14px 16px;
+  padding-bottom: 24px; // Extra padding for fade area
 
   // Scrollbar styling
   &::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-track {
@@ -1704,12 +1735,16 @@ a {
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.15);
-    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.2);
   }
 
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
 }
 
 // Tags
@@ -1771,38 +1806,62 @@ a {
 // Footer Actions
 .game-dialog-footer {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 24px;
-  margin-top: 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  margin-top: auto;
   border-top: 1px solid $color-border;
 }
 
-.game-dialog-footer-btn {
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-family: $font-body;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
+.game-dialog-footer-link {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  transition: all 0.15s ease;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: $color-gray;
+  text-decoration: none;
+  transition: color 0.15s ease;
 
-  .bp5-icon {
-    color: currentColor;
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
   }
 
-  &.secondary {
-    background: transparent;
-    color: $color-gray;
-    border: none;
+  &:hover {
+    color: $color-blue;
+  }
+}
 
-    &:hover {
-      color: $color-navy;
-      background: $color-light-gray;
-    }
+.game-dialog-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: 8px;
+  font-family: $font-body;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: $color-gray;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+  }
+
+  &:hover {
+    border-color: $color-blue;
+    color: $color-navy;
+    background: $color-light-gray;
   }
 }
 
@@ -1834,16 +1893,18 @@ a {
   }
 
   .game-dialog-details {
-    padding: 24px;
+    padding: 20px;
   }
 
   .game-dialog-title {
     font-size: 1.5rem;
+    padding-right: 44px;
   }
 
   .game-dialog-owners-row {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
+    gap: 16px;
   }
 
   .game-dialog-rating-actions {
@@ -2836,583 +2897,1134 @@ a {
 }
 
 // =============================================================================
-// ADD GAME DIALOG
+// ADD GAME WIZARD DIALOG
 // =============================================================================
 
-// Custom Add Game Dialog styles
-.add-game-dialog.bp5-dialog {
-  width: 95vw;
-  max-width: 1100px;
-  padding-bottom: 0;
+// Green color for success states
+$color-green: #059669;
+$color-green-light: #d1fae5;
 
-  // Remove default body padding since we handle it ourselves
+// Dialog container override
+.add-game-wizard-dialog.bp5-dialog {
+  width: 100%;
+  max-width: 720px;
+  height: 580px;
+  max-height: 85vh;
+  padding: 0;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(10, 22, 40, 0.4);
+
+  > .bp5-dialog-header {
+    display: none;
+  }
+
   > .bp5-dialog-body {
     padding: 0;
     margin: 0;
+    height: 100%;
   }
 }
 
-// Main panels container - side by side layout
-.add-game-dialog .dialog-panels {
+// Wizard modal container
+.wizard-modal {
   display: flex;
-  height: 550px;
-  max-height: 70vh;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
-// Left panel with step navigation
-.add-game-dialog .dialog-left-panel {
-  width: 200px;
+// Wizard header
+.wizard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid $color-border;
   flex-shrink: 0;
-  background: $color-gray-50;
-  border-right: 1px solid $color-border;
-  padding: $spacing-lg 0;
-
-  .dialog-step {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    padding: $spacing-sm $spacing-lg;
-    margin: $spacing-xs 0;
-    transition: background 0.15s ease;
-
-    &.clickable {
-      cursor: pointer;
-
-      &:hover {
-        background: rgba(0, 0, 0, 0.05);
-      }
-    }
-
-    &.current {
-      background: $color-white;
-
-      .dialog-step-icon {
-        background: $color-primary;
-        color: $color-white;
-      }
-
-      .dialog-step-title {
-        color: $color-text-primary;
-        font-weight: 500;
-      }
-    }
-
-    &.complete:not(.current) {
-      .dialog-step-icon {
-        background: $color-success;
-        color: $color-white;
-      }
-    }
-
-    &.incomplete {
-      .dialog-step-icon {
-        background: $color-gray-300;
-        color: $color-white;
-      }
-
-      .dialog-step-title {
-        color: $color-text-muted;
-      }
-    }
-  }
-
-  .dialog-step-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.85rem;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  .dialog-step-title {
-    font-size: 0.9rem;
-    color: $color-text-secondary;
-  }
 }
 
-// Right panel with content
-.add-game-dialog .dialog-right-panel {
-  flex: 1;
-  min-width: 0;
-  overflow-y: auto;
-  padding: $spacing-xl $spacing-2xl;
+.wizard-title {
+  font-family: $font-body;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: $color-navy;
+  margin: 0;
 }
 
-// Custom footer that extends the left panel visually
-.add-game-dialog .dialog-custom-footer {
+.wizard-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: $color-light-gray;
+  cursor: pointer;
   display: flex;
-  border-top: 1px solid $color-border;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
 
-  .footer-left-spacer {
-    width: 200px;
-    flex-shrink: 0;
-    background: $color-gray-50;
-    border-right: 1px solid $color-border;
+  &:hover {
+    background: $color-border;
   }
 
-  .footer-content {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: $spacing-md $spacing-xl;
-    background: $color-white;
-  }
-
-  .footer-right {
-    display: flex;
-    gap: $spacing-sm;
-  }
-
-  .bp5-button {
-    min-width: 80px;
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke: $color-gray;
+    stroke-width: 2;
+    fill: none;
   }
 }
 
-// Shared step panel styles
-.step-panel {
+// Wizard body - sidebar + content
+.wizard-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+// Step sidebar
+.wizard-sidebar {
+  width: 200px;
+  background: $color-light-gray;
+  padding: 16px 12px;
+  border-right: 1px solid $color-border;
+  flex-shrink: 0;
+}
+
+.step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+
+  &.active {
+    background: $color-white;
+    box-shadow: 0 2px 8px rgba(10, 22, 40, 0.08);
+  }
+
+  &.completed {
+    opacity: 0.9;
+  }
+
+  &.pending {
+    cursor: default;
+  }
+}
+
+.step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+
+  .step-item.pending & {
+    background: $color-border;
+    color: $color-gray;
+  }
+
+  .step-item.active & {
+    background: $color-blue;
+    color: $color-white;
+  }
+
+  .step-item.completed & {
+    background: $color-green;
+    color: $color-white;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    stroke: $color-white;
+    stroke-width: 3;
+    fill: none;
+  }
+}
+
+.step-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $color-gray;
+  transition: all 0.15s ease;
+
+  .step-item.active & {
+    color: $color-navy;
+    font-weight: 600;
+  }
+
+  .step-item.completed & {
+    color: $color-green;
+  }
+}
+
+// Wizard content area
+.wizard-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+// Step content
+.wizard-step-content {
   height: 100%;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
+}
 
-  .step-description {
-    color: $color-text-secondary;
-    margin: 0 0 $spacing-lg;
-    font-size: 0.95rem;
-    flex-shrink: 0;
-  }
+// Search input
+.wizard-search-input-wrapper {
+  position: relative;
+  margin-bottom: 20px;
 
-  .step-callout {
-    margin-bottom: $spacing-lg;
-    flex-shrink: 0;
-  }
-
-  .loading-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-sm;
-    padding: $spacing-lg;
-    color: $color-text-secondary;
-
-    &.large {
-      flex-direction: column;
-      padding: $spacing-2xl;
-      flex: 1;
-    }
-  }
-
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-md;
-    padding: $spacing-2xl;
-    color: $color-text-muted;
-    flex: 1;
-
-    p {
-      margin: 0;
-      text-align: center;
-    }
+  > svg {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    stroke: #a0aec0;
+    stroke-width: 2;
+    fill: none;
+    pointer-events: none;
   }
 }
 
-// Search step
-.search-step {
-  .search-spinner {
-    margin-right: $spacing-sm;
+.wizard-search-input {
+  width: 100%;
+  padding: 14px 18px 14px 48px;
+  border: 2px solid $color-border;
+  border-radius: 12px;
+  font-family: $font-body;
+  font-size: 0.95rem;
+  transition: all 0.15s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $color-blue;
   }
 
-  .search-clear-btn {
-    margin-right: $spacing-xs;
-  }
-
-  .search-results-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin-top: $spacing-md;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .search-results-list {
-    flex: 1;
-    border: 1px solid $color-border;
-    border-radius: $radius-md;
-    overflow-y: auto;
-    max-height: 100%;
-  }
-
-  .search-result-item {
-    display: flex;
-    align-items: center;
-    gap: $spacing-md;
-    padding: $spacing-md $spacing-lg;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-
-    &:hover {
-      background-color: $color-gray-100;
-    }
-
-    &.selected {
-      background-color: rgba($color-primary, 0.08);
-      border-left: 3px solid $color-primary;
-
-      &:hover {
-        background-color: rgba($color-primary, 0.12);
-      }
-    }
-
-    &:not(:last-child) {
-      border-bottom: 1px solid $color-border;
-    }
-
-    .result-selected-icon {
-      flex-shrink: 0;
-      color: $color-success;
-    }
-
-    .result-thumbnail {
-      width: 44px;
-      height: 44px;
-      flex-shrink: 0;
-      border-radius: $radius-sm;
-      overflow: hidden;
-      background: $color-gray-100;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .result-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: $color-gray-400;
-      }
-    }
-
-    .result-info {
-      flex: 1;
-      min-width: 0;
-
-      .result-name {
-        display: block;
-        font-weight: 500;
-        color: $color-text-primary;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: 0.95rem;
-      }
-
-      .result-year {
-        display: block;
-        font-size: 0.8rem;
-        color: $color-text-muted;
-      }
-    }
-
-    .result-arrow {
-      color: $color-text-muted;
-      flex-shrink: 0;
-    }
+  &::placeholder {
+    color: #a0aec0;
   }
 }
 
-// Selected game card (shown after selecting from search)
-.selected-game-card {
+.wizard-search-spinner {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.wizard-search-clear-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: $color-border;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: $spacing-lg;
-  padding: $spacing-lg;
-  background: linear-gradient(135deg, rgba($color-success, 0.08) 0%, rgba($color-primary, 0.05) 100%);
-  border: 2px solid $color-success;
-  border-radius: $radius-lg;
-  margin-top: $spacing-lg;
-  position: relative;
+  justify-content: center;
 
-  .selected-game-image {
-    width: 100px;
-    height: 100px;
-    flex-shrink: 0;
-    border-radius: $radius-md;
-    overflow: hidden;
-    background: $color-white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .image-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: $color-gray-400;
-      background: $color-gray-100;
-    }
+  svg {
+    width: 12px;
+    height: 12px;
+    stroke: $color-gray;
+    stroke-width: 2.5;
+    fill: none;
   }
 
-  .selected-game-info {
-    flex: 1;
-    min-width: 0;
+  &:hover {
+    background: darken($color-border, 5%);
+  }
+}
 
-    h3 {
-      margin: 0 0 $spacing-xs;
-      font-size: 1.25rem;
-      color: $color-text-primary;
-    }
+// Search results
+.wizard-search-results {
+  border: 1px solid $color-border;
+  border-radius: 12px;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
 
-    .year {
-      font-size: 0.9rem;
-      color: $color-text-secondary;
-      display: block;
-      margin-bottom: $spacing-sm;
-    }
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  border-bottom: 1px solid $color-border;
+  outline: none;
 
-    .selected-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: $spacing-xs;
-      padding: $spacing-xs $spacing-sm;
-      background: rgba($color-success, 0.15);
-      border-radius: $radius-sm;
-      color: darken($color-success, 10%);
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
+  &:focus {
+    outline: none;
   }
 
-  .clear-selection-btn {
-    position: absolute;
-    top: $spacing-sm;
-    right: $spacing-sm;
-    opacity: 0.6;
+  &:last-child {
+    border-bottom: none;
+  }
 
-    &:hover {
+  &:hover {
+    background: $color-light-gray;
+  }
+
+  &.selected {
+    background: rgba(30, 58, 95, 0.06);
+
+    .result-check {
       opacity: 1;
     }
   }
 }
 
-// Details step - needs to scroll for long content
-.details-step {
-  overflow-y: auto;
+.result-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: $color-border;
+  flex-shrink: 0;
+}
 
-  .game-preview-header {
-    display: flex;
-    gap: $spacing-md;
-    margin-bottom: $spacing-lg;
-    padding-bottom: $spacing-md;
-    border-bottom: 1px solid $color-border;
+.result-info {
+  flex: 1;
+  min-width: 0;
+}
 
-    .game-image {
-      width: 80px;
-      height: 80px;
-      flex-shrink: 0;
-      border-radius: $radius-md;
-      overflow: hidden;
-      background: $color-gray-100;
+.result-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: $color-navy;
+  margin-bottom: 2px;
+}
 
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
+.result-year {
+  font-size: 0.8rem;
+  color: $color-gray;
+}
 
-      .image-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: $color-gray-400;
-      }
-    }
+.result-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: $color-green;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
 
-    .game-title-info {
-      flex: 1;
-      min-width: 0;
-
-      h3 {
-        margin: 0;
-        font-size: 1.1rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .year {
-        color: $color-text-muted;
-        font-size: 0.85rem;
-      }
-
-      .game-tags {
-        display: flex;
-        gap: $spacing-xs;
-        margin-top: $spacing-sm;
-        flex-wrap: wrap;
-      }
-    }
-  }
-
-  .editable-fields {
-    flex: 1;
-    overflow-y: auto;
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: $spacing-sm;
-
-      .bp5-form-group {
-        margin-bottom: $spacing-sm;
-        min-width: 0;
-      }
-
-      .bp5-numeric-input {
-        .bp5-input-group {
-          width: 100%;
-        }
-      }
-    }
-
-    .bp5-form-group {
-      margin-bottom: $spacing-sm;
-    }
-  }
-
-  .all-owned-message {
-    text-align: center;
-    color: $color-text-muted;
-    font-size: 0.9rem;
-    margin-top: $spacing-sm;
+  svg {
+    width: 14px;
+    height: 14px;
+    stroke: $color-white;
+    stroke-width: 3;
+    fill: none;
   }
 }
 
-// Household step
-// Household step - allow scrolling if needed
-.household-step {
-  overflow-y: auto;
+.result-spinner {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
 
-  .game-summary {
+.search-result-item.loading {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+// Empty state
+.wizard-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: $color-gray;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 48px;
+    height: 48px;
+    stroke: $color-border;
+    stroke-width: 1.5;
+    fill: none;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}
+
+// Loading state
+.wizard-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  color: $color-gray;
+
+  &.large {
+    flex-direction: column;
+    flex: 1;
+  }
+}
+
+// Selected game card
+.selected-game-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: $color-light-gray;
+  border: 2px solid $color-green;
+  border-radius: 14px;
+  position: relative;
+}
+
+.selected-game-image {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: $color-border;
+  flex-shrink: 0;
+}
+
+.selected-game-info {
+  flex: 1;
+}
+
+.selected-game-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: $color-navy;
+  margin-bottom: 4px;
+}
+
+.selected-game-year {
+  font-size: 0.85rem;
+  color: $color-gray;
+  margin-bottom: 8px;
+}
+
+.selected-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: $color-green-light;
+  color: $color-green;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  svg {
+    width: 12px;
+    height: 12px;
+    stroke: currentColor;
+    stroke-width: 3;
+    fill: none;
+  }
+}
+
+.remove-selected-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: $color-white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: $color-border;
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    stroke: $color-gray;
+    stroke-width: 2;
+    fill: none;
+  }
+}
+
+// Prefill banner
+.wizard-prefill-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: $color-green-light;
+  border-radius: 10px;
+  margin-bottom: 20px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke: $color-green;
+    stroke-width: 2.5;
+    fill: none;
+    flex-shrink: 0;
+  }
+
+  span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: $color-green;
+  }
+}
+
+// Empty State (initial search)
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.empty-state-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, rgba(30, 58, 95, 0.08) 0%, rgba(30, 58, 95, 0.04) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  svg {
+    width: 40px;
+    height: 40px;
+    stroke: $color-blue;
+    stroke-width: 1.5;
+    fill: none;
+  }
+}
+
+.empty-state-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $color-navy;
+  margin: 0 0 8px;
+}
+
+.empty-state-description {
+  font-size: 0.9rem;
+  color: $color-gray;
+  margin: 0;
+  max-width: 280px;
+}
+
+// No Results State
+.no-results-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.no-results-icon {
+  width: 72px;
+  height: 72px;
+  background: rgba(74, 85, 104, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  svg {
+    width: 32px;
+    height: 32px;
+    stroke: $color-gray;
+    stroke-width: 2;
+    fill: none;
+  }
+}
+
+.no-results-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $color-navy;
+  margin: 0 0 8px;
+}
+
+.no-results-description {
+  font-size: 0.9rem;
+  color: $color-gray;
+  margin: 0 0 16px;
+}
+
+.no-results-hint {
+  background: rgba(74, 85, 104, 0.08);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: $color-gray;
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+// Error State
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.error-state-icon {
+  width: 72px;
+  height: 72px;
+  background: #fee2e2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  svg {
+    width: 32px;
+    height: 32px;
+    stroke: #dc2626;
+    stroke-width: 2;
+    fill: none;
+  }
+}
+
+.error-state-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $color-navy;
+  margin: 0 0 8px;
+}
+
+.error-state-description {
+  font-size: 0.9rem;
+  color: $color-gray;
+  margin: 0 0 20px;
+  max-width: 300px;
+}
+
+.retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: white;
+  border: 1px solid $color-border;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $color-navy;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+  }
+
+  &:hover {
+    background: $color-light-gray;
+    border-color: $color-blue;
+  }
+}
+
+// Info Banner (already in library)
+.info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: rgba(30, 58, 95, 0.06);
+  border: 1px solid rgba(30, 58, 95, 0.12);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.info-banner-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke: $color-blue;
+    stroke-width: 2;
+    fill: none;
+  }
+}
+
+.info-banner-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.info-banner-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $color-blue;
+  margin-bottom: 4px;
+}
+
+.info-banner-description {
+  font-size: 0.85rem;
+  color: $color-blue;
+  line-height: 1.4;
+}
+
+.info-banner-owner {
+  font-weight: 600;
+  color: $color-blue;
+}
+
+// Warning Banner (all households own)
+.warning-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: #fef3c7;
+  border: 1px solid rgba(217, 119, 6, 0.2);
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.warning-banner-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke: #d97706;
+    stroke-width: 2;
+    fill: none;
+  }
+}
+
+.warning-banner-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.warning-banner-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #d97706;
+  margin-bottom: 4px;
+}
+
+.warning-banner-description {
+  font-size: 0.85rem;
+  color: #92400e;
+  line-height: 1.4;
+}
+
+// Game preview
+.wizard-game-preview {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid $color-border;
+}
+
+.game-preview-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: $color-border;
+  flex-shrink: 0;
+}
+
+.game-preview-info {
+  flex: 1;
+}
+
+.game-preview-name {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: $color-navy;
+  margin-bottom: 4px;
+}
+
+.game-preview-year {
+  font-size: 0.85rem;
+  color: $color-gray;
+  margin-bottom: 10px;
+}
+
+.game-preview-meta {
+  display: flex;
+  gap: 12px;
+
+  .meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: rgba(30, 58, 95, 0.08);
+    color: $color-blue;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+  }
+}
+
+// Form fields
+.wizard-form-fields {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.wizard-form-group {
+  margin-bottom: 18px;
+}
+
+.wizard-form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $color-navy;
+  margin-bottom: 6px;
+
+  .optional {
+    font-weight: 400;
+    color: $color-gray;
+  }
+}
+
+.wizard-form-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid $color-border;
+  border-radius: 10px;
+  font-family: $font-body;
+  font-size: 0.9rem;
+  transition: all 0.15s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $color-blue;
+  }
+}
+
+.wizard-form-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.wizard-form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.wizard-form-select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid $color-border;
+  border-radius: 10px;
+  font-family: $font-body;
+  font-size: 0.9rem;
+  background: $color-white;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+
+  &:focus {
+    outline: none;
+    border-color: $color-blue;
+  }
+}
+
+// Category tags
+.wizard-category-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid $color-border;
+  border-radius: 10px;
+  min-height: 48px;
+}
+
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: $color-blue;
+  color: $color-white;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+
+  button {
     display: flex;
     align-items: center;
-    gap: $spacing-md;
-    padding: $spacing-md;
-    background: $color-gray-50;
-    border-radius: $radius-md;
-    margin-bottom: $spacing-lg;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
 
-    .game-image {
-      width: 48px;
-      height: 48px;
-      flex-shrink: 0;
-      border-radius: $radius-sm;
-      overflow: hidden;
-      background: $color-gray-200;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .image-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: $color-gray-400;
-      }
+    svg {
+      width: 10px;
+      height: 10px;
+      stroke: $color-white;
+      stroke-width: 2.5;
+      fill: none;
     }
 
-    .game-name {
-      font-weight: 600;
-      font-size: 1rem;
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
-  }
-
-  .bp5-form-group {
-    margin-bottom: $spacing-lg;
   }
 }
 
-// Responsive for add game dialog
-@media (max-width: 768px) {
-  .add-game-dialog.bp5-dialog {
-    width: 95vw;
+.category-placeholder {
+  color: $color-gray;
+  font-size: 0.85rem;
+}
+
+// Collection game summary
+.wizard-collection-game-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: $color-light-gray;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.collection-game-image {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: $color-border;
+  flex-shrink: 0;
+}
+
+.collection-game-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: $color-navy;
+}
+
+// Callout
+.wizard-callout {
+  margin-bottom: 16px;
+}
+
+// Wizard footer
+.wizard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-top: 1px solid $color-border;
+  flex-shrink: 0;
+  background: $color-white;
+}
+
+.wizard-footer-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.wizard-footer-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: $font-body;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
   }
 
-  .add-game-dialog .dialog-panels {
-    height: 70vh;
-    max-height: none;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  color: $color-gray;
+  border: 1px solid $color-border;
+
+  &:hover:not(:disabled) {
+    background: $color-light-gray;
+    color: $color-navy;
+  }
+}
+
+.btn-primary {
+  background: $color-blue;
+  color: $color-white;
+  border: none;
+
+  &:hover:not(:disabled) {
+    background: $color-navy;
+  }
+}
+
+.btn-success {
+  background: $color-yellow;
+  color: $color-navy;
+  border: none;
+  box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+
+  &:hover:not(:disabled) {
+    background: $color-yellow-hover;
   }
 
-  .add-game-dialog .dialog-left-panel {
-    width: 140px;
+  &.loading {
+    pointer-events: none;
+  }
+}
 
-    .dialog-step {
-      padding: $spacing-xs $spacing-sm;
-    }
-
-    .dialog-step-icon {
-      width: 24px;
-      height: 24px;
-    }
-
-    .dialog-step-title {
-      font-size: 0.75rem;
-    }
+// Responsive
+@media (max-width: 700px) {
+  .add-game-wizard-dialog.bp5-dialog {
+    max-height: 95vh;
+    border-radius: 20px 20px 0 0;
+    margin-top: auto;
   }
 
-  .add-game-dialog .dialog-right-panel {
-    padding: $spacing-md;
+  .wizard-body {
+    flex-direction: column;
+    min-height: 300px;
   }
 
-  .add-game-dialog .dialog-custom-footer {
-    .footer-left-spacer {
-      width: 140px;
-    }
-
-    .footer-content {
-      padding: $spacing-sm $spacing-md;
-    }
+  .wizard-sidebar {
+    width: 100%;
+    padding: 16px 20px;
+    border-right: none;
+    border-bottom: 1px solid $color-border;
   }
 
-  .details-step {
-    .game-preview-header {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
+  .step-list {
+    flex-direction: row;
+    justify-content: center;
+  }
 
-      .game-tags {
-        justify-content: center;
-      }
-    }
+  .step-item {
+    padding: 8px 12px;
+  }
 
-    .editable-fields .form-row {
-      grid-template-columns: 1fr;
-    }
+  .step-label {
+    display: none;
+  }
+
+  .wizard-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .game-preview-meta {
+    flex-wrap: wrap;
   }
 }
 

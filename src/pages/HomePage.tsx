@@ -17,7 +17,6 @@ export const HomePage: React.FC = () => {
     likeGame,
     dislikeGame,
     toggleFavorite,
-    getPreferenceStats,
   } = useUserPreferences();
   const [households, setHouseholds] = useState<Household[]>([]);
   const [selectedGame, setSelectedGame] = useState<OwnedGame | null>(null);
@@ -183,7 +182,6 @@ export const HomePage: React.FC = () => {
         onLike={currentUser ? likeGame : undefined}
         onDislike={currentUser ? dislikeGame : undefined}
         onToggleFavorite={currentUser ? toggleFavorite : undefined}
-        onFetchStats={getPreferenceStats}
       />
 
       <AddGameDialog

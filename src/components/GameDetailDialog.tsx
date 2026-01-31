@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Icon, Spinner } from '@blueprintjs/core';
-import type { OwnedGame, Ownership, UserGamePreference, GamePreferenceStats } from '../types';
+import type { OwnedGame, Ownership, UserGamePreference } from '../types';
+import { decodeHtmlEntities } from '../utils/text';
 
 interface GameDetailDialogProps {
   game: OwnedGame | null;
@@ -11,7 +12,6 @@ interface GameDetailDialogProps {
   onLike?: (gameId: string) => void;
   onDislike?: (gameId: string) => void;
   onToggleFavorite?: (gameId: string) => void;
-  onFetchStats?: (gameId: string) => Promise<GamePreferenceStats>;
 }
 
 // Avatar colors for household chips
@@ -37,14 +37,11 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
   onLike,
   onDislike,
   onToggleFavorite,
-  onFetchStats,
 }) => {
   const [allOwnerships, setAllOwnerships] = useState<Ownership[]>([]);
   const [loadingOwnerships, setLoadingOwnerships] = useState(false);
-  const [stats, setStats] = useState<GamePreferenceStats | null>(null);
-  const [loadingStats, setLoadingStats] = useState(false);
 
-  // Fetch all ownerships and stats when dialog opens
+  // Fetch all ownerships when dialog opens
   useEffect(() => {
     if (isOpen && game) {
       if (onFetchOwnerships) {
@@ -54,27 +51,10 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
           .catch(console.error)
           .finally(() => setLoadingOwnerships(false));
       }
-      if (onFetchStats) {
-        setLoadingStats(true);
-        onFetchStats(game.id)
-          .then(setStats)
-          .catch(console.error)
-          .finally(() => setLoadingStats(false));
-      }
     } else {
       setAllOwnerships([]);
-      setStats(null);
     }
-  }, [isOpen, game, onFetchOwnerships, onFetchStats]);
-
-  // Refresh stats when preference changes
-  useEffect(() => {
-    if (isOpen && game && onFetchStats && preference) {
-      onFetchStats(game.id)
-        .then(setStats)
-        .catch(console.error);
-    }
-  }, [preference, isOpen, game, onFetchStats]);
+  }, [isOpen, game, onFetchOwnerships]);
 
   // Close on escape key
   useEffect(() => {
@@ -142,7 +122,7 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
           <div className="game-dialog-stats">
             <div className="game-dialog-stat">
               <div className="game-dialog-stat-icon">
-                <Icon icon="people" size={20} />
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               </div>
               <div className="game-dialog-stat-text">
                 <span className="game-dialog-stat-value">{playerRange} players</span>
@@ -153,7 +133,7 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
             {game.playTimeMinutes && (
               <div className="game-dialog-stat">
                 <div className="game-dialog-stat-icon">
-                  <Icon icon="time" size={20} />
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
                 <div className="game-dialog-stat-text">
                   <span className="game-dialog-stat-value">{game.playTimeMinutes} minutes</span>
@@ -165,7 +145,7 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
             {game.yearPublished && (
               <div className="game-dialog-stat">
                 <div className="game-dialog-stat-icon">
-                  <Icon icon="calendar" size={20} />
+                  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 </div>
                 <div className="game-dialog-stat-text">
                   <span className="game-dialog-stat-value">{game.yearPublished}</span>
@@ -246,7 +226,9 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
           {game.description && (
             <div className="game-dialog-section">
               <div className="game-dialog-section-label">About</div>
-              <p className="game-dialog-description">{game.description}</p>
+              <div className="game-dialog-description-wrapper">
+                <p className="game-dialog-description">{decodeHtmlEntities(game.description)}</p>
+              </div>
             </div>
           )}
 
@@ -274,40 +256,23 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
             </div>
           )}
 
-          {/* Stats Section */}
-          {stats && !loadingStats && (stats.likes > 0 || stats.favorites > 0) && (
-            <div className="game-dialog-history">
-              <div className="game-dialog-history-row">
-                {stats.likes > 0 && (
-                  <>
-                    <div className="game-dialog-history-item">
-                      <div className="game-dialog-history-value">{stats.likes}</div>
-                      <div className="game-dialog-history-label">{stats.likes === 1 ? 'Like' : 'Likes'}</div>
-                    </div>
-                    {stats.favorites > 0 && <div className="game-dialog-history-divider" />}
-                  </>
-                )}
-                {stats.favorites > 0 && (
-                  <div className="game-dialog-history-item">
-                    <div className="game-dialog-history-value">{stats.favorites}</div>
-                    <div className="game-dialog-history-label">{stats.favorites === 1 ? 'Favorite' : 'Favorites'}</div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Footer Actions */}
           <div className="game-dialog-footer">
             {game.bggId && (
-              <button
-                className="game-dialog-footer-btn secondary"
-                onClick={() => window.open(`https://boardgamegeek.com/boardgame/${game.bggId}`, '_blank')}
+              <a
+                className="game-dialog-footer-link"
+                href={`https://boardgamegeek.com/boardgame/${game.bggId}`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <Icon icon="share" size={16} />
+                <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 View on BGG
-              </button>
+              </a>
             )}
+            <button className="game-dialog-edit-btn">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit Game
+            </button>
           </div>
         </div>
       </div>

@@ -282,35 +282,36 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
               {/* Player Count */}
               <div className="filter-section">
                 <div className="filter-section-label">Number of Players</div>
-                <div className="player-count-row">
-                  <div className="player-stepper">
-                    <button onClick={handlePlayerMinus}>
-                      <svg viewBox="0 0 24 24">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                      </svg>
-                    </button>
-                    <input
-                      type="number"
-                      value={pendingFilters.playerCount || ''}
-                      onChange={handlePlayerInputChange}
-                      min={1}
-                      max={20}
-                      placeholder="-"
-                    />
-                    <button onClick={handlePlayerPlus}>
-                      <svg viewBox="0 0 24 24">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                      </svg>
-                    </button>
-                  </div>
-                  <span className="player-count-label">players</span>
+                <div className="player-filter-toggle">
                   <button
-                    className={`player-any-btn ${!pendingFilters.playerCount ? 'active' : ''}`}
+                    className={`toggle-btn ${!pendingFilters.playerCount ? 'active' : ''}`}
                     onClick={handlePlayerAny}
                   >
                     Any
                   </button>
+                  <div className={`stepper-group ${!pendingFilters.playerCount ? 'disabled' : ''}`}>
+                    <div className="player-stepper">
+                      <button onClick={handlePlayerMinus} disabled={!pendingFilters.playerCount}>
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        value={pendingFilters.playerCount || 4}
+                        onChange={handlePlayerInputChange}
+                        onFocus={() => {
+                          if (!pendingFilters.playerCount) {
+                            setPendingFilters({ ...pendingFilters, playerCount: 4 });
+                          }
+                        }}
+                        min={1}
+                        max={20}
+                      />
+                      <button onClick={handlePlayerPlus} disabled={!pendingFilters.playerCount}>
+                        +
+                      </button>
+                    </div>
+                    <span className="player-count-label">players</span>
+                  </div>
                 </div>
               </div>
 
