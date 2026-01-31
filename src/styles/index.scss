@@ -146,6 +146,14 @@ a {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    padding-top: 64px;
+  }
+
+  @media (max-width: 600px) {
+    padding-top: 56px;
+  }
 }
 
 .app-container {
@@ -157,6 +165,16 @@ a {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    width: 92%;
+    padding: 16px 0;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    padding: 12px 16px;
+  }
 }
 
 // =============================================================================
@@ -211,6 +229,20 @@ a {
     align-items: center;
     justify-content: center;
     min-height: 300px;
+  }
+
+  @media (max-width: 768px) {
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  @media (max-width: 480px) {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin-left: -16px;
+    margin-right: -16px;
+    width: calc(100% + 32px);
   }
 }
 
@@ -365,6 +397,106 @@ a {
   }
 }
 
+// Navbar responsive styles
+@media (max-width: 768px) {
+  .app-navbar.bp5-navbar {
+    padding: 0 16px;
+    height: 64px;
+
+    .bp5-navbar-group {
+      height: 64px;
+    }
+
+    .navbar-brand {
+      gap: 8px;
+
+      .logo-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 0.95rem;
+      }
+
+      .logo-text {
+        font-size: 1rem;
+      }
+    }
+
+    .nav {
+      gap: 4px;
+      margin-right: 8px;
+    }
+
+    .nav-item {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      gap: 6px;
+    }
+
+    .user-menu {
+      padding: 6px 10px 6px 6px;
+      gap: 6px;
+
+      .user-name {
+        display: none;
+      }
+
+      .bp5-icon {
+        display: none;
+      }
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      font-size: 0.75rem;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .app-navbar.bp5-navbar {
+    padding: 0 12px;
+    height: 56px;
+
+    .bp5-navbar-group {
+      height: 56px;
+    }
+
+    .navbar-brand {
+      .logo-text {
+        display: none;
+      }
+    }
+
+    .nav-item {
+      padding: 8px 10px;
+
+      // Hide text, show only icons on very small screens
+      span:not(.bp5-icon) {
+        display: none;
+      }
+    }
+  }
+
+  // Adjust main content wrapper for smaller navbar
+  .main-content-wrapper {
+    padding-top: 56px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-navbar.bp5-navbar {
+    .nav-item {
+      padding: 8px;
+
+      .bp5-icon {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}
+
 // =============================================================================
 // PAGE STYLES
 // =============================================================================
@@ -420,6 +552,11 @@ a {
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  @media (max-width: 480px) {
+    margin-bottom: 12px;
+    gap: 8px;
+  }
 }
 
 // Search Row
@@ -427,6 +564,10 @@ a {
   display: flex;
   gap: 12px;
   align-items: center;
+
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
 }
 
 .search-box {
@@ -497,6 +638,30 @@ a {
       }
     }
   }
+
+  @media (max-width: 480px) {
+    input {
+      padding: 12px 40px 12px 40px;
+      font-size: 0.9rem;
+    }
+
+    .search-icon {
+      left: 12px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .search-clear-btn {
+      right: 8px;
+      width: 24px;
+      height: 24px;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
 }
 
 .add-game-btn {
@@ -515,6 +680,7 @@ a {
   transition: all 0.15s ease;
   box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
   white-space: nowrap;
+  outline: none;
 
   &:hover {
     background: $color-yellow-hover;
@@ -528,6 +694,16 @@ a {
     stroke: currentColor;
     stroke-width: 2.5;
     fill: none;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 
@@ -573,6 +749,16 @@ a {
     stroke-width: 2;
     fill: none;
   }
+
+  @media (max-width: 480px) {
+    padding: 12px 14px;
+    font-size: 0.9rem;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 }
 
 .filter-count {
@@ -587,6 +773,28 @@ a {
   border-radius: 10px;
   font-size: 0.7rem;
   font-weight: 700;
+}
+
+// Filter Dropdown Backdrop (mobile only)
+.filter-dropdown-backdrop {
+  display: none;
+
+  @media (max-width: 700px) {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(10, 22, 40, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.2s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 // Filter Dropdown
@@ -673,17 +881,18 @@ a {
   align-items: center;
 }
 
-.toggle-btn {
-  padding: 10px 16px;
+.player-any-btn {
+  padding: 7px 12px;
   background: $color-light-gray;
   border: 1px solid transparent;
   border-radius: 8px;
   font-family: $font-body;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: $color-navy;
   cursor: pointer;
   transition: all 0.15s ease;
+  outline: none;
 
   &:hover {
     background: $color-border;
@@ -702,9 +911,8 @@ a {
   opacity: 1;
   transition: opacity 0.15s ease;
 
-  &.disabled {
+  &.inactive {
     opacity: 0.4;
-    pointer-events: none;
   }
 }
 
@@ -727,6 +935,7 @@ a {
     transition: all 0.1s ease;
     font-size: 1.1rem;
     color: $color-navy;
+    outline: none;
 
     &:hover:not(:disabled) {
       background: $color-border;
@@ -787,6 +996,7 @@ a {
   color: $color-navy;
   cursor: pointer;
   transition: all 0.15s ease;
+  outline: none;
 
   &:hover {
     background: $color-border;
@@ -1135,14 +1345,28 @@ a {
   }
 
   .filter-dropdown {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
     border-radius: 20px 20px 0 0;
     max-height: 85vh;
+    padding-top: 8px;
+
+    // Drag handle indicator
+    &::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 4px;
+      background: $color-border;
+      border-radius: 2px;
+    }
 
     &.show {
       animation: slideUp 0.25s ease;
@@ -1156,6 +1380,19 @@ a {
 
   .filter-dropdown-content {
     max-height: 60vh;
+    overflow-y: auto;
+  }
+
+  .filter-dropdown-header {
+    padding: 14px 16px;
+  }
+
+  .filter-section {
+    padding: 0 16px;
+  }
+
+  .filter-dropdown-footer {
+    padding: 14px 16px;
   }
 }
 
@@ -1178,6 +1415,11 @@ a {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 // =============================================================================

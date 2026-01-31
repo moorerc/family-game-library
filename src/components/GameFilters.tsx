@@ -78,14 +78,14 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
   };
 
   const handlePlayerMinus = () => {
-    const current = pendingFilters.playerCount || 1;
+    const current = pendingFilters.playerCount || 4;
     if (current > 1) {
       setPendingFilters({ ...pendingFilters, playerCount: current - 1 });
     }
   };
 
   const handlePlayerPlus = () => {
-    const current = pendingFilters.playerCount || 0;
+    const current = pendingFilters.playerCount || 4;
     if (current < 20) {
       setPendingFilters({ ...pendingFilters, playerCount: current + 1 });
     }
@@ -101,7 +101,12 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
   };
 
   const handlePlayerAny = () => {
-    setPendingFilters({ ...pendingFilters, playerCount: undefined });
+    // Toggle: if already on Any, switch to a specific count; otherwise switch to Any
+    if (!pendingFilters.playerCount) {
+      setPendingFilters({ ...pendingFilters, playerCount: 4 });
+    } else {
+      setPendingFilters({ ...pendingFilters, playerCount: undefined });
+    }
   };
 
   const handlePlayTimeChange = (value: PlayTimeFilter) => {
@@ -247,9 +252,19 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
               e.stopPropagation();
               if (!isDropdownOpen && filterBtnRef.current) {
                 const rect = filterBtnRef.current.getBoundingClientRect();
+                const dropdownWidth = 380;
+                const viewportWidth = window.innerWidth;
+
+                // Calculate left position, ensuring dropdown stays within viewport
+                let left = rect.left;
+                if (left + dropdownWidth > viewportWidth - 16) {
+                  // Align to right edge of button if it would overflow
+                  left = Math.max(16, rect.right - dropdownWidth);
+                }
+
                 setDropdownPosition({
                   top: rect.bottom + 8,
-                  left: rect.left,
+                  left: left,
                 });
               }
               setIsDropdownOpen(!isDropdownOpen);
@@ -265,6 +280,18 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
               <span className="filter-count">{activeFilterCount}</span>
             )}
           </button>
+
+          {/* Mobile Backdrop */}
+          {isDropdownOpen && (
+            <div
+              className="filter-dropdown-backdrop"
+              onClick={() => {
+                setIsDropdownOpen(false);
+                setIsCategoryOpen(false);
+                setIsHouseholdOpen(false);
+              }}
+            />
+          )}
 
           {/* Filter Dropdown */}
           <div
@@ -284,14 +311,14 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
                 <div className="filter-section-label">Number of Players</div>
                 <div className="player-filter-toggle">
                   <button
-                    className={`toggle-btn ${!pendingFilters.playerCount ? 'active' : ''}`}
+                    className={`player-any-btn ${!pendingFilters.playerCount ? 'active' : ''}`}
                     onClick={handlePlayerAny}
                   >
                     Any
                   </button>
-                  <div className={`stepper-group ${!pendingFilters.playerCount ? 'disabled' : ''}`}>
+                  <div className={`stepper-group ${!pendingFilters.playerCount ? 'inactive' : ''}`}>
                     <div className="player-stepper">
-                      <button onClick={handlePlayerMinus} disabled={!pendingFilters.playerCount}>
+                      <button onClick={handlePlayerMinus}>
                         −
                       </button>
                       <input
@@ -306,7 +333,7 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
                         min={1}
                         max={20}
                       />
-                      <button onClick={handlePlayerPlus} disabled={!pendingFilters.playerCount}>
+                      <button onClick={handlePlayerPlus}>
                         +
                       </button>
                     </div>
