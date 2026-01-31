@@ -82,8 +82,30 @@ export const bggSearch = onRequest({ secrets: [bggApiToken] }, async (req, res) 
       ? result.items.item
       : [result.items.item];
 
-    // Get first 10 results
-    const limitedItems = items.slice(0, 10);
+    // Sort results: exact matches first, then partial matches
+    const queryLower = query.toLowerCase().trim();
+    const sortedItems = [...items].sort((a, b) => {
+      const nameA = (a.name?.$.value || '').toLowerCase();
+      const nameB = (b.name?.$.value || '').toLowerCase();
+
+      // Exact matches come first
+      const aExact = nameA === queryLower;
+      const bExact = nameB === queryLower;
+      if (aExact && !bExact) return -1;
+      if (bExact && !aExact) return 1;
+
+      // Then matches that start with the query
+      const aStarts = nameA.startsWith(queryLower);
+      const bStarts = nameB.startsWith(queryLower);
+      if (aStarts && !bStarts) return -1;
+      if (bStarts && !aStarts) return 1;
+
+      // Then shorter names (more likely to be the "main" version)
+      return nameA.length - nameB.length;
+    });
+
+    // Get first 25 results (increased from 10 for better coverage)
+    const limitedItems = sortedItems.slice(0, 25);
 
     // Map basic info
     let results = limitedItems.map((item) => ({
@@ -95,36 +117,64 @@ export const bggSearch = onRequest({ secrets: [bggApiToken] }, async (req, res) 
       thumbnail: undefined,
     }));
 
-    // Batch fetch thumbnails for all results (BGG supports multiple IDs)
-    const ids = results.map((r) => r.bggId).join(',');
+    // Batch fetch thumbnails for all results
+    // BGG API limits to 20 items per request, so we batch if needed
+    const BATCH_SIZE = 20;
+    const thumbMap = {};
+
     try {
-      const thumbUrl = `${BGG_API_BASE}/thing?id=${ids}&type=boardgame`;
-      const thumbResponse = await fetch(thumbUrl, { headers: getBggHeaders() });
+      // Split IDs into batches of 20
+      const allIds = results.map((r) => r.bggId);
+      const batches = [];
+      for (let i = 0; i < allIds.length; i += BATCH_SIZE) {
+        batches.push(allIds.slice(i, i + BATCH_SIZE));
+      }
 
-      if (thumbResponse.ok) {
-        const thumbXml = await thumbResponse.text();
-        const thumbResult = await parseStringPromise(thumbXml, { explicitArray: false });
+      // Fetch each batch
+      for (const batchIds of batches) {
+        const ids = batchIds.join(',');
+        const thumbUrl = `${BGG_API_BASE}/thing?id=${ids}`;
+        const maxRetries = 3;
+        const retryDelay = 1500;
 
-        if (thumbResult.items?.item) {
-          const thumbItems = Array.isArray(thumbResult.items.item)
-            ? thumbResult.items.item
-            : [thumbResult.items.item];
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+          const thumbResponse = await fetch(thumbUrl, { headers: getBggHeaders() });
 
-          // Create a map of id -> thumbnail
-          const thumbMap = {};
-          for (const item of thumbItems) {
-            if (item.$.id && item.thumbnail) {
-              thumbMap[item.$.id] = item.thumbnail;
-            }
+          if (thumbResponse.status === 202) {
+            // BGG is processing the request, wait and retry
+            await new Promise((resolve) => setTimeout(resolve, retryDelay));
+            continue;
           }
 
-          // Add thumbnails to results
-          results = results.map((r) => ({
-            ...r,
-            thumbnail: thumbMap[r.bggId] || undefined,
-          }));
+          if (thumbResponse.ok) {
+            const thumbXml = await thumbResponse.text();
+            const thumbResult = await parseStringPromise(thumbXml, { explicitArray: false });
+
+            if (thumbResult.items?.item) {
+              const thumbItems = Array.isArray(thumbResult.items.item)
+                ? thumbResult.items.item
+                : [thumbResult.items.item];
+
+              for (const item of thumbItems) {
+                if (item.$.id && item.thumbnail) {
+                  thumbMap[item.$.id] = item.thumbnail;
+                }
+              }
+            }
+            break;
+          } else {
+            // Non-retryable error, skip this batch
+            console.warn('Thumbnail batch fetch failed with status:', thumbResponse.status);
+            break;
+          }
         }
       }
+
+      // Add thumbnails to results
+      results = results.map((r) => ({
+        ...r,
+        thumbnail: thumbMap[r.bggId] || undefined,
+      }));
     } catch (thumbError) {
       // Thumbnails are optional, continue without them
       console.warn('Failed to fetch thumbnails:', thumbError);

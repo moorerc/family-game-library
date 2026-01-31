@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { bggService } from '../services/bgg';
 import type { BGGSearchResult, BGGGameDetails } from '../types';
 
@@ -21,6 +21,9 @@ export const useBGGSearch = (): UseBGGSearchReturn => {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Track the latest search request to ignore stale responses
+  const latestSearchIdRef = useRef(0);
+
   const search = useCallback(async (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);
@@ -28,17 +31,30 @@ export const useBGGSearch = (): UseBGGSearchReturn => {
       return;
     }
 
+    // Increment the search ID for this request
+    const searchId = ++latestSearchIdRef.current;
+
     setSearching(true);
     setError(null);
 
     try {
       const results = await bggService.searchGames(query);
-      setSearchResults(results);
+
+      // Only update results if this is still the latest search
+      if (searchId === latestSearchIdRef.current) {
+        setSearchResults(results);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed');
-      setSearchResults([]);
+      // Only update error if this is still the latest search
+      if (searchId === latestSearchIdRef.current) {
+        setError(err instanceof Error ? err.message : 'Search failed');
+        setSearchResults([]);
+      }
     } finally {
-      setSearching(false);
+      // Only clear searching if this is still the latest search
+      if (searchId === latestSearchIdRef.current) {
+        setSearching(false);
+      }
     }
   }, []);
 

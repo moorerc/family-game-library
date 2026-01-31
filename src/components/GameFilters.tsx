@@ -12,6 +12,7 @@ interface GameFiltersProps {
   onFiltersChange: (filters: GameFiltersType) => void;
   households: Household[];
   availableCategories: string[];
+  actionButton?: React.ReactNode;
 }
 
 const PLAY_TIME_OPTIONS = [
@@ -28,6 +29,7 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
   onFiltersChange,
   households,
   availableCategories,
+  actionButton,
 }) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onFiltersChange({ ...filters, searchQuery: e.target.value });
@@ -90,6 +92,7 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
           onChange={handleSearchChange}
           className="search-input"
         />
+        {actionButton}
       </div>
 
       <div className="advanced-filters">

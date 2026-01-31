@@ -245,8 +245,12 @@ a {
   gap: $spacing-md;
 
   .search-row {
+    display: flex;
+    gap: $spacing-md;
+    align-items: center;
+
     .search-input {
-      width: 100%;
+      flex: 1;
 
       .bp5-input-group {
         .bp5-input {
@@ -1029,20 +1033,31 @@ a {
     grid-template-columns: 1fr;
   }
 
-  .game-filters .filters-row {
-    flex-direction: column;
+  .game-filters {
+    .search-row {
+      flex-direction: column;
+      align-items: stretch;
 
-    .search-input {
-      width: 100%;
+      .bp5-button {
+        width: 100%;
+      }
     }
 
-    .filter-group {
-      width: 100%;
-    }
+    .filters-row {
+      flex-direction: column;
 
-    .household-select,
-    .player-count-input {
-      width: 100%;
+      .search-input {
+        width: 100%;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
+
+      .household-select,
+      .player-count-input {
+        width: 100%;
+      }
     }
   }
 
@@ -1053,10 +1068,1047 @@ a {
   .add-game-form .form-row {
     grid-template-columns: 1fr 1fr;
   }
+
+  // Add Game Dialog responsive
+  .new-game-step .form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .existing-game-step .existing-game-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .game-details .game-meta {
+      justify-content: center;
+    }
+  }
 }
 
 @media (max-width: 480px) {
   .add-game-form .form-row {
     grid-template-columns: 1fr;
+  }
+}
+
+// =============================================================================
+// GAME NIGHT PAGE
+// =============================================================================
+
+.game-night-page {
+  .page-header {
+    text-align: center;
+    margin-bottom: $spacing-xl;
+
+    h1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-sm;
+
+      .page-icon {
+        font-size: 2rem;
+      }
+    }
+
+    .page-subtitle {
+      color: $color-text-secondary;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+  }
+
+  .quick-pick-section,
+  .spin-wheel-section {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $radius-xl;
+    padding: $spacing-xl;
+    margin-bottom: $spacing-lg;
+    text-align: center;
+
+    h3 {
+      margin-bottom: $spacing-xs;
+    }
+
+    p {
+      color: $color-text-secondary;
+      margin-bottom: $spacing-lg;
+    }
+
+    .bp5-button {
+      margin-bottom: $spacing-md;
+    }
+
+    .games-count {
+      display: block;
+      color: $color-text-muted;
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// =============================================================================
+// GAME NIGHT FILTERS
+// =============================================================================
+
+.game-night-filters {
+  margin-bottom: $spacing-xl;
+
+  .filters-header {
+    display: flex;
+    align-items: center;
+
+    .active-filters-badge {
+      margin-left: $spacing-sm;
+    }
+  }
+
+  .filters-content {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    padding: $spacing-lg;
+    margin-top: $spacing-sm;
+  }
+
+  .filter-row {
+    display: flex;
+    gap: $spacing-xl;
+    flex-wrap: wrap;
+    margin-bottom: $spacing-md;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+
+    &.additional-households {
+      flex: 1;
+    }
+  }
+
+  .filter-label {
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+    font-weight: 500;
+  }
+
+  .checkbox-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-md;
+
+    .bp5-checkbox {
+      margin-bottom: 0;
+    }
+  }
+
+  .player-count-input.bp5-numeric-input {
+    .bp5-input-group {
+      width: 80px;
+    }
+  }
+
+  .household-select,
+  .preferences-select {
+    min-width: 180px;
+  }
+}
+
+// =============================================================================
+// GAME WHEEL SPINNER
+// =============================================================================
+
+.game-wheel-container {
+  position: relative;
+  margin: $spacing-xl 0;
+  padding: $spacing-lg 0;
+
+  &.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    color: $color-text-muted;
+  }
+}
+
+.game-wheel-viewport {
+  overflow: hidden;
+  position: relative;
+}
+
+.game-wheel-track {
+  display: flex;
+  gap: 12px;
+  will-change: transform;
+
+  &.animating {
+    transition: transform 4s cubic-bezier(0.15, 0.85, 0.35, 1);
+  }
+}
+
+.wheel-game-card {
+  flex-shrink: 0;
+  width: 160px;
+  height: 200px;
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+  }
+
+  .wheel-card-placeholder {
+    width: 100%;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $color-gray-100;
+    color: $color-gray-400;
+  }
+
+  .wheel-card-name {
+    padding: $spacing-sm;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.selection-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 172px; // Card width + some padding
+  pointer-events: none;
+  z-index: 10;
+
+  .selection-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 3px solid $color-primary;
+    border-radius: $radius-lg;
+    box-shadow: 0 0 20px rgba($color-primary, 0.3);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba($color-primary, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba($color-primary, 0.5);
+  }
+}
+
+// =============================================================================
+// GAME NIGHT RESULT DIALOG
+// =============================================================================
+
+.game-night-result-dialog.bp5-dialog-container {
+  .bp5-dialog {
+    background: $color-white;
+    border-radius: $radius-xl;
+    max-width: 450px;
+    width: 90vw;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .bp5-dialog-header {
+    display: none;
+  }
+
+  .bp5-dialog-body {
+    padding: 0;
+  }
+}
+
+.result-content {
+  position: relative;
+  padding: $spacing-2xl;
+  text-align: center;
+}
+
+.result-header {
+  margin-bottom: $spacing-xl;
+
+  .celebration-emoji {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: $spacing-sm;
+  }
+
+  h2 {
+    margin: 0;
+    color: $color-text-primary;
+  }
+}
+
+.result-game {
+  margin-bottom: $spacing-xl;
+}
+
+.result-game-image {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto $spacing-lg;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .result-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $color-gray-100;
+    color: $color-gray-400;
+  }
+}
+
+.result-game-title {
+  font-size: 1.5rem;
+  margin-bottom: $spacing-md;
+  color: $color-text-primary;
+}
+
+.result-game-meta {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.result-owner {
+  display: inline-block;
+}
+
+.result-actions {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: center;
+
+  .bp5-button {
+    min-width: 140px;
+  }
+}
+
+// =============================================================================
+// CONFETTI ANIMATION
+// =============================================================================
+
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  opacity: 0;
+  animation: confetti-fall linear forwards;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    background: inherit;
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    top: -20px;
+    transform: translateX(0) rotateZ(0deg);
+  }
+  100% {
+    opacity: 0;
+    top: 100%;
+    transform: translateX(calc(-50px + 100px * var(--random, 0.5))) rotateZ(720deg);
+  }
+}
+
+// Give each confetti piece slightly different horizontal movement
+@for $i from 1 through 50 {
+  .confetti-piece:nth-child(#{$i}) {
+    --random: #{$i / 50};
+  }
+}
+
+// =============================================================================
+// ADD GAME DIALOG
+// =============================================================================
+
+// Custom Add Game Dialog styles
+.add-game-dialog.bp5-dialog {
+  width: 95vw;
+  max-width: 1100px;
+  padding-bottom: 0;
+
+  // Remove default body padding since we handle it ourselves
+  > .bp5-dialog-body {
+    padding: 0;
+    margin: 0;
+  }
+}
+
+// Main panels container - side by side layout
+.add-game-dialog .dialog-panels {
+  display: flex;
+  height: 550px;
+  max-height: 70vh;
+}
+
+// Left panel with step navigation
+.add-game-dialog .dialog-left-panel {
+  width: 200px;
+  flex-shrink: 0;
+  background: $color-gray-50;
+  border-right: 1px solid $color-border;
+  padding: $spacing-lg 0;
+
+  .dialog-step {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-lg;
+    margin: $spacing-xs 0;
+    transition: background 0.15s ease;
+
+    &.clickable {
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+    }
+
+    &.current {
+      background: $color-white;
+
+      .dialog-step-icon {
+        background: $color-primary;
+        color: $color-white;
+      }
+
+      .dialog-step-title {
+        color: $color-text-primary;
+        font-weight: 500;
+      }
+    }
+
+    &.complete:not(.current) {
+      .dialog-step-icon {
+        background: $color-success;
+        color: $color-white;
+      }
+    }
+
+    &.incomplete {
+      .dialog-step-icon {
+        background: $color-gray-300;
+        color: $color-white;
+      }
+
+      .dialog-step-title {
+        color: $color-text-muted;
+      }
+    }
+  }
+
+  .dialog-step-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .dialog-step-title {
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+}
+
+// Right panel with content
+.add-game-dialog .dialog-right-panel {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: $spacing-xl $spacing-2xl;
+}
+
+// Custom footer that extends the left panel visually
+.add-game-dialog .dialog-custom-footer {
+  display: flex;
+  border-top: 1px solid $color-border;
+
+  .footer-left-spacer {
+    width: 200px;
+    flex-shrink: 0;
+    background: $color-gray-50;
+    border-right: 1px solid $color-border;
+  }
+
+  .footer-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-md $spacing-xl;
+    background: $color-white;
+  }
+
+  .footer-right {
+    display: flex;
+    gap: $spacing-sm;
+  }
+
+  .bp5-button {
+    min-width: 80px;
+  }
+}
+
+// Shared step panel styles
+.step-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  .step-description {
+    color: $color-text-secondary;
+    margin: 0 0 $spacing-lg;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  .step-callout {
+    margin-bottom: $spacing-lg;
+    flex-shrink: 0;
+  }
+
+  .loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: $spacing-lg;
+    color: $color-text-secondary;
+
+    &.large {
+      flex-direction: column;
+      padding: $spacing-2xl;
+      flex: 1;
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-md;
+    padding: $spacing-2xl;
+    color: $color-text-muted;
+    flex: 1;
+
+    p {
+      margin: 0;
+      text-align: center;
+    }
+  }
+}
+
+// Search step
+.search-step {
+  .search-spinner {
+    margin-right: $spacing-sm;
+  }
+
+  .search-clear-btn {
+    margin-right: $spacing-xs;
+  }
+
+  .search-results-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-top: $spacing-md;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .search-results-list {
+    flex: 1;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    overflow-y: auto;
+    max-height: 100%;
+  }
+
+  .search-result-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md $spacing-lg;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: $color-gray-100;
+    }
+
+    &.selected {
+      background-color: rgba($color-primary, 0.08);
+      border-left: 3px solid $color-primary;
+
+      &:hover {
+        background-color: rgba($color-primary, 0.12);
+      }
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid $color-border;
+    }
+
+    .result-selected-icon {
+      flex-shrink: 0;
+      color: $color-success;
+    }
+
+    .result-thumbnail {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      border-radius: $radius-sm;
+      overflow: hidden;
+      background: $color-gray-100;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .result-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $color-gray-400;
+      }
+    }
+
+    .result-info {
+      flex: 1;
+      min-width: 0;
+
+      .result-name {
+        display: block;
+        font-weight: 500;
+        color: $color-text-primary;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.95rem;
+      }
+
+      .result-year {
+        display: block;
+        font-size: 0.8rem;
+        color: $color-text-muted;
+      }
+    }
+
+    .result-arrow {
+      color: $color-text-muted;
+      flex-shrink: 0;
+    }
+  }
+}
+
+// Selected game card (shown after selecting from search)
+.selected-game-card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, rgba($color-success, 0.08) 0%, rgba($color-primary, 0.05) 100%);
+  border: 2px solid $color-success;
+  border-radius: $radius-lg;
+  margin-top: $spacing-lg;
+  position: relative;
+
+  .selected-game-image {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    border-radius: $radius-md;
+    overflow: hidden;
+    background: $color-white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $color-gray-400;
+      background: $color-gray-100;
+    }
+  }
+
+  .selected-game-info {
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+      margin: 0 0 $spacing-xs;
+      font-size: 1.25rem;
+      color: $color-text-primary;
+    }
+
+    .year {
+      font-size: 0.9rem;
+      color: $color-text-secondary;
+      display: block;
+      margin-bottom: $spacing-sm;
+    }
+
+    .selected-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-xs;
+      padding: $spacing-xs $spacing-sm;
+      background: rgba($color-success, 0.15);
+      border-radius: $radius-sm;
+      color: darken($color-success, 10%);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+  }
+
+  .clear-selection-btn {
+    position: absolute;
+    top: $spacing-sm;
+    right: $spacing-sm;
+    opacity: 0.6;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+// Details step - needs to scroll for long content
+.details-step {
+  overflow-y: auto;
+
+  .game-preview-header {
+    display: flex;
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+    padding-bottom: $spacing-md;
+    border-bottom: 1px solid $color-border;
+
+    .game-image {
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+      border-radius: $radius-md;
+      overflow: hidden;
+      background: $color-gray-100;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $color-gray-400;
+      }
+    }
+
+    .game-title-info {
+      flex: 1;
+      min-width: 0;
+
+      h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .year {
+        color: $color-text-muted;
+        font-size: 0.85rem;
+      }
+
+      .game-tags {
+        display: flex;
+        gap: $spacing-xs;
+        margin-top: $spacing-sm;
+        flex-wrap: wrap;
+      }
+    }
+  }
+
+  .editable-fields {
+    flex: 1;
+    overflow-y: auto;
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-sm;
+
+      .bp5-form-group {
+        margin-bottom: $spacing-sm;
+        min-width: 0;
+      }
+
+      .bp5-numeric-input {
+        .bp5-input-group {
+          width: 100%;
+        }
+      }
+    }
+
+    .bp5-form-group {
+      margin-bottom: $spacing-sm;
+    }
+  }
+
+  .all-owned-message {
+    text-align: center;
+    color: $color-text-muted;
+    font-size: 0.9rem;
+    margin-top: $spacing-sm;
+  }
+}
+
+// Household step
+// Household step - allow scrolling if needed
+.household-step {
+  overflow-y: auto;
+
+  .game-summary {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    background: $color-gray-50;
+    border-radius: $radius-md;
+    margin-bottom: $spacing-lg;
+
+    .game-image {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+      border-radius: $radius-sm;
+      overflow: hidden;
+      background: $color-gray-200;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $color-gray-400;
+      }
+    }
+
+    .game-name {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+  }
+
+  .bp5-form-group {
+    margin-bottom: $spacing-lg;
+  }
+}
+
+// Responsive for add game dialog
+@media (max-width: 768px) {
+  .add-game-dialog.bp5-dialog {
+    width: 95vw;
+  }
+
+  .add-game-dialog .dialog-panels {
+    height: 70vh;
+    max-height: none;
+  }
+
+  .add-game-dialog .dialog-left-panel {
+    width: 140px;
+
+    .dialog-step {
+      padding: $spacing-xs $spacing-sm;
+    }
+
+    .dialog-step-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .dialog-step-title {
+      font-size: 0.75rem;
+    }
+  }
+
+  .add-game-dialog .dialog-right-panel {
+    padding: $spacing-md;
+  }
+
+  .add-game-dialog .dialog-custom-footer {
+    .footer-left-spacer {
+      width: 140px;
+    }
+
+    .footer-content {
+      padding: $spacing-sm $spacing-md;
+    }
+  }
+
+  .details-step {
+    .game-preview-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      .game-tags {
+        justify-content: center;
+      }
+    }
+
+    .editable-fields .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// =============================================================================
+// GAME NIGHT RESPONSIVE
+// =============================================================================
+
+@media (max-width: 768px) {
+  .game-night-page {
+    .quick-pick-section,
+    .spin-wheel-section {
+      padding: $spacing-lg;
+    }
+  }
+
+  .game-night-filters {
+    .filter-row {
+      flex-direction: column;
+      gap: $spacing-md;
+    }
+
+    .household-select,
+    .preferences-select {
+      width: 100%;
+    }
+  }
+
+  .wheel-game-card {
+    width: 120px;
+    height: 160px;
+
+    img,
+    .wheel-card-placeholder {
+      height: 100px;
+    }
+
+    .wheel-card-name {
+      font-size: 0.7rem;
+    }
+  }
+
+  .selection-zone {
+    width: 132px;
+  }
+
+  .result-game-image {
+    width: 160px;
+    height: 160px;
+  }
+
+  .result-actions {
+    flex-direction: column;
+
+    .bp5-button {
+      width: 100%;
+    }
   }
 }

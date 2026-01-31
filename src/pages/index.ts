@@ -3,3 +3,4 @@ export { AddGamePage } from './AddGamePage';
 export { LoginPage } from './LoginPage';
 export { SignUpPage } from './SignUpPage';
 export { HouseholdPage } from './HouseholdPage';
+export { GameNightPage } from './GameNightPage';

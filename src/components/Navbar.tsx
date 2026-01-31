@@ -58,12 +58,12 @@ export const Navbar: React.FC = () => {
                 active={isActive('/')}
               />
             </Link>
-            <Link to="/add">
+            <Link to="/game-night">
               <Button
                 minimal
-                icon="add"
-                text="Add Game"
-                active={isActive('/add')}
+                icon="random"
+                text="Game Night"
+                active={isActive('/game-night')}
               />
             </Link>
             <NavbarDivider />

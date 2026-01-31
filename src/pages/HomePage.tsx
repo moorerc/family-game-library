@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { NonIdealState, Spinner, Button } from '@blueprintjs/core';
 import { Link } from 'react-router-dom';
-import { GameCard, GameFilters, GameDetailDialog } from '../components';
+import { GameCard, GameFilters, GameDetailDialog, AddGameDialog } from '../components';
 import { useGames } from '../hooks/useGames';
 import { useUserPreferences } from '../hooks/useUserPreferences';
 import { householdsService } from '../services/households';
@@ -10,8 +10,8 @@ import { useAuth } from '../context/AuthContext';
 import type { OwnedGame, Household } from '../types';
 
 export const HomePage: React.FC = () => {
-  const { currentUser, loading: authLoading } = useAuth();
-  const { games, filteredGames, loading, error, filters, setFilters, getOwnershipsByGame } = useGames();
+  const { currentUser, userProfile, loading: authLoading } = useAuth();
+  const { games, filteredGames, loading, error, filters, setFilters, getOwnershipsByGame, refreshGames } = useGames();
   const {
     getPreference,
     likeGame,
@@ -21,6 +21,11 @@ export const HomePage: React.FC = () => {
   } = useUserPreferences();
   const [households, setHouseholds] = useState<Household[]>([]);
   const [selectedGame, setSelectedGame] = useState<OwnedGame | null>(null);
+  const [isAddGameDialogOpen, setIsAddGameDialogOpen] = useState(false);
+
+  const handleGameAdded = useCallback(() => {
+    refreshGames();
+  }, [refreshGames]);
 
   const availableCategories = useMemo(
     () => gamesService.getUniqueCategories(games),
@@ -112,6 +117,15 @@ export const HomePage: React.FC = () => {
         onFiltersChange={setFilters}
         households={households}
         availableCategories={availableCategories}
+        actionButton={
+          <Button
+            intent="primary"
+            icon="add"
+            onClick={() => setIsAddGameDialogOpen(true)}
+          >
+            Add Game
+          </Button>
+        }
       />
 
       {filteredGames.length === 0 ? (
@@ -125,11 +139,13 @@ export const HomePage: React.FC = () => {
           }
           action={
             currentUser ? (
-              <Link to="/add">
-                <Button intent="primary" icon="add">
-                  Add a Game
-                </Button>
-              </Link>
+              <Button
+                intent="primary"
+                icon="add"
+                onClick={() => setIsAddGameDialogOpen(true)}
+              >
+                Add a Game
+              </Button>
             ) : undefined
           }
         />
@@ -159,6 +175,14 @@ export const HomePage: React.FC = () => {
         onDislike={currentUser ? dislikeGame : undefined}
         onToggleFavorite={currentUser ? toggleFavorite : undefined}
         onFetchStats={getPreferenceStats}
+      />
+
+      <AddGameDialog
+        isOpen={isAddGameDialogOpen}
+        onClose={() => setIsAddGameDialogOpen(false)}
+        onGameAdded={handleGameAdded}
+        households={households}
+        userHouseholdId={userProfile?.householdId}
       />
     </div>
   );

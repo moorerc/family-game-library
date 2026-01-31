@@ -7,6 +7,7 @@ import {
   LoginPage,
   SignUpPage,
   HouseholdPage,
+  GameNightPage,
 } from './pages';
 
 const App: React.FC = () => {
@@ -17,6 +18,7 @@ const App: React.FC = () => {
         <div className="app-container">
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/game-night" element={<GameNightPage />} />
             <Route path="/add" element={<AddGamePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
