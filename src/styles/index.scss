@@ -149,9 +149,10 @@ a {
 }
 
 .app-container {
-  max-width: 1920px;
+  width: 85%;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 24px 48px;
+  padding: 24px 0;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -415,114 +416,35 @@ a {
 // =============================================================================
 
 .game-filters {
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+}
 
-  .search-row {
-    display: flex;
-    gap: 16px;
-    align-items: center;
+// Search Row
+.search-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
 
-    .search-input {
-      flex: 1;
-      min-width: 280px;
-      position: relative;
+.search-box {
+  flex: 1;
+  position: relative;
 
-      .bp5-input-group {
-        .bp5-input {
-          width: 100%;
-          padding: 14px 20px 14px 48px;
-          border: 2px solid $color-border;
-          border-radius: 12px;
-          font-family: $font-body;
-          font-size: 0.95rem;
-          background: $color-white;
-          transition: all 0.15s ease;
-
-          &::placeholder {
-            color: #a0aec0;
-          }
-
-          &:focus {
-            outline: none;
-            border-color: $color-blue;
-            box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
-          }
-        }
-
-        .bp5-input-left-container {
-          left: 16px;
-
-          .bp5-icon {
-            color: #a0aec0;
-          }
-        }
-      }
-    }
-
-    // Add game button in search row
-    .bp5-button.bp5-intent-primary {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 24px;
-      background: $color-yellow;
-      color: $color-navy;
-      border: none;
-      border-radius: 12px;
-      font-family: $font-body;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
-      height: auto;
-
-      &:hover {
-        background: $color-yellow-hover;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(255, 204, 0, 0.4);
-      }
-    }
-  }
-
-  .advanced-filters {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .filter-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .filter-label {
-    font-size: 0.85rem;
-    color: $color-gray;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
-  .filter-select,
-  .bp5-html-select select {
-    padding: 10px 36px 10px 14px;
-    border: 1px solid $color-border;
-    border-radius: 8px;
+  input {
+    width: 100%;
+    padding: 14px 20px 14px 48px;
+    border: 2px solid $color-border;
+    border-radius: 12px;
     font-family: $font-body;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: $color-navy;
-    background-color: $color-white;
-    cursor: pointer;
+    font-size: 0.95rem;
+    background: $color-white;
     transition: all 0.15s ease;
 
-    &:hover {
-      border-color: $color-blue;
+    &::placeholder {
+      color: #a0aec0;
     }
 
     &:focus {
@@ -532,24 +454,684 @@ a {
     }
   }
 
-  .player-count-input.bp5-numeric-input {
-    .bp5-input-group {
-      width: 70px;
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    stroke: #a0aec0;
+    stroke-width: 2;
+    fill: none;
+  }
+}
+
+.add-game-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  background: $color-yellow;
+  color: $color-navy;
+  border: none;
+  border-radius: 12px;
+  font-family: $font-body;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+  white-space: nowrap;
+
+  &:hover {
+    background: $color-yellow-hover;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 204, 0, 0.4);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    fill: none;
+  }
+}
+
+// Filter Button
+.filter-btn-wrapper {
+  position: relative;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background: $color-white;
+  color: $color-navy;
+  border: 2px solid $color-border;
+  border-radius: 12px;
+  font-family: $font-body;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: $color-blue;
+  }
+
+  &.active,
+  &.has-filters {
+    border-color: $color-blue;
+    background: rgba(30, 58, 95, 0.04);
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+  }
+}
+
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: $color-blue;
+  color: $color-white;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+// Filter Dropdown
+.filter-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 380px;
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(10, 22, 40, 0.18);
+  z-index: 100;
+  display: none;
+
+  &.show {
+    display: block;
+    animation: dropdownIn 0.15s ease;
+  }
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.filter-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid $color-border;
+}
+
+.filter-dropdown-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: $color-navy;
+}
+
+.clear-filters-btn {
+  font-size: 0.8rem;
+  color: $color-blue;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: $font-body;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(30, 58, 95, 0.08);
+  }
+}
+
+.filter-dropdown-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+// Filter Sections
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: $color-gray;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+// Player Count Input
+.player-count-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.player-stepper {
+  display: flex;
+  align-items: center;
+  border: 1px solid $color-border;
+  border-radius: 8px;
+  overflow: hidden;
+
+  button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: $color-light-gray;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s ease;
+
+    &:hover {
+      background: $color-border;
     }
 
-    .bp5-button-group.bp5-vertical {
-      position: relative;
-      z-index: 0;
+    &:active {
+      background: #d1d5db;
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+      stroke: $color-navy;
+      stroke-width: 2.5;
+      fill: none;
     }
   }
 
-  .household-select {
-    min-width: 140px;
+  input {
+    width: 40px;
+    height: 32px;
+    border: none;
+    border-left: 1px solid $color-border;
+    border-right: 1px solid $color-border;
+    text-align: center;
+    font-family: $font-body;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-navy;
+    background: $color-white;
+    -moz-appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &::placeholder {
+      color: $color-gray;
+    }
+  }
+}
+
+.player-count-label {
+  font-size: 0.85rem;
+  color: $color-gray;
+  margin-left: 8px;
+}
+
+.player-any-btn {
+  margin-left: auto;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: 6px;
+  font-family: $font-body;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: $color-gray;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: $color-blue;
+    color: $color-blue;
   }
 
-  .clear-filters-btn {
-    color: $color-text-muted;
-    margin-left: auto;
+  &.active {
+    background: $color-blue;
+    border-color: $color-blue;
+    color: $color-white;
+  }
+}
+
+// Play Time Options
+.time-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.time-option {
+  padding: 7px 12px;
+  background: $color-light-gray;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: $font-body;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $color-navy;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: $color-border;
+  }
+
+  &.selected {
+    background: $color-blue;
+    color: $color-white;
+  }
+}
+
+// Searchable Multi-Select
+.multi-select-wrapper {
+  position: relative;
+}
+
+.multi-select-trigger {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: $color-blue;
+  }
+
+  &.open {
+    border-color: $color-blue;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+.trigger-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.trigger-placeholder {
+  color: $color-gray;
+  font-size: 0.9rem;
+}
+
+.trigger-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px 4px 10px;
+  background: rgba(30, 58, 95, 0.1);
+  color: $color-blue;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 50%;
+    transition: background 0.1s ease;
+
+    &:hover {
+      background: rgba(30, 58, 95, 0.15);
+    }
+
+    svg {
+      width: 10px;
+      height: 10px;
+      stroke: $color-blue;
+      stroke-width: 2.5;
+      fill: none;
+    }
+  }
+}
+
+.trigger-more {
+  font-size: 0.75rem;
+  color: $color-gray;
+  font-weight: 500;
+}
+
+.trigger-arrow {
+  width: 18px;
+  height: 18px;
+  stroke: $color-gray;
+  stroke-width: 2;
+  fill: none;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+
+  .multi-select-trigger.open & {
+    transform: rotate(180deg);
+  }
+}
+
+.multi-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: $color-white;
+  border: 1px solid $color-blue;
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 0 8px 24px rgba(10, 22, 40, 0.12);
+  z-index: 50;
+  display: none;
+
+  &.show {
+    display: block;
+  }
+}
+
+.multi-select-search {
+  padding: 10px;
+  border-bottom: 1px solid $color-border;
+
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid $color-border;
+    border-radius: 8px;
+    font-family: $font-body;
+    font-size: 0.85rem;
+
+    &:focus {
+      outline: none;
+      border-color: $color-blue;
+    }
+
+    &::placeholder {
+      color: #a0aec0;
+    }
+  }
+}
+
+.multi-select-list {
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.multi-select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: $color-light-gray;
+  }
+
+  &.selected {
+    background: rgba(30, 58, 95, 0.04);
+  }
+}
+
+.option-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid $color-border;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+
+  .multi-select-option.selected & {
+    background: $color-blue;
+    border-color: $color-blue;
+  }
+
+  svg {
+    width: 12px;
+    height: 12px;
+    stroke: $color-white;
+    stroke-width: 3;
+    fill: none;
+    opacity: 0;
+
+    .multi-select-option.selected & {
+      opacity: 1;
+    }
+  }
+}
+
+.option-name {
+  font-size: 0.9rem;
+  color: $color-navy;
+  flex: 1;
+}
+
+.option-count {
+  font-size: 0.75rem;
+  color: $color-gray;
+}
+
+// Dropdown Footer
+.filter-dropdown-footer {
+  padding: 16px 20px;
+  border-top: 1px solid $color-border;
+  display: flex;
+  gap: 12px;
+}
+
+.filter-footer-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-family: $font-body;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &.cancel-btn {
+    background: transparent;
+    color: $color-gray;
+    border: 1px solid $color-border;
+
+    &:hover {
+      background: $color-light-gray;
+      color: $color-navy;
+    }
+  }
+
+  &.apply-btn {
+    background: $color-blue;
+    color: $color-white;
+    border: none;
+
+    &:hover {
+      background: $color-navy;
+    }
+  }
+}
+
+// Active Filter Chips
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 12px;
+  background: rgba(30, 58, 95, 0.08);
+  color: $color-blue;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.filter-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(30, 58, 95, 0.12);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease;
+
+  svg {
+    width: 10px;
+    height: 10px;
+    stroke: $color-blue;
+    stroke-width: 2.5;
+    fill: none;
+  }
+
+  &:hover {
+    background: rgba(30, 58, 95, 0.2);
+  }
+}
+
+// Results Info
+.results-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.results-count {
+  font-size: 0.9rem;
+  color: $color-gray;
+
+  strong {
+    color: $color-navy;
+    font-weight: 600;
+  }
+}
+
+// Responsive Filter Dropdown
+@media (max-width: 700px) {
+  .search-row {
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex: 1 1 100%;
+  }
+
+  .filter-btn-wrapper {
+    flex: 1;
+  }
+
+  .filter-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .add-game-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .filter-dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    max-height: 85vh;
+
+    &.show {
+      animation: slideUp 0.25s ease;
+    }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(100%); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .filter-dropdown-content {
+    max-height: 60vh;
+  }
+}
+
+@media (max-width: 500px) {
+  .time-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .time-option {
+    text-align: center;
   }
 }
 
@@ -665,9 +1247,10 @@ a {
 
   .game-tags {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 5px;
     margin-bottom: 12px;
+    overflow: hidden;
   }
 
   .game-tag {
@@ -678,6 +1261,14 @@ a {
     border-radius: 4px;
     font-size: 0.7rem;
     font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &.game-tag-more {
+      background: rgba(30, 58, 95, 0.08);
+      border-color: transparent;
+      color: $color-blue;
+    }
   }
 
   .game-actions {
@@ -1064,6 +1655,26 @@ a {
   color: $color-gray;
   line-height: 1.65;
   margin: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 8px;
+
+  // Scrollbar styling
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+  }
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
 }
 
 // Tags

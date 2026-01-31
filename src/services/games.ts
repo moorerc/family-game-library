@@ -162,9 +162,11 @@ export const gamesService = {
         }
       }
 
-      // Household filter
-      if (filters.householdId && game.ownership.householdId !== filters.householdId) {
-        return false;
+      // Households filter (multi-select)
+      if (filters.householdIds && filters.householdIds.length > 0) {
+        if (!filters.householdIds.includes(game.ownership.householdId)) {
+          return false;
+        }
       }
 
       // Categories filter
@@ -176,9 +178,17 @@ export const gamesService = {
       }
 
       // Play time filter
-      if (filters.maxPlayTime && game.playTimeMinutes) {
-        if (game.playTimeMinutes > filters.maxPlayTime) {
-          return false;
+      if (filters.playTime && game.playTimeMinutes) {
+        switch (filters.playTime) {
+          case 'short':
+            if (game.playTimeMinutes >= 30) return false;
+            break;
+          case 'medium':
+            if (game.playTimeMinutes < 30 || game.playTimeMinutes > 60) return false;
+            break;
+          case 'long':
+            if (game.playTimeMinutes < 60) return false;
+            break;
         }
       }
 

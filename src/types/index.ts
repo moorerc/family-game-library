@@ -49,12 +49,14 @@ export interface User {
   createdAt: Date;
 }
 
+export type PlayTimeFilter = 'any' | 'short' | 'medium' | 'long';
+
 export interface GameFilters {
   searchQuery: string;
   playerCount?: number;
-  householdId?: string;
+  householdIds?: string[];
   categories?: string[];
-  maxPlayTime?: number;
+  playTime?: PlayTimeFilter;
 }
 
 export type SortOption = 'name' | 'recentlyAdded' | 'playerCount' | 'household';

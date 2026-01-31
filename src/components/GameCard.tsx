@@ -73,11 +73,16 @@ export const GameCard: React.FC<GameCardProps> = ({
 
         {game.categories && game.categories.length > 0 && (
           <div className="game-tags">
-            {game.categories.slice(0, 3).map((category) => (
+            {game.categories.slice(0, 2).map((category) => (
               <span key={category} className="game-tag">
                 {category}
               </span>
             ))}
+            {game.categories.length > 2 && (
+              <span className="game-tag game-tag-more">
+                +{game.categories.length - 2}
+              </span>
+            )}
           </div>
         )}
 
