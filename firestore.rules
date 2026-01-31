@@ -76,5 +76,14 @@ service cloud.firestore {
       allow update: if isOwner(userId);
       allow delete: if false; // Prevent user deletion
     }
+
+    // User game preferences collection (like/dislike/favorite)
+    match /userGamePreferences/{prefId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+    }
   }
 }

@@ -112,6 +112,11 @@ a {
   &:hover {
     color: #4f46e5; // Darker indigo on hover
   }
+
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
 }
 
 // =============================================================================
@@ -407,6 +412,22 @@ a {
       font-size: 0.7rem;
     }
   }
+
+  .game-card-preferences {
+    display: flex;
+    gap: $spacing-xs;
+    margin-top: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $color-border;
+
+    .preference-btn {
+      padding: 4px 8px;
+
+      &.active {
+        background: rgba($color-primary, 0.1);
+      }
+    }
+  }
 }
 
 // =============================================================================
@@ -542,6 +563,33 @@ a {
   color: $color-wood-light;
   font-style: italic;
   margin: 0;
+}
+
+.game-detail-preferences {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md 0;
+  border-bottom: 1px solid $color-border;
+
+  .bp5-button-group {
+    .bp5-button {
+      flex: 1;
+    }
+  }
+
+  .preference-stats {
+    display: flex;
+    gap: $spacing-md;
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
 }
 
 .game-detail-links {
@@ -807,13 +855,20 @@ a {
 }
 
 // Buttons
-.bp5-button.bp5-intent-primary {
-  background: $color-primary;
-  border: none;
-  box-shadow: none;
+.bp5-button {
+  &:focus {
+    outline: none;
+    box-shadow: none;
+  }
 
-  &:hover {
-    background: #4f46e5;
+  &.bp5-intent-primary {
+    background: $color-primary;
+    border: none;
+    box-shadow: none;
+
+    &:hover {
+      background: #4f46e5;
+    }
   }
 }
 

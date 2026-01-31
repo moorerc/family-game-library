@@ -3,6 +3,7 @@ import { NonIdealState, Spinner, Button } from '@blueprintjs/core';
 import { Link } from 'react-router-dom';
 import { GameCard, GameFilters, GameDetailDialog } from '../components';
 import { useGames } from '../hooks/useGames';
+import { useUserPreferences } from '../hooks/useUserPreferences';
 import { householdsService } from '../services/households';
 import { gamesService } from '../services/games';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +12,13 @@ import type { OwnedGame, Household } from '../types';
 export const HomePage: React.FC = () => {
   const { currentUser, loading: authLoading } = useAuth();
   const { games, filteredGames, loading, error, filters, setFilters, getOwnershipsByGame } = useGames();
+  const {
+    getPreference,
+    likeGame,
+    dislikeGame,
+    toggleFavorite,
+    getPreferenceStats,
+  } = useUserPreferences();
   const [households, setHouseholds] = useState<Household[]>([]);
   const [selectedGame, setSelectedGame] = useState<OwnedGame | null>(null);
 
@@ -132,6 +140,10 @@ export const HomePage: React.FC = () => {
               key={`${game.id}-${game.ownership.id}`}
               game={game}
               onClick={() => setSelectedGame(game)}
+              preference={getPreference(game.id)}
+              onLike={currentUser ? likeGame : undefined}
+              onDislike={currentUser ? dislikeGame : undefined}
+              onToggleFavorite={currentUser ? toggleFavorite : undefined}
             />
           ))}
         </div>
@@ -142,6 +154,11 @@ export const HomePage: React.FC = () => {
         isOpen={selectedGame !== null}
         onClose={() => setSelectedGame(null)}
         onFetchOwnerships={getOwnershipsByGame}
+        preference={selectedGame ? getPreference(selectedGame.id) : null}
+        onLike={currentUser ? likeGame : undefined}
+        onDislike={currentUser ? dislikeGame : undefined}
+        onToggleFavorite={currentUser ? toggleFavorite : undefined}
+        onFetchStats={getPreferenceStats}
       />
     </div>
   );

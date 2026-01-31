@@ -78,3 +78,20 @@ export interface BGGGameDetails {
   imageUrl?: string;
   categories: string[];
 }
+
+// User preferences for games (like/dislike/favorite)
+export interface UserGamePreference {
+  id: string;
+  userId: string;           // Firebase auth UID
+  gameId: string;           // Reference to games collection
+  reaction: 'like' | 'dislike' | null;  // Mutually exclusive
+  isFavorite: boolean;      // Can favorite a liked game
+  updatedAt: Date;
+}
+
+// Stats for a game's preferences
+export interface GamePreferenceStats {
+  likes: number;
+  dislikes: number;
+  favorites: number;
+}
