@@ -1,3 +1,4 @@
+// Canonical game data - one document per unique game
 export interface Game {
   id: string;
   name: string;
@@ -6,15 +7,29 @@ export interface Game {
   maxPlayers: number;
   playTimeMinutes?: number;
   yearPublished?: number;
-  bggId?: string; // BoardGameGeek ID for potential API integration
+  bggId?: string; // BoardGameGeek ID - used for deduplication
   imageUrl?: string;
-  householdId: string;
-  householdName: string;
-  addedBy: string;
-  addedAt: Date;
   categories?: string[];
   mechanics?: string[];
-  notes?: string;
+  createdBy: string; // User who first added this game
+  createdAt: Date;
+}
+
+// Links games to households with household-specific data
+export interface Ownership {
+  id: string;
+  gameId: string; // Reference to games collection
+  householdId: string;
+  householdName: string; // Denormalized for display
+  addedBy: string; // User who added to this household
+  addedAt: Date;
+  notes?: string; // "Missing 2 pieces", "Has expansion"
+}
+
+// Composite type for UI - game with ownership info
+export interface OwnedGame extends Game {
+  ownership: Ownership; // The specific ownership record
+  ownerCount?: number; // How many households own this
 }
 
 export interface Household {

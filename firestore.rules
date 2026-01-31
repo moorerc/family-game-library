@@ -30,7 +30,7 @@ service cloud.firestore {
         request.auth.uid in resource.data.members;
     }
 
-    // Games collection
+    // Games collection - canonical game data
     match /games/{gameId} {
       // Allow read for all authenticated users (shared library)
       allow read: if isAuthenticated();
@@ -40,11 +40,30 @@ service cloud.firestore {
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 200
-        && request.resource.data.addedBy == request.auth.uid
         && request.resource.data.minPlayers is int
         && request.resource.data.maxPlayers is int;
 
-      // Allow update/delete if user added the game
+      // Allow update/delete if user created/added the game
+      // Supports both new format (createdBy) and legacy format (addedBy)
+      allow update, delete: if isAuthenticated() && (
+        request.auth.uid == resource.data.createdBy ||
+        request.auth.uid == resource.data.addedBy
+      );
+    }
+
+    // Ownership collection - links games to households
+    match /ownership/{ownershipId} {
+      // Allow read for all authenticated users (to see who owns what)
+      allow read: if isAuthenticated();
+
+      // Allow create with validation
+      allow create: if isAuthenticated()
+        && request.resource.data.gameId is string
+        && request.resource.data.householdId is string
+        && request.resource.data.householdName is string
+        && request.resource.data.addedBy == request.auth.uid;
+
+      // Allow update/delete if user added this ownership record
       allow update, delete: if isOwner(resource.data.addedBy);
     }
 

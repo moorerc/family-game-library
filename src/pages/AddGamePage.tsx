@@ -9,7 +9,7 @@ import type { Household } from '../types';
 
 export const AddGamePage: React.FC = () => {
   const { currentUser, userProfile, loading: authLoading } = useAuth();
-  const { addGame } = useGames();
+  const { addGameWithOwnership } = useGames();
   const [household, setHousehold] = useState<Household | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -77,7 +77,7 @@ export const AddGamePage: React.FC = () => {
 
       <Card className="add-game-card">
         <AddGameForm
-          onSubmit={addGame}
+          onSubmit={addGameWithOwnership}
           householdId={household.id}
           householdName={household.name}
         />

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Card, Tag, Icon } from '@blueprintjs/core';
-import type { Game } from '../types';
+import type { OwnedGame } from '../types';
 
 interface GameCardProps {
-  game: Game;
+  game: OwnedGame;
   onClick?: () => void;
 }
 
@@ -23,11 +23,16 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onClick }) => {
             <Icon icon="cube" size={48} />
           </div>
         )}
+        {game.ownerCount && game.ownerCount > 1 && (
+          <Tag className="owner-count-badge" intent="success" round>
+            {game.ownerCount} households
+          </Tag>
+        )}
       </div>
-      
+
       <div className="game-card-content">
         <h3 className="game-card-title">{game.name}</h3>
-        
+
         <div className="game-card-meta">
           <span className="meta-item">
             <Icon icon="people" size={14} />
@@ -43,7 +48,7 @@ export const GameCard: React.FC<GameCardProps> = ({ game, onClick }) => {
 
         <div className="game-card-household">
           <Tag minimal intent="primary">
-            {game.householdName}
+            {game.ownership.householdName}
           </Tag>
         </div>
 

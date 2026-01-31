@@ -30,7 +30,12 @@ function stripHtml(html: string): string {
 }
 
 interface AddGameFormProps {
-  onSubmit: (game: Omit<Game, 'id'>) => Promise<void>;
+  onSubmit: (
+    gameData: Omit<Game, 'id'>,
+    householdId: string,
+    householdName: string,
+    notes?: string
+  ) => Promise<void>;
   householdId: string;
   householdName: string;
 }
@@ -102,7 +107,7 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!currentUser) {
       setError('You must be logged in to add a game');
       return;
@@ -117,15 +122,13 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({
     setError(null);
 
     try {
-      // Build game object, omitting undefined fields (Firestore doesn't accept undefined)
+      // Build game data (canonical game info only, no ownership fields)
       const gameData: Omit<Game, 'id'> = {
         name: name.trim(),
         minPlayers,
         maxPlayers,
-        householdId,
-        householdName,
-        addedBy: currentUser.uid,
-        addedAt: new Date(),
+        createdBy: currentUser.uid,
+        createdAt: new Date(),
       };
 
       // Only add optional fields if they have values
@@ -135,9 +138,14 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({
       if (imageUrl.trim()) gameData.imageUrl = imageUrl.trim();
       if (bggId.trim()) gameData.bggId = bggId.trim();
       if (categories.length > 0) gameData.categories = categories;
-      if (notes.trim()) gameData.notes = notes.trim();
 
-      await onSubmit(gameData);
+      // Submit game data along with household info and notes
+      await onSubmit(
+        gameData,
+        householdId,
+        householdName,
+        notes.trim() || undefined
+      );
 
       // Navigate back to library on success
       navigate('/');
@@ -286,7 +294,7 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({
           />
         </FormGroup>
 
-        <FormGroup label="Notes" labelFor="notes">
+        <FormGroup label="Notes" labelFor="notes" helperText="Notes specific to your household's copy">
           <TextArea
             id="notes"
             fill
@@ -297,7 +305,7 @@ export const AddGameForm: React.FC<AddGameFormProps> = ({
           />
         </FormGroup>
 
-      <div className="form-actions">
+        <div className="form-actions">
           <Button
             type="submit"
             intent={Intent.PRIMARY}

@@ -346,6 +346,7 @@ a {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: relative;
 
     img {
       width: 100%;
@@ -355,6 +356,14 @@ a {
 
     .game-card-placeholder {
       color: $color-gray-400;
+    }
+
+    .owner-count-badge {
+      position: absolute;
+      top: $spacing-sm;
+      right: $spacing-sm;
+      font-size: 0.7rem;
+      font-weight: 600;
     }
   }
 
@@ -482,6 +491,27 @@ a {
 
 .game-detail-owner {
   margin: $spacing-sm 0;
+}
+
+.ownership-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.ownership-item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  .ownership-notes {
+    margin: 0;
+    padding-left: $spacing-sm;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+    font-style: italic;
+    border-left: 2px solid $color-border;
+  }
 }
 
 .game-detail-description {

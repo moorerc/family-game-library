@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogBody,
@@ -6,20 +6,39 @@ import {
   Icon,
   Button,
   Intent,
+  Spinner,
 } from '@blueprintjs/core';
-import type { Game } from '../types';
+import type { OwnedGame, Ownership } from '../types';
 
 interface GameDetailDialogProps {
-  game: Game | null;
+  game: OwnedGame | null;
   isOpen: boolean;
   onClose: () => void;
+  onFetchOwnerships?: (gameId: string) => Promise<Ownership[]>;
 }
 
 export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
   game,
   isOpen,
   onClose,
+  onFetchOwnerships,
 }) => {
+  const [allOwnerships, setAllOwnerships] = useState<Ownership[]>([]);
+  const [loadingOwnerships, setLoadingOwnerships] = useState(false);
+
+  // Fetch all ownerships when dialog opens
+  useEffect(() => {
+    if (isOpen && game && onFetchOwnerships) {
+      setLoadingOwnerships(true);
+      onFetchOwnerships(game.id)
+        .then(setAllOwnerships)
+        .catch(console.error)
+        .finally(() => setLoadingOwnerships(false));
+    } else {
+      setAllOwnerships([]);
+    }
+  }, [isOpen, game, onFetchOwnerships]);
+
   if (!game) return null;
 
   const playerRange =
@@ -62,10 +81,28 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
               )}
             </div>
 
-            <div className="game-detail-owner">
-              <Tag intent={Intent.PRIMARY} large>
-                {game.householdName}
-              </Tag>
+            <div className="game-detail-section">
+              <h4>Owned By</h4>
+              {loadingOwnerships ? (
+                <Spinner size={20} />
+              ) : allOwnerships.length > 0 ? (
+                <div className="ownership-list">
+                  {allOwnerships.map((ownership) => (
+                    <div key={ownership.id} className="ownership-item">
+                      <Tag intent={Intent.PRIMARY} large>
+                        {ownership.householdName}
+                      </Tag>
+                      {ownership.notes && (
+                        <p className="ownership-notes">{ownership.notes}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <Tag intent={Intent.PRIMARY} large>
+                  {game.ownership.householdName}
+                </Tag>
+              )}
             </div>
 
             {game.description && (
@@ -97,13 +134,6 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
                     </Tag>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {game.notes && (
-              <div className="game-detail-section">
-                <h4>Notes</h4>
-                <p className="game-notes">{game.notes}</p>
               </div>
             )}
 

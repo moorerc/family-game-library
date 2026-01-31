@@ -6,13 +6,13 @@ import { useGames } from '../hooks/useGames';
 import { householdsService } from '../services/households';
 import { gamesService } from '../services/games';
 import { useAuth } from '../context/AuthContext';
-import type { Game, Household } from '../types';
+import type { OwnedGame, Household } from '../types';
 
 export const HomePage: React.FC = () => {
   const { currentUser, loading: authLoading } = useAuth();
-  const { games, filteredGames, loading, error, filters, setFilters } = useGames();
+  const { games, filteredGames, loading, error, filters, setFilters, getOwnershipsByGame } = useGames();
   const [households, setHouseholds] = useState<Household[]>([]);
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [selectedGame, setSelectedGame] = useState<OwnedGame | null>(null);
 
   const availableCategories = useMemo(
     () => gamesService.getUniqueCategories(games),
@@ -129,7 +129,7 @@ export const HomePage: React.FC = () => {
         <div className="games-grid">
           {filteredGames.map((game) => (
             <GameCard
-              key={game.id}
+              key={`${game.id}-${game.ownership.id}`}
               game={game}
               onClick={() => setSelectedGame(game)}
             />
@@ -141,6 +141,7 @@ export const HomePage: React.FC = () => {
         game={selectedGame}
         isOpen={selectedGame !== null}
         onClose={() => setSelectedGame(null)}
+        onFetchOwnerships={getOwnershipsByGame}
       />
     </div>
   );
