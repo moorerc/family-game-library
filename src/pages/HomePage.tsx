@@ -62,8 +62,8 @@ export const HomePage: React.FC = () => {
         <div className="welcome-screen">
           <NonIdealState
             icon="home"
-            title="Welcome to Family Game Library"
-            description="Track and share board games across your family's households. Log in to view your collection and add new games."
+            title="Welcome to Game Night HQ"
+            description="Your family's board game command center. Log in to discover, track, and pick your next game night adventure."
             action={
               <div className="welcome-actions">
                 <Link to="/login">
@@ -88,7 +88,7 @@ export const HomePage: React.FC = () => {
     return (
       <div className="page-loading">
         <Spinner size={50} />
-        <p>Loading your family's game library...</p>
+        <p>Loading your game collection...</p>
       </div>
     );
   }
@@ -112,58 +112,62 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="home-page">
-      <GameFilters
-        filters={filters}
-        onFiltersChange={setFilters}
-        households={households}
-        availableCategories={availableCategories}
-        actionButton={
-          <Button
-            intent="primary"
-            icon="add"
-            onClick={() => setIsAddGameDialogOpen(true)}
-          >
-            Add Game
-          </Button>
-        }
-      />
-
-      {filteredGames.length === 0 ? (
-        <NonIdealState
-          icon="search"
-          title="No games found"
-          description={
-            filters.searchQuery || filters.playerCount || filters.householdId || filters.categories || filters.maxPlayTime
-              ? "Try adjusting your filters"
-              : "Be the first to add a game to the library!"
-          }
-          action={
-            currentUser ? (
-              <Button
-                intent="primary"
-                icon="add"
-                onClick={() => setIsAddGameDialogOpen(true)}
-              >
-                Add a Game
-              </Button>
-            ) : undefined
+      <div className="home-page-filters">
+        <GameFilters
+          filters={filters}
+          onFiltersChange={setFilters}
+          households={households}
+          availableCategories={availableCategories}
+          actionButton={
+            <Button
+              intent="primary"
+              icon="add"
+              onClick={() => setIsAddGameDialogOpen(true)}
+            >
+              Add Game
+            </Button>
           }
         />
-      ) : (
-        <div className="games-grid">
-          {filteredGames.map((game) => (
-            <GameCard
-              key={`${game.id}-${game.ownership.id}`}
-              game={game}
-              onClick={() => setSelectedGame(game)}
-              preference={getPreference(game.id)}
-              onLike={currentUser ? likeGame : undefined}
-              onDislike={currentUser ? dislikeGame : undefined}
-              onToggleFavorite={currentUser ? toggleFavorite : undefined}
-            />
-          ))}
-        </div>
-      )}
+      </div>
+
+      <div className="home-page-content">
+        {filteredGames.length === 0 ? (
+          <NonIdealState
+            icon="search"
+            title="No games found"
+            description={
+              filters.searchQuery || filters.playerCount || filters.householdId || filters.categories || filters.maxPlayTime
+                ? "Try adjusting your filters"
+                : "Be the first to add a game to the library!"
+            }
+            action={
+              currentUser ? (
+                <Button
+                  intent="primary"
+                  icon="add"
+                  onClick={() => setIsAddGameDialogOpen(true)}
+                >
+                  Add a Game
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : (
+          <div className="games-grid">
+            {filteredGames.map((game) => (
+              <GameCard
+                key={`${game.id}-${game.ownership.id}`}
+                game={game}
+                onClick={() => setSelectedGame(game)}
+                preference={getPreference(game.id)}
+                onLike={currentUser ? likeGame : undefined}
+                onDislike={currentUser ? dislikeGame : undefined}
+                onToggleFavorite={currentUser ? toggleFavorite : undefined}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       <GameDetailDialog
         game={selectedGame}

@@ -74,9 +74,11 @@ export const SignUpPage: React.FC = () => {
     <div className="auth-page">
       <Card className="auth-card">
         <div className="auth-header">
-          <span className="auth-icon">🎲</span>
-          <h1>Join the Family</h1>
-          <p>Create an account to start tracking your board games</p>
+          <div className="auth-logo">
+            <div className="logo-icon"><span className="logo-text">HQ</span></div>
+          </div>
+          <h1>Join the Fun</h1>
+          <p>Create an account to start your game night adventures</p>
         </div>
 
         {error && (

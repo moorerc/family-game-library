@@ -1,52 +1,61 @@
-// Family Game Library Styles
-// Clean, modern light theme
+// Game Night HQ Styles
+// Modern brand refresh
 
 // =============================================================================
 // VARIABLES
 // =============================================================================
 
-// Color palette - modern slate grays
+// Brand Colors
+$color-navy: #0a1628;
+$color-blue: #1e3a5f;
+$color-yellow: #ffcc00;
+$color-yellow-hover: #e6b800;
+$color-gray: #4a5568;
+$color-light-gray: #f7f8fa;
+$color-border: #e2e6ec;
 $color-white: #ffffff;
-$color-gray-50: #f8fafc;
+
+// Legacy color mappings (for compatibility)
+$color-gray-50: $color-light-gray;
 $color-gray-100: #f1f5f9;
-$color-gray-200: #e2e8f0;
+$color-gray-200: $color-border;
 $color-gray-300: #cbd5e1;
 $color-gray-400: #94a3b8;
-$color-gray-500: #64748b;
-$color-gray-600: #475569;
-$color-gray-700: #334155;
-$color-gray-800: #1e293b;
-$color-gray-900: #0f172a;
-$color-gray-950: #020617;
+$color-gray-500: $color-gray;
+$color-gray-600: $color-gray;
+$color-gray-700: $color-blue;
+$color-gray-800: $color-blue;
+$color-gray-900: $color-navy;
+$color-gray-950: $color-navy;
 
-// Accent colors - modern and vibrant
-$color-primary: #6366f1;      // Indigo
-$color-success: #10b981;      // Emerald
-$color-warning: #f59e0b;      // Amber
-$color-danger: #ef4444;       // Red
-$color-info: #0ea5e9;         // Sky blue
+// Accent colors
+$color-primary: $color-blue;
+$color-success: #10b981;
+$color-warning: $color-yellow;
+$color-danger: #ef4444;
+$color-info: $color-blue;
 
-// Semantic colors - LIGHT THEME
-$color-text-primary: $color-gray-900;
-$color-text-secondary: $color-gray-600;
-$color-text-muted: $color-gray-400;
-$color-border: $color-gray-200;
+// Semantic colors
+$color-text-primary: $color-navy;
+$color-text-secondary: $color-gray;
+$color-text-muted: #94a3b8;
 $color-surface: $color-white;
-$color-background: $color-gray-50;
+$color-background: $color-light-gray;
 
-// Legacy aliases for compatibility (updated for light theme)
-$color-cream: $color-gray-900;
-$color-parchment: $color-gray-700;
-$color-wood-light: $color-gray-500;
-$color-wood: $color-gray-400;
-$color-wood-dark: $color-gray-300;
+// Legacy aliases for compatibility
+$color-cream: $color-navy;
+$color-parchment: $color-blue;
+$color-wood-light: $color-gray;
+$color-wood: #94a3b8;
+$color-wood-dark: $color-border;
 $color-espresso: $color-white;
 $color-charcoal: $color-white;
-$color-night: $color-gray-50;
+$color-night: $color-light-gray;
 
-// Typography - clean sans-serif
-$font-display: 'Inter', system-ui, sans-serif;
-$font-body: 'Inter', system-ui, sans-serif;
+// Typography
+$font-logo: 'Archivo Black', sans-serif;
+$font-display: 'DM Sans', system-ui, sans-serif;
+$font-body: 'DM Sans', system-ui, sans-serif;
 
 // Spacing
 $spacing-xs: 0.25rem;
@@ -87,6 +96,7 @@ body {
   color: $color-text-primary;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow: hidden;
 }
 
 // =============================================================================
@@ -95,7 +105,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: $font-display;
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 $spacing-md;
   color: $color-text-primary;
 }
@@ -105,12 +115,12 @@ h2 { font-size: 2rem; }
 h3 { font-size: 1.5rem; }
 
 a {
-  color: $color-primary;
+  color: $color-blue;
   text-decoration: none;
   transition: color 0.2s ease;
 
   &:hover {
-    color: #4f46e5; // Darker indigo on hover
+    color: $color-navy;
   }
 
   &:focus {
@@ -124,20 +134,83 @@ a {
 // =============================================================================
 
 .app {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .app-main {
   flex: 1;
-  padding-top: 60px; // Account for fixed navbar
+  padding-top: 72px; // Account for fixed navbar height
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-container {
-  max-width: 1200px;
+  max-width: 1920px;
   margin: 0 auto;
-  padding: $spacing-xl;
+  padding: 24px 48px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+// =============================================================================
+// HOME PAGE LAYOUT
+// =============================================================================
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.home-page-filters {
+  flex-shrink: 0;
+}
+
+.home-page-content {
+  flex: 1;
+  overflow-y: auto;
+  background: $color-white;
+  border-radius: 16px;
+  border: 1px solid $color-border;
+  margin-top: 8px;
+  padding: 16px;
+
+  // Scrollbar styling
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 8px 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  // Firefox
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+
+  .bp5-non-ideal-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+  }
 }
 
 // =============================================================================
@@ -147,25 +220,48 @@ a {
 .app-navbar.bp5-navbar {
   background: $color-white;
   border-bottom: 1px solid $color-border;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  padding: 0 $spacing-xl;
+  box-shadow: none;
+  padding: 0 32px;
+  height: 72px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  .bp5-navbar-group {
+    height: 72px;
+  }
 
   .navbar-brand {
     display: flex;
     align-items: center;
-    gap: $spacing-sm;
+    gap: 10px;
     color: $color-text-primary;
     text-decoration: none;
 
-    .brand-icon {
-      font-size: 1.5rem;
-      color: $color-primary;
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: $color-yellow;
+      border-radius: 10px;
+      transform: rotate(-5deg);
+      box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: $font-logo;
+      font-size: 1.1rem;
+      color: $color-navy;
     }
 
-    .brand-text {
-      font-family: $font-display;
+    .logo-text {
+      font-family: $font-logo;
       font-size: 1.25rem;
-      font-weight: 600;
+      color: $color-navy;
+      line-height: 0.9;
+
+      .night {
+        color: $color-blue;
+      }
     }
 
     &:hover {
@@ -173,17 +269,97 @@ a {
     }
   }
 
-  .bp5-button.bp5-minimal {
-    color: $color-text-secondary;
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 16px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: $color-gray;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
 
     &:hover {
-      background: $color-gray-100;
-      color: $color-text-primary;
+      background: $color-light-gray;
+      color: $color-navy;
     }
 
-    &.bp5-active {
-      background: rgba($color-primary, 0.1);
-      color: $color-primary;
+    &.active {
+      background: $color-blue;
+      color: $color-white;
+
+      .bp5-icon {
+        color: $color-yellow;
+      }
+    }
+  }
+
+  .user-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px 8px 10px;
+    border-radius: 50px;
+    border: 1px solid $color-border;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: transparent;
+    font-family: $font-body;
+
+    &:hover {
+      border-color: $color-blue;
+    }
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    background: $color-blue;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $color-white;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .user-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: $color-navy;
+  }
+
+  .add-game-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: $color-yellow;
+    color: $color-navy;
+    border: none;
+    border-radius: 12px;
+    font-family: $font-body;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+
+    &:hover {
+      background: $color-yellow-hover;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 204, 0, 0.4);
     }
   }
 }
@@ -239,49 +415,82 @@ a {
 // =============================================================================
 
 .game-filters {
-  margin-bottom: $spacing-xl;
+  margin-bottom: 28px;
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 16px;
 
   .search-row {
     display: flex;
-    gap: $spacing-md;
+    gap: 16px;
     align-items: center;
 
     .search-input {
       flex: 1;
+      min-width: 280px;
+      position: relative;
 
       .bp5-input-group {
         .bp5-input {
+          width: 100%;
+          padding: 14px 20px 14px 48px;
+          border: 2px solid $color-border;
+          border-radius: 12px;
+          font-family: $font-body;
+          font-size: 0.95rem;
           background: $color-white;
-          border: 1px solid $color-border;
-          border-radius: 50px;
-          padding-left: 44px;
-          padding-right: $spacing-lg;
-          height: 48px;
-          font-size: 1rem;
+          transition: all 0.15s ease;
 
           &::placeholder {
-            color: $color-text-muted;
+            color: #a0aec0;
           }
 
           &:focus {
-            border-color: $color-primary;
-            box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+            outline: none;
+            border-color: $color-blue;
+            box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
           }
         }
 
         .bp5-input-left-container {
-          left: $spacing-md;
+          left: 16px;
+
+          .bp5-icon {
+            color: #a0aec0;
+          }
         }
+      }
+    }
+
+    // Add game button in search row
+    .bp5-button.bp5-intent-primary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 24px;
+      background: $color-yellow;
+      color: $color-navy;
+      border: none;
+      border-radius: 12px;
+      font-family: $font-body;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+      height: auto;
+
+      &:hover {
+        background: $color-yellow-hover;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 204, 0, 0.4);
       }
     }
   }
 
   .advanced-filters {
     display: flex;
-    gap: $spacing-xl;
+    gap: 12px;
     align-items: center;
     flex-wrap: wrap;
   }
@@ -289,14 +498,38 @@ a {
   .filter-group {
     display: flex;
     align-items: center;
-    gap: $spacing-sm;
+    gap: 8px;
   }
 
   .filter-label {
     font-size: 0.85rem;
-    color: $color-text-secondary;
+    color: $color-gray;
     font-weight: 500;
     white-space: nowrap;
+  }
+
+  .filter-select,
+  .bp5-html-select select {
+    padding: 10px 36px 10px 14px;
+    border: 1px solid $color-border;
+    border-radius: 8px;
+    font-family: $font-body;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: $color-navy;
+    background-color: $color-white;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      border-color: $color-blue;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $color-blue;
+      box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+    }
   }
 
   .player-count-input.bp5-numeric-input {
@@ -326,8 +559,8 @@ a {
 
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: $spacing-lg;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
 }
 
 // =============================================================================
@@ -337,25 +570,30 @@ a {
 .game-card.bp5-card {
   background: $color-white;
   border: 1px solid $color-border;
-  border-radius: $radius-md;
+  border-radius: 16px;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
   padding: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(10, 22, 40, 0.12);
+    border-color: transparent;
   }
 
-  .game-card-image {
-    height: 140px;
-    background: $color-gray-100;
+  &.favorited {
+    border-color: $color-yellow;
+    box-shadow: 0 0 0 1px $color-yellow;
+  }
+
+  .game-image {
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(135deg, #e2e6ec 0%, #d1d5db 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    position: relative;
 
     img {
       width: 100%;
@@ -363,72 +601,147 @@ a {
       object-fit: cover;
     }
 
-    .game-card-placeholder {
+    .game-image-placeholder {
       color: $color-gray-400;
     }
-
-    .owner-count-badge {
-      position: absolute;
-      top: $spacing-sm;
-      right: $spacing-sm;
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
   }
 
-  .game-card-content {
-    padding: $spacing-md;
+  .game-content {
+    padding: 16px;
   }
 
-  .game-card-title {
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .game-title {
     font-family: $font-display;
-    font-size: 1rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0;
+    color: $color-navy;
+    line-height: 1.2;
+  }
+
+  .game-owner {
+    font-size: 0.7rem;
     font-weight: 600;
-    margin: 0 0 $spacing-xs;
-    color: $color-text-primary;
-    line-height: 1.3;
+    color: $color-blue;
+    background: rgba(30, 58, 95, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+    margin-left: 12px;
   }
 
-  .game-card-meta {
+  .game-meta-row {
     display: flex;
-    gap: $spacing-md;
-    margin-bottom: $spacing-sm;
-    color: $color-text-secondary;
-    font-size: 0.8rem;
-
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
-  }
-
-  .game-card-household {
-    margin-bottom: $spacing-xs;
-  }
-
-  .game-card-categories {
-    display: flex;
-    gap: $spacing-xs;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
+  }
 
-    .category-tag {
-      font-size: 0.7rem;
+  .meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: rgba(30, 58, 95, 0.08);
+    color: $color-blue;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    .bp5-icon {
+      opacity: 0.7;
     }
   }
 
-  .game-card-preferences {
+  .game-tags {
     display: flex;
-    gap: $spacing-xs;
-    margin-top: $spacing-sm;
-    padding-top: $spacing-sm;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 12px;
+  }
+
+  .game-tag {
+    padding: 4px 8px;
+    background: transparent;
+    color: $color-gray;
+    border: 1px solid $color-border;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .game-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-top: 12px;
     border-top: 1px solid $color-border;
+  }
 
-    .preference-btn {
-      padding: 4px 8px;
+  .action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
 
-      &.active {
-        background: rgba($color-primary, 0.1);
+    .bp5-icon {
+      color: #a0aec0;
+      transition: all 0.15s ease;
+    }
+
+    &:hover {
+      background: $color-light-gray;
+
+      .bp5-icon {
+        color: $color-navy;
+      }
+    }
+
+    // Like button active state
+    &.like.active {
+      background: rgba(30, 58, 95, 0.1);
+
+      .bp5-icon {
+        color: $color-blue;
+      }
+    }
+
+    // Dislike button active state
+    &.dislike.active {
+      background: rgba(10, 22, 40, 0.08);
+
+      .bp5-icon {
+        color: $color-navy;
+        opacity: 0.5;
+      }
+    }
+
+    // Favorite button - pushed to right
+    &.favorite {
+      margin-left: auto;
+    }
+
+    &.favorite.active {
+      background: rgba(255, 204, 0, 0.15);
+
+      .bp5-icon {
+        color: $color-yellow;
       }
     }
   }
@@ -438,167 +751,493 @@ a {
 // GAME DETAIL DIALOG
 // =============================================================================
 
-.game-detail-dialog.bp5-dialog-container {
-  .bp5-dialog {
-    background: $color-white;
-    border: 1px solid $color-border;
-    border-radius: $radius-xl;
-    max-width: 600px;
-    width: 90vw;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+.game-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 22, 40, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  z-index: 1000;
+}
+
+.game-dialog {
+  background: $color-white;
+  border-radius: 24px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  max-width: 880px;
+  width: 100%;
+  max-height: 90vh;
+  box-shadow: 0 24px 64px rgba(10, 22, 40, 0.4);
+  position: relative;
+}
+
+.game-dialog-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: $color-light-gray;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: $color-border;
   }
 
-  .bp5-dialog-header {
-    background: transparent;
-    border-bottom: 1px solid $color-border;
-    box-shadow: none;
-
-    .bp5-heading {
-      font-family: $font-display;
-      color: $color-text-primary;
-    }
-
-    .bp5-dialog-close-button .bp5-icon {
-      color: $color-text-secondary;
-    }
-  }
-
-  .bp5-dialog-body {
-    padding: $spacing-lg;
-    background: $color-white;
-    color: $color-text-primary;
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke: $color-gray;
+    stroke-width: 2;
+    fill: none;
   }
 }
 
-.game-detail-content {
+// Left Panel - Image & Quick Stats
+.game-dialog-image-section {
+  background: linear-gradient(135deg, #5c3d7a 0%, #2d1b4e 100%);
+  padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
 }
 
-.game-detail-image {
+.game-dialog-image {
   width: 100%;
-  max-height: 300px;
-  border-radius: $radius-md;
+  aspect-ratio: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
   overflow: hidden;
 
   img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    background: $color-gray-100;
+    object-fit: cover;
   }
 }
 
-.game-detail-info {
+.game-dialog-image-placeholder {
+  opacity: 0.3;
+  color: white;
+}
+
+.game-dialog-stats {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 14px;
 }
 
-.game-detail-meta {
+.game-dialog-stat {
   display: flex;
-  gap: $spacing-lg;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
 
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    color: $color-text-secondary;
-    font-size: 1rem;
+.game-dialog-stat-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 
-    .bp5-icon {
-      color: $color-primary;
-    }
+  .bp5-icon {
+    color: $color-yellow;
   }
 }
 
-.game-detail-owner {
-  margin: $spacing-sm 0;
-}
-
-.ownership-list {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.ownership-item {
+.game-dialog-stat-text {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
-
-  .ownership-notes {
-    margin: 0;
-    padding-left: $spacing-sm;
-    font-size: 0.9rem;
-    color: $color-text-secondary;
-    font-style: italic;
-    border-left: 2px solid $color-border;
-  }
 }
 
-.game-detail-description {
-  color: $color-cream;
-  line-height: 1.7;
-
-  p {
-    margin: 0;
-  }
+.game-dialog-stat-value {
+  font-weight: 600;
+  font-size: 1rem;
 }
 
-.game-detail-section {
-  h4 {
-    font-family: $font-display;
-    font-size: 1rem;
-    color: $color-wood-light;
-    margin-bottom: $spacing-sm;
-  }
-
-  .tag-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-xs;
-  }
+.game-dialog-stat-label {
+  font-size: 0.75rem;
+  opacity: 0.6;
 }
 
-.game-notes {
-  color: $color-wood-light;
-  font-style: italic;
+// Right Panel - Game Details
+.game-dialog-details {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.game-dialog-header {
+  margin-bottom: 24px;
+  padding-right: 48px;
+}
+
+.game-dialog-title {
+  font-family: $font-display;
+  font-size: 2rem;
+  font-weight: 700;
+  color: $color-navy;
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+
+.game-dialog-subtitle {
+  font-size: 0.9rem;
+  color: $color-gray;
   margin: 0;
 }
 
-.game-detail-preferences {
+// Owners & Rating Row
+.game-dialog-owners-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid $color-border;
+  border-bottom: 1px solid $color-border;
+  margin-bottom: 24px;
+}
+
+.game-dialog-owners {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-md 0;
-  border-bottom: 1px solid $color-border;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
 
-  .bp5-button-group {
-    .bp5-button {
-      flex: 1;
+.game-dialog-owners-label {
+  font-size: 0.7rem;
+  color: $color-gray;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.game-dialog-household-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.game-dialog-household-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: $color-light-gray;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: $color-navy;
+}
+
+.game-dialog-chip-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-white;
+  font-size: 0.6rem;
+  font-weight: 600;
+  flex-shrink: 0;
+
+  &.color-1 { background: $color-blue; }
+  &.color-2 { background: #059669; }
+  &.color-3 { background: #d97706; }
+  &.color-4 { background: #7c3aed; }
+  &.color-5 { background: #db2777; }
+}
+
+// Rating Buttons
+.game-dialog-rating-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.game-dialog-rating-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  border: 2px solid $color-border;
+  background: $color-white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke: $color-gray;
+    stroke-width: 2;
+    fill: none;
+    transition: all 0.15s ease;
+  }
+
+  &:hover {
+    border-color: $color-blue;
+
+    svg {
+      stroke: $color-blue;
     }
   }
 
-  .preference-stats {
-    display: flex;
-    gap: $spacing-md;
-    color: $color-text-secondary;
-    font-size: 0.85rem;
+  // Like active state
+  &.like.active {
+    background: rgba(30, 58, 95, 0.1);
+    border-color: $color-blue;
 
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    svg {
+      stroke: $color-blue;
+      fill: $color-blue;
+    }
+  }
+
+  // Dislike active state
+  &.dislike.active {
+    background: rgba(10, 22, 40, 0.06);
+    border-color: $color-navy;
+
+    svg {
+      stroke: $color-navy;
+      fill: $color-navy;
+      opacity: 0.5;
+    }
+  }
+
+  // Favorite active state
+  &.favorite.active {
+    background: rgba(255, 204, 0, 0.15);
+    border-color: $color-yellow;
+
+    svg {
+      stroke: $color-yellow-hover;
+      fill: $color-yellow;
     }
   }
 }
 
-.game-detail-links {
-  padding-top: $spacing-md;
-  border-top: 1px solid rgba($color-wood, 0.2);
+// Content Sections
+.game-dialog-section {
+  margin-bottom: 20px;
+}
+
+.game-dialog-section-label {
+  font-size: 0.7rem;
+  color: $color-gray;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.game-dialog-description {
+  font-size: 0.95rem;
+  color: $color-gray;
+  line-height: 1.65;
+  margin: 0;
+}
+
+// Tags
+.game-dialog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.game-dialog-tag {
+  padding: 8px 14px;
+  background: $color-light-gray;
+  color: $color-navy;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+// History/Stats Section
+.game-dialog-history {
+  background: $color-light-gray;
+  border-radius: 14px;
+  padding: 20px;
+  margin-top: auto;
+}
+
+.game-dialog-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.game-dialog-history-item {
+  text-align: center;
+  flex: 1;
+}
+
+.game-dialog-history-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: $color-navy;
+  margin-bottom: 2px;
+}
+
+.game-dialog-history-label {
+  font-size: 0.7rem;
+  color: $color-gray;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.game-dialog-history-divider {
+  width: 1px;
+  height: 44px;
+  background: $color-border;
+  flex-shrink: 0;
+}
+
+// Footer Actions
+.game-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  margin-top: 24px;
+  border-top: 1px solid $color-border;
+}
+
+.game-dialog-footer-btn {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-family: $font-body;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+
+  .bp5-icon {
+    color: currentColor;
+  }
+
+  &.secondary {
+    background: transparent;
+    color: $color-gray;
+    border: none;
+
+    &:hover {
+      color: $color-navy;
+      background: $color-light-gray;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 800px) {
+  .game-dialog {
+    grid-template-columns: 1fr;
+    max-height: 95vh;
+  }
+
+  .game-dialog-image-section {
+    padding: 24px;
+  }
+
+  .game-dialog-image {
+    aspect-ratio: 16/9;
+    margin-bottom: 20px;
+  }
+
+  .game-dialog-stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .game-dialog-stat {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .game-dialog-details {
+    padding: 24px;
+  }
+
+  .game-dialog-title {
+    font-size: 1.5rem;
+  }
+
+  .game-dialog-owners-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .game-dialog-rating-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-dialog-backdrop {
+    padding: 16px;
+  }
+
+  .game-dialog-image-section {
+    padding: 20px;
+  }
+
+  .game-dialog-details {
+    padding: 20px;
+  }
+
+  .game-dialog-stats {
+    flex-direction: column;
+  }
+
+  .game-dialog-stat {
+    min-width: unset;
+  }
+
+  .game-dialog-history-row {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .game-dialog-history-divider {
+    display: none;
+  }
+
+  .game-dialog-history-item {
+    flex: 1 1 30%;
+  }
 }
 
 // =============================================================================
@@ -631,6 +1270,27 @@ a {
   text-align: center;
   margin-bottom: $spacing-xl;
 
+  .auth-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: $spacing-md;
+
+    .logo-icon {
+      width: 80px;
+      height: 80px;
+      background: $color-yellow;
+      border-radius: 16px;
+      transform: rotate(-5deg);
+      box-shadow: 0 4px 12px rgba(255, 204, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: $font-logo;
+      font-size: 2rem;
+      color: $color-navy;
+    }
+  }
+
   .auth-icon {
     font-size: 3rem;
     display: block;
@@ -639,10 +1299,12 @@ a {
 
   h1 {
     margin-bottom: $spacing-sm;
+    color: $color-navy;
+    font-size: 1.75rem;
   }
 
   p {
-    color: $color-wood-light;
+    color: $color-gray;
     margin: 0;
   }
 }
@@ -844,17 +1506,21 @@ a {
 .bp5-input,
 .bp5-html-select select {
   background: $color-white;
-  border: 1px solid $color-border;
+  border: 2px solid $color-border;
   color: $color-text-primary;
-  border-radius: $radius-md;
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-family: $font-body;
+  font-size: 0.95rem;
 
   &:focus {
-    border-color: $color-primary;
-    box-shadow: 0 0 0 2px rgba($color-primary, 0.15);
+    border-color: $color-blue;
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+    outline: none;
   }
 
   &::placeholder {
-    color: $color-text-muted;
+    color: #a0aec0;
   }
 }
 
@@ -866,12 +1532,32 @@ a {
   }
 
   &.bp5-intent-primary {
-    background: $color-primary;
+    background: $color-yellow;
+    color: $color-navy;
     border: none;
-    box-shadow: none;
+    box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+    border-radius: 12px;
+    font-weight: 600;
 
     &:hover {
-      background: #4f46e5;
+      background: $color-yellow-hover;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &.bp5-intent-success {
+    background: $color-blue;
+    color: $color-white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+
+    &:hover {
+      background: darken($color-blue, 5%);
     }
   }
 }
@@ -882,13 +1568,15 @@ a {
 }
 
 .bp5-tag.bp5-minimal {
-  background: $color-gray-100;
+  background: transparent;
+  border: 1px solid $color-border;
   color: $color-text-secondary;
 }
 
 .bp5-tag.bp5-intent-primary {
-  background: rgba($color-primary, 0.1);
-  color: $color-primary;
+  background: rgba(30, 58, 95, 0.1);
+  color: $color-blue;
+  border: none;
 }
 
 // Tabs
@@ -984,22 +1672,50 @@ a {
 .bp5-menu {
   background: $color-white;
   border: 1px solid $color-border;
-  border-radius: $radius-md;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(10, 22, 40, 0.12);
+  padding: 8px;
+  min-width: 180px;
+  font-family: $font-body;
 }
 
 .bp5-menu-item {
-  color: $color-text-primary;
+  color: $color-navy;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+
+  .bp5-icon {
+    color: $color-gray;
+  }
 
   &:hover {
-    background: $color-gray-100;
+    background: $color-light-gray;
+    color: $color-navy;
+
+    .bp5-icon {
+      color: $color-blue;
+    }
   }
+
+  &:active {
+    background: rgba(30, 58, 95, 0.1);
+  }
+}
+
+.bp5-menu-divider {
+  margin: 8px 0;
+  border-color: $color-border;
 }
 
 // Popover
 .bp5-popover {
   .bp5-popover-content {
     background: $color-white;
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .bp5-popover-arrow-fill {
@@ -1013,7 +1729,7 @@ a {
 
 @media (max-width: 768px) {
   .app-container {
-    padding: $spacing-md;
+    padding: 12px;
   }
 
   .page-header {
@@ -1096,25 +1812,22 @@ a {
 // =============================================================================
 
 .game-night-page {
+  max-width: 800px;
+  margin: 0 auto;
+
   .page-header {
     text-align: center;
-    margin-bottom: $spacing-xl;
+    margin-bottom: 32px;
 
     h1 {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: $spacing-sm;
-      margin-bottom: $spacing-sm;
-
-      .page-icon {
-        font-size: 2rem;
-      }
+      font-size: 1.75rem;
+      color: $color-navy;
+      margin-bottom: 8px;
     }
 
     .page-subtitle {
-      color: $color-text-secondary;
-      font-size: 1.1rem;
+      color: $color-gray;
+      font-size: 1rem;
       margin: 0;
     }
   }

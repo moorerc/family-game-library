@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Tag, Icon, Button, Tooltip } from '@blueprintjs/core';
+import { Card, Icon } from '@blueprintjs/core';
 import type { OwnedGame, UserGamePreference } from '../types';
 
 interface GameCardProps {
@@ -37,88 +37,78 @@ export const GameCard: React.FC<GameCardProps> = ({
   };
 
   return (
-    <Card className="game-card" interactive onClick={onClick}>
-      <div className="game-card-image">
+    <Card
+      className={`game-card ${isFavorite ? 'favorited' : ''}`}
+      interactive
+      onClick={onClick}
+    >
+      <div className="game-image">
         {game.imageUrl ? (
           <img src={game.imageUrl} alt={game.name} />
         ) : (
-          <div className="game-card-placeholder">
+          <div className="game-image-placeholder">
             <Icon icon="cube" size={48} />
           </div>
         )}
-        {game.ownerCount && game.ownerCount > 1 && (
-          <Tag className="owner-count-badge" intent="success" round>
-            {game.ownerCount} households
-          </Tag>
-        )}
       </div>
 
-      <div className="game-card-content">
-        <h3 className="game-card-title">{game.name}</h3>
+      <div className="game-content">
+        <div className="game-header">
+          <h3 className="game-title">{game.name}</h3>
+          <span className="game-owner">{game.ownership.householdName}</span>
+        </div>
 
-        <div className="game-card-meta">
-          <span className="meta-item">
+        <div className="game-meta-row">
+          <span className="meta-chip">
             <Icon icon="people" size={14} />
             {playerRange} players
           </span>
           {game.playTimeMinutes && (
-            <span className="meta-item">
+            <span className="meta-chip">
               <Icon icon="time" size={14} />
               {game.playTimeMinutes} min
             </span>
           )}
         </div>
 
-        <div className="game-card-household">
-          <Tag minimal intent="primary">
-            {game.ownership.householdName}
-          </Tag>
-        </div>
-
         {game.categories && game.categories.length > 0 && (
-          <div className="game-card-categories">
+          <div className="game-tags">
             {game.categories.slice(0, 3).map((category) => (
-              <Tag key={category} minimal className="category-tag">
+              <span key={category} className="game-tag">
                 {category}
-              </Tag>
+              </span>
             ))}
           </div>
         )}
 
         {(onLike || onDislike || onToggleFavorite) && (
-          <div className="game-card-preferences">
+          <div className="game-actions">
             {onLike && (
-              <Tooltip content={isLiked ? 'Remove like' : 'Like'} minimal>
-                <Button
-                  minimal
-                  small
-                  icon={<Icon icon="thumbs-up" intent={isLiked ? 'success' : 'none'} />}
-                  className={`preference-btn ${isLiked ? 'active' : ''}`}
-                  onClick={(e) => handlePreferenceClick(e, onLike)}
-                />
-              </Tooltip>
+              <button
+                className={`action-btn like ${isLiked ? 'active' : ''}`}
+                onClick={(e) => handlePreferenceClick(e, onLike)}
+                title={isLiked ? 'Remove like' : 'Like'}
+              >
+                <Icon icon="thumbs-up" size={18} />
+              </button>
             )}
             {onDislike && (
-              <Tooltip content={isDisliked ? 'Remove dislike' : 'Dislike'} minimal>
-                <Button
-                  minimal
-                  small
-                  icon={<Icon icon="thumbs-down" intent={isDisliked ? 'danger' : 'none'} />}
-                  className={`preference-btn ${isDisliked ? 'active' : ''}`}
-                  onClick={(e) => handlePreferenceClick(e, onDislike)}
-                />
-              </Tooltip>
+              <button
+                className={`action-btn dislike ${isDisliked ? 'active' : ''}`}
+                onClick={(e) => handlePreferenceClick(e, onDislike)}
+                title={isDisliked ? 'Remove dislike' : 'Dislike'}
+              >
+                <Icon icon="thumbs-down" size={18} />
+              </button>
             )}
             {onToggleFavorite && (
-              <Tooltip content={isFavorite ? 'Remove from favorites' : 'Add to favorites'} minimal>
-                <Button
-                  minimal
-                  small
-                  icon={<Icon icon={isFavorite ? 'star' : 'star-empty'} intent={isFavorite ? 'warning' : 'none'} />}
-                  className={`preference-btn ${isFavorite ? 'active' : ''}`}
-                  onClick={(e) => handlePreferenceClick(e, onToggleFavorite)}
-                />
-              </Tooltip>
+              <button
+                className={`action-btn favorite ${isFavorite ? 'active' : ''}`}
+                onClick={(e) => handlePreferenceClick(e, onToggleFavorite)}
+                title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              >
+                <Icon icon={isFavorite ? 'star' : 'star-empty'} size={18} />
+              </button>
             )}
           </div>
         )}

@@ -5,13 +5,27 @@ import {
   NavbarGroup,
   NavbarHeading,
   NavbarDivider,
-  Button,
   Alignment,
   Menu,
   MenuItem,
   Popover,
+  Icon,
 } from '@blueprintjs/core';
 import { useAuth } from '../context/AuthContext';
+
+const HQLogo: React.FC = () => (
+  <div className="logo-icon">HQ</div>
+);
+
+const getInitials = (name: string | undefined): string => {
+  if (!name) return '?';
+  return name
+    .split(' ')
+    .map(part => part[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};
 
 export const Navbar: React.FC = () => {
   const { currentUser, userProfile, logout } = useAuth();
@@ -41,8 +55,10 @@ export const Navbar: React.FC = () => {
       <NavbarGroup align={Alignment.LEFT}>
         <NavbarHeading>
           <Link to="/" className="navbar-brand">
-            <span className="brand-icon">🎲</span>
-            <span className="brand-text">Family Game Library</span>
+            <HQLogo />
+            <div className="logo-text">
+              GAME<br /><span className="night">NIGHT</span>
+            </div>
           </Link>
         </NavbarHeading>
       </NavbarGroup>
@@ -50,39 +66,31 @@ export const Navbar: React.FC = () => {
       <NavbarGroup align={Alignment.RIGHT}>
         {currentUser ? (
           <>
-            <Link to="/">
-              <Button
-                minimal
-                icon="grid-view"
-                text="Library"
-                active={isActive('/')}
-              />
-            </Link>
-            <Link to="/game-night">
-              <Button
-                minimal
-                icon="random"
-                text="Game Night"
-                active={isActive('/game-night')}
-              />
-            </Link>
-            <NavbarDivider />
+            <nav className="nav">
+              <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>
+                <Icon icon="grid-view" size={18} />
+                Library
+              </Link>
+              <Link to="/game-night" className={`nav-item ${isActive('/game-night') ? 'active' : ''}`}>
+                <Icon icon="layers" size={18} />
+                Game Night
+              </Link>
+            </nav>
             <Popover content={userMenu} placement="bottom-end">
-              <Button
-                minimal
-                icon="user"
-                text={userProfile?.displayName || 'Account'}
-                rightIcon="caret-down"
-              />
+              <button className="user-menu">
+                <div className="user-avatar">{getInitials(userProfile?.displayName)}</div>
+                <span className="user-name">{userProfile?.displayName || 'Account'}</span>
+                <Icon icon="chevron-down" size={16} />
+              </button>
             </Popover>
           </>
         ) : (
           <>
-            <Link to="/login">
-              <Button minimal text="Sign In" active={isActive('/login')} />
+            <Link to="/login" className={`nav-item ${isActive('/login') ? 'active' : ''}`}>
+              Sign In
             </Link>
             <Link to="/signup">
-              <Button intent="primary" text="Get Started" />
+              <button className="add-game-btn">Get Started</button>
             </Link>
           </>
         )}

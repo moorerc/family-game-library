@@ -185,10 +185,7 @@ export const GameNightPage: React.FC = () => {
   return (
     <div className="game-night-page">
       <div className="page-header">
-        <h1>
-          <span className="page-icon">🎲</span>
-          Game Night
-        </h1>
+        <h1>Game Night</h1>
         <p className="page-subtitle">
           Can't decide what to play? Let us pick for you!
         </p>
