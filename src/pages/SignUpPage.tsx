@@ -17,6 +17,7 @@ export const SignUpPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [inviteCode, setInviteCode] = useState('');
+  const [inviteValidated, setInviteValidated] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,13 +29,37 @@ export const SignUpPage: React.FC = () => {
     return <Navigate to="/" replace />;
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleValidateCode = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!inviteCode.trim()) {
       setError('Invite code is required');
       return;
     }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const validation = await inviteCodesService.validateCode(inviteCode);
+      if (!validation.valid) {
+        setError(validation.error || 'Invalid invite code');
+        setLoading(false);
+        return;
+      }
+
+      setInviteValidated(true);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to validate invite code'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -50,14 +75,6 @@ export const SignUpPage: React.FC = () => {
     setError(null);
 
     try {
-      // Validate invite code first
-      const validation = await inviteCodesService.validateCode(inviteCode);
-      if (!validation.valid) {
-        setError(validation.error || 'Invalid invite code');
-        setLoading(false);
-        return;
-      }
-
       // Create the account
       const userId = await signUp(email, password, displayName);
 
@@ -75,23 +92,10 @@ export const SignUpPage: React.FC = () => {
   };
 
   const handleGoogleSignUp = async () => {
-    if (!inviteCode.trim()) {
-      setError('Invite code is required');
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
     try {
-      // Validate invite code first (before Google popup)
-      const validation = await inviteCodesService.validateCode(inviteCode);
-      if (!validation.valid) {
-        setError(validation.error || 'Invalid invite code');
-        setLoading(false);
-        return;
-      }
-
       // Sign up with Google
       const userId = await signInWithGoogle();
 
@@ -114,6 +118,60 @@ export const SignUpPage: React.FC = () => {
     }
   };
 
+  // Step 1: Validate invite code
+  if (!inviteValidated) {
+    return (
+      <div className="auth-page">
+        <Card className="auth-card">
+          <div className="auth-header">
+            <div className="auth-logo">
+              <div className="logo-icon"><span className="logo-text">HQ</span></div>
+            </div>
+            <h1>Join the Fun</h1>
+            <p>Enter your invite code to get started</p>
+          </div>
+
+          {error && (
+            <Callout intent={Intent.DANGER} className="auth-error">
+              {error}
+            </Callout>
+          )}
+
+          <form onSubmit={handleValidateCode}>
+            <FormGroup label="Invite Code" labelFor="inviteCode">
+              <InputGroup
+                id="inviteCode"
+                large
+                placeholder="Enter your invite code"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                required
+                autoFocus
+                style={{ fontFamily: 'monospace', letterSpacing: '0.1em' }}
+              />
+            </FormGroup>
+
+            <Button
+              type="submit"
+              intent={Intent.PRIMARY}
+              large
+              fill
+              loading={loading}
+            >
+              Continue
+            </Button>
+          </form>
+
+          <p className="auth-footer">
+            Already have an account?{' '}
+            <Link to="/login">Sign in</Link>
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  // Step 2: Create account
   return (
     <div className="auth-page">
       <Card className="auth-card">
@@ -121,8 +179,8 @@ export const SignUpPage: React.FC = () => {
           <div className="auth-logo">
             <div className="logo-icon"><span className="logo-text">HQ</span></div>
           </div>
-          <h1>Join the Fun</h1>
-          <p>Create an account to start your game night adventures</p>
+          <h1>Create Account</h1>
+          <p>You're in! Now set up your account.</p>
         </div>
 
         {error && (
@@ -131,19 +189,20 @@ export const SignUpPage: React.FC = () => {
           </Callout>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <FormGroup label="Invite Code" labelFor="inviteCode">
-            <InputGroup
-              id="inviteCode"
-              large
-              placeholder="Enter your invite code"
-              value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-              required
-              style={{ fontFamily: 'monospace', letterSpacing: '0.1em' }}
-            />
-          </FormGroup>
+        <Button
+          icon="globe"
+          large
+          fill
+          onClick={handleGoogleSignUp}
+          loading={loading}
+          className="google-signup-btn"
+        >
+          Continue with Google
+        </Button>
 
+        <Divider className="auth-divider" />
+
+        <form onSubmit={handleSubmit}>
           <FormGroup label="Your Name" labelFor="displayName">
             <InputGroup
               id="displayName"
@@ -201,18 +260,6 @@ export const SignUpPage: React.FC = () => {
             Create Account
           </Button>
         </form>
-
-        <Divider className="auth-divider" />
-
-        <Button
-          icon="globe"
-          large
-          fill
-          onClick={handleGoogleSignUp}
-          loading={loading}
-        >
-          Continue with Google
-        </Button>
 
         <p className="auth-footer">
           Already have an account?{' '}

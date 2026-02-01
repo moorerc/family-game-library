@@ -84,16 +84,7 @@ export const Navbar: React.FC = () => {
               </button>
             </Popover>
           </>
-        ) : (
-          <>
-            <Link to="/login" className={`nav-item ${isActive('/login') ? 'active' : ''}`}>
-              Sign In
-            </Link>
-            <Link to="/signup">
-              <button className="add-game-btn">Get Started</button>
-            </Link>
-          </>
-        )}
+        ) : null}
       </NavbarGroup>
     </BPNavbar>
   );
