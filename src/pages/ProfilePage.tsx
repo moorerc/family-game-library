@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon, Spinner } from '@blueprintjs/core';
 import { useAuth } from '../context/AuthContext';
 import { householdsService } from '../services/households';
+import { guildsService } from '../services/guilds';
 import { gamesService } from '../services/games';
 import { useUserPreferences } from '../hooks/useUserPreferences';
-import type { Household, Game } from '../types';
+import type { Household, Game, Guild } from '../types';
+import { getEntityColorHex } from '../types';
 
 interface MemberInfo {
   id: string;
@@ -37,10 +39,78 @@ const formatDate = (date: Date): string => {
 };
 
 export const ProfilePage: React.FC = () => {
-  const { currentUser, userProfile, loading: authLoading } = useAuth();
+  const { currentUser, userProfile, loading: authLoading, updateActiveGuild } = useAuth();
   const { preferences, loading: prefsLoading } = useUserPreferences();
   const [households, setHouseholds] = useState<HouseholdWithDetails[]>([]);
+  const [guilds, setGuilds] = useState<Guild[]>([]);
   const [favoriteGames, setFavoriteGames] = useState<Game[]>([]);
+
+  // Guild management state
+  const [showCreateGuild, setShowCreateGuild] = useState(false);
+  const [showJoinGuild, setShowJoinGuild] = useState(false);
+  const [newGuildName, setNewGuildName] = useState('');
+  const [guildInviteCode, setGuildInviteCode] = useState('');
+  const [guildLoading, setGuildLoading] = useState(false);
+  const [guildError, setGuildError] = useState<string | null>(null);
+
+  // Fetch user's guilds
+  const fetchGuilds = useCallback(async () => {
+    if (!currentUser) return;
+    try {
+      const userGuilds = await guildsService.getUserGuilds(currentUser.uid);
+      setGuilds(userGuilds);
+    } catch (error) {
+      console.error('Failed to fetch guilds:', error);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    fetchGuilds();
+  }, [fetchGuilds]);
+
+  const handleCreateGuild = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser || !newGuildName.trim()) return;
+
+    setGuildLoading(true);
+    setGuildError(null);
+
+    try {
+      const guildId = await guildsService.createGuild(newGuildName.trim(), currentUser.uid);
+      await updateActiveGuild(guildId);
+      await fetchGuilds();
+      setNewGuildName('');
+      setShowCreateGuild(false);
+    } catch (error) {
+      setGuildError(error instanceof Error ? error.message : 'Failed to create guild');
+    } finally {
+      setGuildLoading(false);
+    }
+  };
+
+  const handleJoinGuild = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser || !guildInviteCode.trim()) return;
+
+    setGuildLoading(true);
+    setGuildError(null);
+
+    try {
+      const guildId = await guildsService.joinGuildByCode(guildInviteCode.trim().toUpperCase(), currentUser.uid);
+      if (!guildId) {
+        setGuildError('Invalid invite code. Please check and try again.');
+        return;
+      }
+      await updateActiveGuild(guildId);
+      await fetchGuilds();
+      setGuildInviteCode('');
+      setShowJoinGuild(false);
+    } catch (error) {
+      setGuildError(error instanceof Error ? error.message : 'Failed to join guild');
+    } finally {
+      setGuildLoading(false);
+    }
+  };
 
   // Fetch user's households with details
   useEffect(() => {
@@ -182,6 +252,168 @@ export const ProfilePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Guilds Section */}
+      <div className="profile-section">
+        <div className="profile-section-header">
+          <h2 className="section-title-with-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Guilds
+          </h2>
+        </div>
+        <div className="profile-section-content">
+          {guildError && (
+            <div className="form-error-message" style={{ marginBottom: '16px' }}>
+              {guildError}
+            </div>
+          )}
+
+          {guilds.length === 0 && !showCreateGuild && !showJoinGuild ? (
+            <div className="empty-state">
+              <Icon icon="shield" size={32} />
+              <p>You haven't joined any guilds yet.</p>
+              <div className="empty-state-actions">
+                <button
+                  className="btn-primary"
+                  onClick={() => { setShowCreateGuild(true); setShowJoinGuild(false); setGuildError(null); }}
+                >
+                  Create a Guild
+                </button>
+                <button
+                  className="btn-secondary"
+                  onClick={() => { setShowJoinGuild(true); setShowCreateGuild(false); setGuildError(null); }}
+                >
+                  Join with Invite Code
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="guilds-list">
+                {guilds.map(guild => (
+                  <Link key={guild.id} to={`/guild/${guild.id}`} className="guild-row">
+                    <div className="guild-row-info">
+                      <div
+                        className="guild-row-avatar"
+                        style={{ backgroundColor: getEntityColorHex(guild.color) }}
+                      >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="guild-row-name">{guild.name}</div>
+                        <div className="guild-row-meta">
+                          <span>{guild.members.length} member{guild.members.length !== 1 ? 's' : ''}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="guild-row-right">
+                      {userProfile?.activeGuildId === guild.id && (
+                        <span className="active-badge">Active</span>
+                      )}
+                      <div className={`role-badge ${guild.createdBy === currentUser?.uid ? 'owner' : 'member'}`}>
+                        {guild.createdBy === currentUser?.uid ? 'Owner' : 'Member'}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Create/Join buttons when guilds exist */}
+              {!showCreateGuild && !showJoinGuild && (
+                <div className="guild-actions">
+                  <button
+                    className="btn-text"
+                    onClick={() => { setShowCreateGuild(true); setShowJoinGuild(false); setGuildError(null); }}
+                  >
+                    + Create new guild
+                  </button>
+                  <button
+                    className="btn-text"
+                    onClick={() => { setShowJoinGuild(true); setShowCreateGuild(false); setGuildError(null); }}
+                  >
+                    Join with code
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Create Guild Form */}
+          {showCreateGuild && (
+            <form onSubmit={handleCreateGuild} className="guild-form">
+              <div className="form-group">
+                <label htmlFor="guildName" className="form-label">Guild Name</label>
+                <input
+                  id="guildName"
+                  type="text"
+                  className="form-input"
+                  value={newGuildName}
+                  onChange={(e) => setNewGuildName(e.target.value)}
+                  placeholder="e.g., Friday Night Games"
+                  autoFocus
+                />
+              </div>
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => { setShowCreateGuild(false); setNewGuildName(''); setGuildError(null); }}
+                  disabled={guildLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={guildLoading || !newGuildName.trim()}
+                >
+                  {guildLoading ? 'Creating...' : 'Create Guild'}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Join Guild Form */}
+          {showJoinGuild && (
+            <form onSubmit={handleJoinGuild} className="guild-form">
+              <div className="form-group">
+                <label htmlFor="inviteCode" className="form-label">Invite Code</label>
+                <input
+                  id="inviteCode"
+                  type="text"
+                  className="form-input"
+                  value={guildInviteCode}
+                  onChange={(e) => setGuildInviteCode(e.target.value.toUpperCase())}
+                  placeholder="Enter 6-character code"
+                  maxLength={6}
+                  autoFocus
+                />
+              </div>
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => { setShowJoinGuild(false); setGuildInviteCode(''); setGuildError(null); }}
+                  disabled={guildLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={guildLoading || !guildInviteCode.trim()}
+                >
+                  {guildLoading ? 'Joining...' : 'Join Guild'}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+
       {/* Households Section */}
       <div className="profile-section">
         <div className="profile-section-header">
@@ -202,12 +434,15 @@ export const ProfilePage: React.FC = () => {
           ) : (
             <div className="households-list">
               {households.map(household => (
-                <div key={household.id} className="household-row">
+                <Link key={household.id} to={`/household/${household.id}`} className="household-row clickable">
                   <div className="household-row-info">
-                    <div className="household-row-icon">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    <div
+                      className="household-row-avatar"
+                      style={{ backgroundColor: getEntityColorHex(household.color) }}
+                    >
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <rect x="9" y="12" width="6" height="10" fill="currentColor" opacity="0.3"/>
                       </svg>
                     </div>
                     <div>
@@ -237,7 +472,7 @@ export const ProfilePage: React.FC = () => {
                   <div className={`role-badge ${household.isOwner ? 'owner' : 'member'}`}>
                     {household.isOwner ? 'Owner' : 'Member'}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

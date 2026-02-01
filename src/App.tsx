@@ -8,6 +8,10 @@ import {
   SignUpPage,
   ProfileSetupPage,
   HouseholdPage,
+  HouseholdDetailPage,
+  HouseholdEditPage,
+  GuildPage,
+  GuildEditPage,
   GameNightPage,
   SplashPage,
   ProfilePage,
@@ -40,6 +44,10 @@ const App: React.FC = () => {
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/profile-setup" element={<ProfileSetupPage />} />
             <Route path="/household" element={<HouseholdPage />} />
+            <Route path="/household/:id" element={<HouseholdDetailPage />} />
+            <Route path="/household/:id/edit" element={<HouseholdEditPage />} />
+            <Route path="/guild/:id" element={<GuildPage />} />
+            <Route path="/guild/:id/edit" element={<GuildEditPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/profile/edit" element={<ProfileEditPage />} />
           </Routes>

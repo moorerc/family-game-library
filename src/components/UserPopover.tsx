@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@blueprintjs/core';
 import { useAuth } from '../context/AuthContext';
+import { guildsService } from '../services/guilds';
 import { householdsService } from '../services/households';
-import type { Household } from '../types';
+import type { Guild, Household } from '../types';
+import { getEntityColorHex } from '../types';
 
 interface UserPopoverProps {
   onClose?: () => void;
@@ -20,39 +22,42 @@ const getInitials = (name: string | undefined): string => {
 };
 
 export const UserPopover: React.FC<UserPopoverProps> = ({ onClose }) => {
-  const { currentUser, userProfile, logout, updateUserHousehold } = useAuth();
+  const { currentUser, userProfile, logout, updateActiveGuild } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [guilds, setGuilds] = useState<Guild[]>([]);
   const [households, setHouseholds] = useState<Household[]>([]);
   const [loading, setLoading] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Fetch user's households
-  const fetchHouseholds = useCallback(async () => {
+  // Fetch user's guilds and households
+  const fetchData = useCallback(async () => {
     if (!currentUser) return;
 
     setLoading(true);
     try {
-      const allHouseholds = await householdsService.getAllHouseholds();
-      // Filter to only households where user is a member
-      const userHouseholds = allHouseholds.filter(
-        h => h.members.includes(currentUser.uid)
-      );
+      const [userGuilds, allHouseholds] = await Promise.all([
+        guildsService.getUserGuilds(currentUser.uid),
+        householdsService.getAllHouseholds(),
+      ]);
+      setGuilds(userGuilds);
+      // Filter to only households the user is a member of
+      const userHouseholds = allHouseholds.filter(h => h.members.includes(currentUser.uid));
       setHouseholds(userHouseholds);
     } catch (error) {
-      console.error('Failed to fetch households:', error);
+      console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
     }
   }, [currentUser]);
 
-  // Fetch households when popover opens
+  // Fetch data when popover opens
   useEffect(() => {
     if (isOpen) {
-      fetchHouseholds();
+      fetchData();
     }
-  }, [isOpen, fetchHouseholds]);
+  }, [isOpen, fetchData]);
 
   // Handle click outside to close
   useEffect(() => {
@@ -109,12 +114,14 @@ export const UserPopover: React.FC<UserPopoverProps> = ({ onClose }) => {
     }
   };
 
-  const handleSwitchHousehold = async (householdId: string) => {
+  const handleSwitchGuild = async (guildId: string) => {
     try {
-      await updateUserHousehold(householdId);
+      await updateActiveGuild(guildId);
       setIsOpen(false);
+      // Refresh the page to update the library view
+      window.location.reload();
     } catch (error) {
-      console.error('Failed to switch household:', error);
+      console.error('Failed to switch guild:', error);
     }
   };
 
@@ -149,7 +156,42 @@ export const UserPopover: React.FC<UserPopoverProps> = ({ onClose }) => {
             </div>
           </div>
 
-          {/* Household Switcher */}
+          {/* Guild Switcher */}
+          {guilds.length > 0 && (
+            <div className="popover-section">
+              <div className="popover-section-label">Your Guilds</div>
+              <div className="popover-guilds">
+                {loading ? (
+                  <div className="popover-loading">Loading...</div>
+                ) : (
+                  guilds.map(guild => (
+                    <button
+                      key={guild.id}
+                      className={`popover-guild ${
+                        userProfile?.activeGuildId === guild.id ? 'active' : ''
+                      }`}
+                      onClick={() => handleSwitchGuild(guild.id)}
+                    >
+                      <div
+                        className="guild-avatar"
+                        style={{ backgroundColor: getEntityColorHex(guild.color) }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                      </div>
+                      <span className="guild-name">{guild.name}</span>
+                      {userProfile?.activeGuildId === guild.id && (
+                        <Icon icon="tick" size={14} className="guild-check" />
+                      )}
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Households */}
           {households.length > 0 && (
             <div className="popover-section">
               <div className="popover-section-label">Your Households</div>
@@ -158,21 +200,23 @@ export const UserPopover: React.FC<UserPopoverProps> = ({ onClose }) => {
                   <div className="popover-loading">Loading...</div>
                 ) : (
                   households.map(household => (
-                    <button
+                    <Link
                       key={household.id}
-                      className={`popover-household ${
-                        userProfile?.householdId === household.id ? 'active' : ''
-                      }`}
-                      onClick={() => handleSwitchHousehold(household.id)}
+                      to={`/household/${household.id}`}
+                      className="popover-household"
+                      onClick={handleMenuItemClick}
                     >
-                      <div className="household-icon">
-                        <Icon icon="home" size={14} />
+                      <div
+                        className="household-avatar"
+                        style={{ backgroundColor: getEntityColorHex(household.color) }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                          <rect x="9" y="12" width="6" height="10" fill="currentColor" opacity="0.3"/>
+                        </svg>
                       </div>
                       <span className="household-name">{household.name}</span>
-                      {userProfile?.householdId === household.id && (
-                        <Icon icon="tick" size={14} className="household-check" />
-                      )}
-                    </button>
+                    </Link>
                   ))
                 )}
               </div>
@@ -188,14 +232,6 @@ export const UserPopover: React.FC<UserPopoverProps> = ({ onClose }) => {
             >
               <Icon icon="person" size={16} />
               <span>My Profile</span>
-            </Link>
-            <Link
-              to="/household"
-              className="popover-item"
-              onClick={handleMenuItemClick}
-            >
-              <Icon icon="cog" size={16} />
-              <span>Household Settings</span>
             </Link>
           </div>
 

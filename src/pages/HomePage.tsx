@@ -5,6 +5,7 @@ import { GameCard, GameFilters, GameDetailDialog, AddGameDialog } from '../compo
 import { useGames } from '../hooks/useGames';
 import { useUserPreferences } from '../hooks/useUserPreferences';
 import { householdsService } from '../services/households';
+import { guildsService } from '../services/guilds';
 import { gamesService } from '../services/games';
 import { useAuth } from '../context/AuthContext';
 import type { OwnedGame, Household } from '../types';
@@ -54,11 +55,21 @@ export const HomePage: React.FC = () => {
     return new Set(ids);
   }, [preferences]);
 
+  // Filter games by guild households first
+  const guildFilteredGames = useMemo(() => {
+    // If we have guild households loaded, filter to only those
+    if (userProfile?.activeGuildId && households.length > 0) {
+      const householdIds = new Set(households.map(h => h.id));
+      return filteredGames.filter(game => householdIds.has(game.ownership.householdId));
+    }
+    return filteredGames;
+  }, [filteredGames, households, userProfile?.activeGuildId]);
+
   // Apply favorites filter on top of other filters
   const displayedGames = useMemo(() => {
-    if (!filters.favoritesOnly) return filteredGames;
-    return filteredGames.filter(game => favoriteGameIds.has(game.id));
-  }, [filteredGames, filters.favoritesOnly, favoriteGameIds]);
+    if (!filters.favoritesOnly) return guildFilteredGames;
+    return guildFilteredGames.filter(game => favoriteGameIds.has(game.id));
+  }, [guildFilteredGames, filters.favoritesOnly, favoriteGameIds]);
 
   const handleGameAdded = useCallback(() => {
     refreshGames();
@@ -74,14 +85,21 @@ export const HomePage: React.FC = () => {
 
     const fetchHouseholds = async () => {
       try {
-        const data = await householdsService.getAllHouseholds();
-        setHouseholds(data);
+        // If user has an active guild, only show that guild's households
+        if (userProfile?.activeGuildId) {
+          const guildHouseholds = await guildsService.getGuildHouseholds(userProfile.activeGuildId);
+          setHouseholds(guildHouseholds);
+        } else {
+          // Fallback to all households if no active guild
+          const data = await householdsService.getAllHouseholds();
+          setHouseholds(data);
+        }
       } catch (err) {
         console.error('Failed to fetch households:', err);
       }
     };
     fetchHouseholds();
-  }, [currentUser]);
+  }, [currentUser, userProfile?.activeGuildId]);
 
   // Show loading while checking auth state
   if (authLoading) {

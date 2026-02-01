@@ -21,6 +21,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<string | null>;
   logout: () => Promise<void>;
   updateUserHousehold: (householdId: string) => Promise<void>;
+  updateActiveGuild: (guildId: string) => Promise<void>;
   updateDisplayName: (displayName: string) => Promise<void>;
 }
 
@@ -139,6 +140,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateActiveGuild = async (guildId: string): Promise<void> => {
+    if (!currentUser) return;
+
+    const userRef = doc(db, 'users', currentUser.uid);
+    await setDoc(userRef, { activeGuildId: guildId }, { merge: true });
+
+    if (userProfile) {
+      setUserProfile({ ...userProfile, activeGuildId: guildId });
+    }
+  };
+
   const updateDisplayName = async (displayName: string): Promise<void> => {
     if (!currentUser) return;
 
@@ -159,6 +171,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signInWithGoogle,
     logout,
     updateUserHousehold,
+    updateActiveGuild,
     updateDisplayName,
   };
 

@@ -54,7 +54,6 @@ export const useGames = (): UseGamesResult => {
   const addGameWithOwnership = async (
     gameData: Omit<Game, 'id'>,
     householdId: string,
-    householdName: string,
     notes?: string
   ): Promise<void> => {
     try {
@@ -71,7 +70,6 @@ export const useGames = (): UseGamesResult => {
       await ownershipService.addOwnership(
         game.id,
         householdId,
-        householdName,
         gameData.createdBy,
         notes
       );

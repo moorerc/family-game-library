@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Icon, Spinner } from '@blueprintjs/core';
 import type { OwnedGame, Ownership, UserGamePreference } from '../types';
+import { getEntityColorHex } from '../types';
 import { decodeHtmlEntities } from '../utils/text';
 
 interface GameDetailDialogProps {
@@ -13,20 +14,6 @@ interface GameDetailDialogProps {
   onDislike?: (gameId: string) => void;
   onToggleFavorite?: (gameId: string) => void;
 }
-
-// Avatar colors for household chips
-const AVATAR_COLORS = ['color-1', 'color-2', 'color-3', 'color-4', 'color-5'];
-
-const getAvatarColor = (index: number) => AVATAR_COLORS[index % AVATAR_COLORS.length];
-
-const getInitials = (name: string): string => {
-  return name
-    .split(' ')
-    .map(part => part[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-};
 
 export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
   game,
@@ -170,20 +157,30 @@ export const GameDetailDialog: React.FC<GameDetailDialogProps> = ({
                 {loadingOwnerships ? (
                   <Spinner size={20} />
                 ) : allOwnerships.length > 0 ? (
-                  allOwnerships.map((ownership, index) => (
+                  allOwnerships.map((ownership) => (
                     <div key={ownership.id} className="game-dialog-household-chip">
-                      <div className={`game-dialog-chip-avatar ${getAvatarColor(index)}`}>
-                        {getInitials(ownership.householdName)}
+                      <div
+                        className="game-dialog-chip-avatar"
+                        style={{ backgroundColor: getEntityColorHex(ownership.householdColor) }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        </svg>
                       </div>
-                      {ownership.householdName}
+                      {ownership.householdName || 'Unknown'}
                     </div>
                   ))
                 ) : (
                   <div className="game-dialog-household-chip">
-                    <div className={`game-dialog-chip-avatar ${getAvatarColor(0)}`}>
-                      {getInitials(game.ownership.householdName)}
+                    <div
+                      className="game-dialog-chip-avatar"
+                      style={{ backgroundColor: getEntityColorHex(game.ownership.householdColor) }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                      </svg>
                     </div>
-                    {game.ownership.householdName}
+                    {game.ownership.householdName || 'Unknown'}
                   </div>
                 )}
               </div>

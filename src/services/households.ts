@@ -11,7 +11,14 @@ import {
   where,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Household } from '../types';
+import type { Household, EntityColorId } from '../types';
+import { ENTITY_COLORS } from '../types';
+
+// Get a random color from the brand colors
+const getRandomColor = (): EntityColorId => {
+  const randomIndex = Math.floor(Math.random() * ENTITY_COLORS.length);
+  return ENTITY_COLORS[randomIndex].id;
+};
 
 const HOUSEHOLDS_COLLECTION = 'households';
 
@@ -58,9 +65,10 @@ export const householdsService = {
     const docRef = await addDoc(householdsRef, {
       name,
       members: [userId],
-      createdBy: userId,
+      owner: userId,
       createdAt: Timestamp.now(),
       inviteCode: generateInviteCode(),
+      color: getRandomColor(),
     });
     return docRef.id;
   },
@@ -123,17 +131,89 @@ export const householdsService = {
       throw new Error('Household not found');
     }
 
-    const household = householdSnap.data() as Household;
+    const household = householdSnap.data();
 
     // Prevent owner from leaving
-    if (household.createdBy === userId) {
+    if ((household.owner || household.createdBy) === userId) {
       throw new Error('Owner cannot leave the household');
     }
 
     // Remove user from members array
-    const updatedMembers = household.members.filter(id => id !== userId);
+    const updatedMembers = household.members.filter((id: string) => id !== userId);
     await updateDoc(householdRef, {
       members: updatedMembers,
+    });
+  },
+
+  // Remove a member from household (owner only)
+  async removeMember(householdId: string, memberUserId: string, requestingUserId: string): Promise<void> {
+    const householdRef = doc(db, HOUSEHOLDS_COLLECTION, householdId);
+    const householdSnap = await getDoc(householdRef);
+
+    if (!householdSnap.exists()) {
+      throw new Error('Household not found');
+    }
+
+    const household = householdSnap.data();
+    const ownerId = household.owner || household.createdBy;
+
+    // Only owner can remove members
+    if (ownerId !== requestingUserId) {
+      throw new Error('Only the owner can remove members');
+    }
+
+    // Cannot remove the owner
+    if (memberUserId === ownerId) {
+      throw new Error('Cannot remove the owner');
+    }
+
+    const updatedMembers = household.members.filter((id: string) => id !== memberUserId);
+    await updateDoc(householdRef, {
+      members: updatedMembers,
+    });
+  },
+
+  // Rename a household (owner only)
+  async renameHousehold(householdId: string, newName: string, requestingUserId: string): Promise<void> {
+    const householdRef = doc(db, HOUSEHOLDS_COLLECTION, householdId);
+    const householdSnap = await getDoc(householdRef);
+
+    if (!householdSnap.exists()) {
+      throw new Error('Household not found');
+    }
+
+    const household = householdSnap.data();
+    const ownerId = household.owner || household.createdBy;
+
+    // Only owner can rename
+    if (ownerId !== requestingUserId) {
+      throw new Error('Only the owner can rename the household');
+    }
+
+    await updateDoc(householdRef, {
+      name: newName.trim(),
+    });
+  },
+
+  // Update household color (owner only)
+  async updateHouseholdColor(householdId: string, color: EntityColorId, requestingUserId: string): Promise<void> {
+    const householdRef = doc(db, HOUSEHOLDS_COLLECTION, householdId);
+    const householdSnap = await getDoc(householdRef);
+
+    if (!householdSnap.exists()) {
+      throw new Error('Household not found');
+    }
+
+    const household = householdSnap.data();
+    const ownerId = household.owner || household.createdBy;
+
+    // Only owner can update color
+    if (ownerId !== requestingUserId) {
+      throw new Error('Only the owner can update the household color');
+    }
+
+    await updateDoc(householdRef, {
+      color,
     });
   },
 
@@ -168,6 +248,54 @@ export const householdsService = {
           id: userSnap.id,
           displayName: userData.displayName || 'Unknown',
           email: userData.email || '',
+        });
+      }
+    }
+
+    return members;
+  },
+
+  // Get game count for a specific member in a household
+  async getMemberGameCount(householdId: string, userId: string): Promise<number> {
+    const ownershipRef = collection(db, 'ownership');
+    const q = query(
+      ownershipRef,
+      where('householdId', '==', householdId),
+      where('addedBy', '==', userId)
+    );
+    const snapshot = await getDocs(q);
+    return snapshot.size;
+  },
+
+  // Get member details with game counts for a household
+  async getHouseholdMembersWithGameCounts(householdId: string): Promise<{
+    id: string;
+    displayName: string;
+    email: string;
+    gameCount: number;
+  }[]> {
+    const householdRef = doc(db, HOUSEHOLDS_COLLECTION, householdId);
+    const householdSnap = await getDoc(householdRef);
+
+    if (!householdSnap.exists()) {
+      return [];
+    }
+
+    const household = householdSnap.data();
+    const memberIds = household.members;
+
+    const members: { id: string; displayName: string; email: string; gameCount: number }[] = [];
+    for (const memberId of memberIds) {
+      const userRef = doc(db, 'users', memberId);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const gameCount = await this.getMemberGameCount(householdId, memberId);
+        members.push({
+          id: userSnap.id,
+          displayName: userData.displayName || 'Unknown',
+          email: userData.email || '',
+          gameCount,
         });
       }
     }

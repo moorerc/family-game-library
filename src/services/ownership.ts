@@ -12,37 +12,64 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { gamesService } from './games';
-import type { Ownership, OwnedGame } from '../types';
+import type { Ownership, OwnedGame, EntityColorId } from '../types';
 
 const OWNERSHIP_COLLECTION = 'ownership';
 
+interface HouseholdInfo {
+  name: string;
+  color?: EntityColorId;
+}
+
 export const ownershipService = {
+  // Helper to fetch household info (name and color) for a set of household IDs
+  async getHouseholdInfo(householdIds: string[]): Promise<Map<string, HouseholdInfo>> {
+    const infoMap = new Map<string, HouseholdInfo>();
+    const uniqueIds = [...new Set(householdIds)];
+
+    for (const id of uniqueIds) {
+      const householdRef = doc(db, 'households', id);
+      const snapshot = await getDoc(householdRef);
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        infoMap.set(id, {
+          name: data.name || 'Unknown',
+          color: data.color,
+        });
+      } else {
+        infoMap.set(id, { name: 'Unknown' });
+      }
+    }
+
+    return infoMap;
+  },
+
   // Add ownership record linking a game to a household
   async addOwnership(
     gameId: string,
     householdId: string,
-    householdName: string,
     addedBy: string,
-    notes?: string
+    notes?: string,
+    userId?: string
   ): Promise<string> {
     const ownershipRef = collection(db, OWNERSHIP_COLLECTION);
 
-    const ownershipData: Omit<Ownership, 'id'> = {
+    const ownershipData: Record<string, any> = {
       gameId,
       householdId,
-      householdName,
       addedBy,
-      addedAt: new Date(),
+      addedAt: Timestamp.now(),
     };
 
     if (notes) {
       ownershipData.notes = notes;
     }
 
-    const docRef = await addDoc(ownershipRef, {
-      ...ownershipData,
-      addedAt: Timestamp.now(),
-    });
+    if (userId) {
+      ownershipData.userId = userId;
+    }
+
+    const docRef = await addDoc(ownershipRef, ownershipData);
 
     return docRef.id;
   },
@@ -69,11 +96,22 @@ export const ownershipService = {
     const q = query(ownershipRef, where('householdId', '==', householdId));
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map((doc) => ({
+    const ownerships = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       addedAt: doc.data().addedAt?.toDate() || new Date(),
     })) as Ownership[];
+
+    // Look up household info
+    const householdInfo = await this.getHouseholdInfo([householdId]);
+    const info = householdInfo.get(householdId) || { name: 'Unknown' };
+
+    // Add household info to each ownership
+    return ownerships.map((o) => ({
+      ...o,
+      householdName: info.name,
+      householdColor: info.color,
+    }));
   },
 
   // Get all ownerships for a specific game (all households that own it)
@@ -82,11 +120,25 @@ export const ownershipService = {
     const q = query(ownershipRef, where('gameId', '==', gameId));
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map((doc) => ({
+    const ownerships = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       addedAt: doc.data().addedAt?.toDate() || new Date(),
     })) as Ownership[];
+
+    // Look up household info
+    const householdIds = [...new Set(ownerships.map((o) => o.householdId))];
+    const householdInfo = await this.getHouseholdInfo(householdIds);
+
+    // Add household info to each ownership
+    return ownerships.map((o) => {
+      const info = householdInfo.get(o.householdId) || { name: 'Unknown' };
+      return {
+        ...o,
+        householdName: info.name,
+        householdColor: info.color,
+      };
+    });
   },
 
   // Get all ownership records
@@ -147,11 +199,15 @@ export const ownershipService = {
       return [];
     }
 
-    // Get unique game IDs
+    // Get unique game IDs and household IDs
     const gameIds = [...new Set(ownerships.map((o) => o.gameId))];
+    const householdIds = [...new Set(ownerships.map((o) => o.householdId))];
 
-    // Fetch all referenced games
-    const games = await gamesService.getGamesByIds(gameIds);
+    // Fetch all referenced games and household info
+    const [games, householdInfo] = await Promise.all([
+      gamesService.getGamesByIds(gameIds),
+      this.getHouseholdInfo(householdIds),
+    ]);
     const gamesMap = new Map(games.map((g) => [g.id, g]));
 
     // Count ownerships per game
@@ -165,9 +221,16 @@ export const ownershipService = {
     for (const ownership of ownerships) {
       const game = gamesMap.get(ownership.gameId);
       if (game) {
+        // Add household info from lookup
+        const info = householdInfo.get(ownership.householdId) || { name: 'Unknown' };
+        const ownershipWithInfo = {
+          ...ownership,
+          householdName: info.name,
+          householdColor: info.color,
+        };
         ownedGames.push({
           ...game,
-          ownership,
+          ownership: ownershipWithInfo,
           ownerCount: ownerCountMap.get(ownership.gameId) || 1,
         });
       }
@@ -181,7 +244,7 @@ export const ownershipService = {
 
   // Get owned games for a specific household
   async getOwnedGamesByHousehold(householdId: string): Promise<OwnedGame[]> {
-    // Fetch ownership records for this household
+    // Fetch ownership records for this household (already includes household info)
     const ownerships = await this.getOwnershipsByHousehold(householdId);
 
     if (ownerships.length === 0) {
@@ -204,7 +267,7 @@ export const ownershipService = {
       }
     });
 
-    // Join data
+    // Join data - ownerships already have household info from getOwnershipsByHousehold
     const ownedGames: OwnedGame[] = [];
     for (const ownership of ownerships) {
       const game = gamesMap.get(ownership.gameId);

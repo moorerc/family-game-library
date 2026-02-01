@@ -273,7 +273,6 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
       await ownershipService.addOwnership(
         gameId,
         selectedHouseholdId,
-        household.name,
         currentUser.uid,
         notes.trim() || undefined
       );
