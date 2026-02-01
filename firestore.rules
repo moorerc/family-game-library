@@ -85,5 +85,18 @@ service cloud.firestore {
       allow update, delete: if isAuthenticated()
         && resource.data.userId == request.auth.uid;
     }
+
+    // Invite codes collection
+    match /inviteCodes/{codeId} {
+      // Allow read for validation during sign-up (user not yet authenticated)
+      allow read: if true;
+
+      // Allow update only for usage tracking fields (during sign-up)
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['useCount', 'lastUsedBy', 'lastUsedAt']);
+
+      // Only admins (via Firebase Console) can create or delete codes
+      allow create, delete: if false;
+    }
   }
 }

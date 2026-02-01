@@ -10,11 +10,13 @@ import {
   Divider,
 } from '@blueprintjs/core';
 import { useAuth } from '../context/AuthContext';
+import { inviteCodesService } from '../services/inviteCodes';
 
 export const SignUpPage: React.FC = () => {
   const { currentUser, signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
-  
+
+  const [inviteCode, setInviteCode] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +30,12 @@ export const SignUpPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
+    if (!inviteCode.trim()) {
+      setError('Invite code is required');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -43,7 +50,20 @@ export const SignUpPage: React.FC = () => {
     setError(null);
 
     try {
-      await signUp(email, password, displayName);
+      // Validate invite code first
+      const validation = await inviteCodesService.validateCode(inviteCode);
+      if (!validation.valid) {
+        setError(validation.error || 'Invalid invite code');
+        setLoading(false);
+        return;
+      }
+
+      // Create the account
+      const userId = await signUp(email, password, displayName);
+
+      // Mark the invite code as used
+      await inviteCodesService.useCode(inviteCode, userId);
+
       navigate('/household');
     } catch (err) {
       setError(
@@ -55,12 +75,36 @@ export const SignUpPage: React.FC = () => {
   };
 
   const handleGoogleSignUp = async () => {
+    if (!inviteCode.trim()) {
+      setError('Invite code is required');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      await signInWithGoogle();
-      navigate('/household');
+      // Validate invite code first (before Google popup)
+      const validation = await inviteCodesService.validateCode(inviteCode);
+      if (!validation.valid) {
+        setError(validation.error || 'Invalid invite code');
+        setLoading(false);
+        return;
+      }
+
+      // Sign up with Google
+      const userId = await signInWithGoogle();
+
+      // userId is null if user already exists (they're signing in, not up)
+      // In that case, just redirect them - no invite code needed
+      if (userId) {
+        // New user - mark the invite code as used
+        await inviteCodesService.useCode(inviteCode, userId);
+        navigate('/household');
+      } else {
+        // Existing user - just redirect to home
+        navigate('/');
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to sign up with Google'
@@ -88,6 +132,18 @@ export const SignUpPage: React.FC = () => {
         )}
 
         <form onSubmit={handleSubmit}>
+          <FormGroup label="Invite Code" labelFor="inviteCode">
+            <InputGroup
+              id="inviteCode"
+              large
+              placeholder="Enter your invite code"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+              required
+              style={{ fontFamily: 'monospace', letterSpacing: '0.1em' }}
+            />
+          </FormGroup>
+
           <FormGroup label="Your Name" labelFor="displayName">
             <InputGroup
               id="displayName"

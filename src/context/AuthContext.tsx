@@ -17,8 +17,8 @@ interface AuthContextType {
   userProfile: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signUp: (email: string, password: string, displayName: string) => Promise<string>;
+  signInWithGoogle: () => Promise<string | null>;
   logout: () => Promise<void>;
   updateUserHousehold: (householdId: string) => Promise<void>;
 }
@@ -91,9 +91,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
-  const signUp = async (email: string, password: string, displayName: string): Promise<void> => {
+  const signUp = async (email: string, password: string, displayName: string): Promise<string> => {
     const credential = await createUserWithEmailAndPassword(auth, email, password);
-    
+
     // Create user profile with display name
     const userRef = doc(db, 'users', credential.user.uid);
     await setDoc(userRef, {
@@ -101,11 +101,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       displayName,
       createdAt: Timestamp.now(),
     });
+
+    return credential.user.uid;
   };
 
-  const signInWithGoogle = async (): Promise<void> => {
+  const signInWithGoogle = async (): Promise<string | null> => {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+
+    // Check if this is a new user
+    const userRef = doc(db, 'users', result.user.uid);
+    const userSnap = await getDoc(userRef);
+
+    // Return user ID only if this is a new user (for invite code tracking)
+    // Existing users signing in don't need an invite code
+    if (!userSnap.exists()) {
+      return result.user.uid;
+    }
+
+    return null; // Existing user, no invite code needed
   };
 
   const logout = async (): Promise<void> => {
