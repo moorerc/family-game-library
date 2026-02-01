@@ -4346,3 +4346,304 @@ $color-green-light: #d1fae5;
     }
   }
 }
+
+// =============================================================================
+// SPLASH PAGE
+// =============================================================================
+
+.splash-hero {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: $color-navy;
+  position: relative;
+  overflow: hidden;
+}
+
+.splash-hero-content {
+  position: relative;
+  z-index: 10;
+  padding: 40px;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: splash-content-fade-in 0.8s ease-out 1.5s forwards;
+}
+
+@keyframes splash-content-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.splash-logo {
+  width: 72px;
+  height: 72px;
+  background: $color-yellow;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 28px;
+  box-shadow: 0 8px 32px rgba(255, 204, 0, 0.25);
+
+  span {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 1.6rem;
+    color: $color-navy;
+  }
+}
+
+.splash-headline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: $color-white;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+
+  .highlight {
+    color: $color-yellow;
+  }
+}
+
+.splash-divider {
+  width: 48px;
+  height: 3px;
+  background: $color-yellow;
+  margin: 0 auto 20px;
+  border-radius: 2px;
+}
+
+.splash-tagline {
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 40px;
+}
+
+.splash-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.splash-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  background: $color-yellow;
+  color: $color-navy;
+  border: none;
+  border-radius: 12px;
+  font-family: $font-body;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(255, 204, 0, 0.3);
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: $color-yellow-hover;
+    transform: translateY(-1px);
+  }
+}
+
+.splash-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  background: transparent;
+  color: $color-white;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  font-family: $font-body;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+// Honeycomb Grid
+.splash-honeycomb-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.splash-hex {
+  position: absolute;
+  opacity: 0;
+  transform: scale(0);
+  transition: none;
+
+  &.visible {
+    animation: splash-hex-appear 0.5s ease-out forwards;
+
+    polygon {
+      animation: splash-hex-glow 1.5s ease-out forwards;
+    }
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  polygon {
+    fill: rgba(255, 204, 0, 0.025);
+    stroke: rgba(255, 204, 0, 0.15);
+    stroke-width: 1;
+    filter: drop-shadow(0 0 0px rgba(255, 204, 0, 0));
+  }
+}
+
+@keyframes splash-hex-appear {
+  0% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes splash-hex-glow {
+  0% {
+    fill: rgba(255, 204, 0, 0.15);
+    stroke: rgba(255, 204, 0, 0.6);
+    filter: drop-shadow(0 0 12px rgba(255, 204, 0, 0.5));
+  }
+  30% {
+    fill: rgba(255, 204, 0, 0.08);
+    stroke: rgba(255, 204, 0, 0.4);
+    filter: drop-shadow(0 0 8px rgba(255, 204, 0, 0.3));
+  }
+  100% {
+    fill: rgba(255, 204, 0, 0.025);
+    stroke: rgba(255, 204, 0, 0.15);
+    filter: drop-shadow(0 0 0px rgba(255, 204, 0, 0));
+  }
+}
+
+// Fanned Card Hands
+.splash-card {
+  width: 150px;
+  height: 210px;
+  background: rgba(30, 58, 95, 0.95);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 204, 0, 0.4);
+  position: fixed;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  z-index: 5;
+
+  &.visible {
+    animation: splash-card-deal 0.5s ease-out forwards;
+  }
+}
+
+@keyframes splash-card-deal {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--rot)) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(var(--rot)) scale(1);
+  }
+}
+
+// Bottom left card hand
+.splash-card.bl {
+  transform-origin: 50% 5%;
+  bottom: -195px;
+  left: -70px;
+}
+
+.splash-card.bl1 { --rot: 195deg; }
+.splash-card.bl2 { --rot: 210deg; }
+.splash-card.bl3 { --rot: 225deg; }
+.splash-card.bl4 { --rot: 240deg; }
+.splash-card.bl5 { --rot: 255deg; }
+
+// Top right card hand
+.splash-card.tr {
+  transform-origin: 50% 95%;
+  top: -195px;
+  right: -70px;
+}
+
+.splash-card.tr1 { --rot: 195deg; }
+.splash-card.tr2 { --rot: 210deg; }
+.splash-card.tr3 { --rot: 225deg; }
+.splash-card.tr4 { --rot: 240deg; }
+.splash-card.tr5 { --rot: 255deg; }
+
+// Splash page responsive
+@media (max-width: 768px) {
+  .splash-card {
+    width: 120px;
+    height: 168px;
+  }
+
+  .splash-card.bl {
+    bottom: -155px;
+    left: -55px;
+  }
+
+  .splash-card.tr {
+    top: -155px;
+    right: -55px;
+  }
+
+  .splash-headline {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .splash-card {
+    display: none;
+  }
+
+  .splash-hero-content {
+    padding: 20px;
+  }
+
+  .splash-headline {
+    font-size: 1.5rem;
+  }
+
+  .splash-tagline {
+    font-size: 1rem;
+  }
+
+  .splash-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .splash-btn-primary,
+  .splash-btn-secondary {
+    width: 100%;
+  }
+}

@@ -4,3 +4,4 @@ export { LoginPage } from './LoginPage';
 export { SignUpPage } from './SignUpPage';
 export { HouseholdPage } from './HouseholdPage';
 export { GameNightPage } from './GameNightPage';
+export { SplashPage } from './SplashPage';
