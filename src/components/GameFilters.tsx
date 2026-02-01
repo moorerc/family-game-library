@@ -561,90 +561,86 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
         {actionButton}
       </div>
 
-      {/* Active Filter Chips */}
-      {hasActiveFilters && (
-        <div className="active-filters">
-          {filters.favoritesOnly && (
-            <div className="filter-chip favorites-chip">
-              <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-              </svg>
-              Favorites only
-              <button
-                className="filter-chip-remove"
-                onClick={() => removeFilterChip('favorites')}
-              >
-                <svg viewBox="0 0 24 24">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            </div>
-          )}
-          {filters.playerCount && (
-            <div className="filter-chip">
-              {filters.playerCount} players
-              <button
-                className="filter-chip-remove"
-                onClick={() => removeFilterChip('players')}
-              >
-                <svg viewBox="0 0 24 24">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            </div>
-          )}
-          {filters.playTime && (
-            <div className="filter-chip">
-              {getPlayTimeLabel(filters.playTime)}
-              <button
-                className="filter-chip-remove"
-                onClick={() => removeFilterChip('playTime')}
-              >
-                <svg viewBox="0 0 24 24">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            </div>
-          )}
-          {filters.categories?.map(cat => (
-            <div key={cat} className="filter-chip">
-              {cat}
-              <button
-                className="filter-chip-remove"
-                onClick={() => removeFilterChip('category', cat)}
-              >
-                <svg viewBox="0 0 24 24">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            </div>
-          ))}
-          {filters.householdIds?.map(id => (
-            <div key={id} className="filter-chip">
-              {getHouseholdName(id)}
-              <button
-                className="filter-chip-remove"
-                onClick={() => removeFilterChip('household', id)}
-              >
-                <svg viewBox="0 0 24 24">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Results Info */}
+      {/* Active Filter Chips + Results Info Row */}
       {(hasActiveFilters || filters.searchQuery) && (
-        <div className="results-info">
+        <div className="filters-results-row">
+          <div className="active-filters">
+            {filters.favoritesOnly && (
+              <div className="filter-chip favorites-chip">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                Favorites only
+                <button
+                  className="filter-chip-remove"
+                  onClick={() => removeFilterChip('favorites')}
+                >
+                  <svg viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+            {filters.playerCount && (
+              <div className="filter-chip">
+                {filters.playerCount} players
+                <button
+                  className="filter-chip-remove"
+                  onClick={() => removeFilterChip('players')}
+                >
+                  <svg viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+            {filters.playTime && (
+              <div className="filter-chip">
+                {getPlayTimeLabel(filters.playTime)}
+                <button
+                  className="filter-chip-remove"
+                  onClick={() => removeFilterChip('playTime')}
+                >
+                  <svg viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+            {filters.categories?.map(cat => (
+              <div key={cat} className="filter-chip">
+                {cat}
+                <button
+                  className="filter-chip-remove"
+                  onClick={() => removeFilterChip('category', cat)}
+                >
+                  <svg viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            ))}
+            {filters.householdIds?.map(id => (
+              <div key={id} className="filter-chip">
+                {getHouseholdName(id)}
+                <button
+                  className="filter-chip-remove"
+                  onClick={() => removeFilterChip('household', id)}
+                >
+                  <svg viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
           <span className="results-count">
-            Showing <strong>{filteredGamesCount}</strong> of {totalGames} games
+            <strong>{filteredGamesCount}</strong> of {totalGames}
           </span>
         </div>
       )}

@@ -1303,6 +1303,13 @@ a {
 }
 
 // Active Filter Chips
+.filters-results-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .active-filters {
   display: flex;
   flex-wrap: wrap;
@@ -1318,22 +1325,37 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 8px 6px 12px;
+  padding: 8px 10px 8px 12px;
   background: rgba(30, 58, 95, 0.08);
   color: $color-blue;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
   font-weight: 500;
+  border: 1.5px solid transparent;
 
   &.favorites-chip {
-    background: rgba(255, 204, 0, 0.15);
-    color: darken($color-yellow, 30%);
+    background: #fffbeb;
+    border-color: $color-yellow;
+    color: $color-navy;
 
     svg {
-      width: 12px;
-      height: 12px;
-      stroke: currentColor;
-      fill: currentColor;
+      width: 14px;
+      height: 14px;
+      stroke: $color-yellow;
+      fill: $color-yellow;
+    }
+
+    .filter-chip-remove {
+      background: transparent;
+
+      &:hover {
+        background: rgba(255, 204, 0, 0.2);
+      }
+
+      svg {
+        stroke: $color-navy;
+        fill: none;
+      }
     }
   }
 }
@@ -1365,15 +1387,10 @@ a {
 }
 
 // Results Info
-.results-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .results-count {
   font-size: 0.9rem;
   color: $color-gray;
+  white-space: nowrap;
 
   strong {
     color: $color-navy;
