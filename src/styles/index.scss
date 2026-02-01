@@ -4436,49 +4436,55 @@ $color-green-light: #d1fae5;
   justify-content: center;
 }
 
-.splash-btn-primary {
+a.splash-btn-primary,
+a.splash-btn-primary:hover,
+a.splash-btn-primary:focus,
+a.splash-btn-primary:active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 14px 28px;
   background: $color-yellow;
-  color: $color-navy;
+  color: $color-navy !important;
   border: none;
   border-radius: 12px;
   font-family: $font-body;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  text-decoration: none;
+  text-decoration: none !important;
   box-shadow: 0 4px 16px rgba(255, 204, 0, 0.3);
   transition: all 0.15s ease;
-
-  &:hover {
-    background: $color-yellow-hover;
-    transform: translateY(-1px);
-  }
 }
 
-.splash-btn-secondary {
+a.splash-btn-primary:hover {
+  background: $color-yellow-hover;
+  transform: translateY(-1px);
+}
+
+a.splash-btn-secondary,
+a.splash-btn-secondary:hover,
+a.splash-btn-secondary:focus,
+a.splash-btn-secondary:active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 14px 28px;
   background: transparent;
-  color: $color-white;
+  color: $color-white !important;
   border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 12px;
   font-family: $font-body;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  text-decoration: none;
+  text-decoration: none !important;
   transition: all 0.15s ease;
+}
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.4);
-  }
+a.splash-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 // Honeycomb Grid
