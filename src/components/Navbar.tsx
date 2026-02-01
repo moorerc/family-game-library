@@ -4,51 +4,21 @@ import {
   Navbar as BPNavbar,
   NavbarGroup,
   NavbarHeading,
-  NavbarDivider,
   Alignment,
-  Menu,
-  MenuItem,
-  Popover,
   Icon,
 } from '@blueprintjs/core';
 import { useAuth } from '../context/AuthContext';
+import { UserPopover } from './UserPopover';
 
 const HQLogo: React.FC = () => (
   <div className="logo-icon">HQ</div>
 );
 
-const getInitials = (name: string | undefined): string => {
-  if (!name) return '?';
-  return name
-    .split(' ')
-    .map(part => part[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-};
-
 export const Navbar: React.FC = () => {
-  const { currentUser, userProfile, logout } = useAuth();
+  const { currentUser } = useAuth();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
-
-  const userMenu = (
-    <Menu>
-      <MenuItem icon="home" text="My Household" />
-      <MenuItem icon="cog" text="Settings" />
-      <NavbarDivider />
-      <MenuItem icon="log-out" text="Sign Out" onClick={handleLogout} />
-    </Menu>
-  );
 
   return (
     <BPNavbar className="app-navbar" fixedToTop>
@@ -76,13 +46,7 @@ export const Navbar: React.FC = () => {
                 Game Night
               </Link>
             </nav>
-            <Popover content={userMenu} placement="bottom-end">
-              <button className="user-menu">
-                <div className="user-avatar">{getInitials(userProfile?.displayName)}</div>
-                <span className="user-name">{userProfile?.displayName || 'Account'}</span>
-                <Icon icon="chevron-down" size={16} />
-              </button>
-            </Popover>
+            <UserPopover />
           </>
         ) : null}
       </NavbarGroup>

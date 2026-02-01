@@ -104,7 +104,8 @@ export const SignUpPage: React.FC = () => {
       if (userId) {
         // New user - mark the invite code as used
         await inviteCodesService.useCode(inviteCode, userId);
-        navigate('/household');
+        // Go to profile setup to enter display name
+        navigate('/profile-setup');
       } else {
         // Existing user - just redirect to home
         navigate('/');

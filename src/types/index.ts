@@ -46,6 +46,7 @@ export interface User {
   email: string;
   displayName: string;
   householdId?: string;
+  profileComplete?: boolean;
   createdAt: Date;
 }
 
@@ -57,6 +58,7 @@ export interface GameFilters {
   householdIds?: string[];
   categories?: string[];
   playTime?: PlayTimeFilter;
+  favoritesOnly?: boolean;
 }
 
 export type SortOption = 'name' | 'recentlyAdded' | 'playerCount' | 'household';

@@ -8,3 +8,4 @@ export { BGGSearchPanel } from './BGGSearchPanel';
 export { GameNightFilters } from './GameNightFilters';
 export { GameWheelSpinner } from './GameWheelSpinner';
 export { GameNightResultDialog } from './GameNightResultDialog';
+export { UserPopover } from './UserPopover';

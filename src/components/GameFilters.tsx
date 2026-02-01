@@ -159,8 +159,14 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
       householdIds: undefined,
       categories: undefined,
       playTime: undefined,
+      favoritesOnly: undefined,
     };
     setPendingFilters(cleared);
+  };
+
+  const handleFavoritesToggle = () => {
+    // Favorites toggle is applied immediately (not via Apply button)
+    onFiltersChange({ ...filters, favoritesOnly: !filters.favoritesOnly });
   };
 
   const removeFilterChip = (type: string, value?: string) => {
@@ -180,6 +186,9 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
         newFilters.householdIds = filters.householdIds?.filter(h => h !== value);
         if (newFilters.householdIds?.length === 0) newFilters.householdIds = undefined;
         break;
+      case 'favorites':
+        newFilters.favoritesOnly = undefined;
+        break;
     }
     onFiltersChange(newFilters);
   };
@@ -188,6 +197,7 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
   const activeFilterCount = [
     filters.playerCount,
     filters.playTime,
+    filters.favoritesOnly,
     ...(filters.categories || []),
     ...(filters.householdIds || []),
   ].filter(Boolean).length;
@@ -243,6 +253,17 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
             </button>
           )}
         </div>
+
+        <button
+          className={`favorites-toggle-btn ${filters.favoritesOnly ? 'active' : ''}`}
+          onClick={handleFavoritesToggle}
+          title="Show only favorite games"
+        >
+          <svg viewBox="0 0 24 24" fill={filters.favoritesOnly ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          Favorites
+        </button>
 
         <div className="filter-btn-wrapper" ref={dropdownRef}>
           <button
@@ -543,6 +564,23 @@ export const GameFilters: React.FC<GameFiltersProps> = ({
       {/* Active Filter Chips */}
       {hasActiveFilters && (
         <div className="active-filters">
+          {filters.favoritesOnly && (
+            <div className="filter-chip favorites-chip">
+              <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              Favorites only
+              <button
+                className="filter-chip-remove"
+                onClick={() => removeFilterChip('favorites')}
+              >
+                <svg viewBox="0 0 24 24">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          )}
           {filters.playerCount && (
             <div className="filter-chip">
               {filters.playerCount} players

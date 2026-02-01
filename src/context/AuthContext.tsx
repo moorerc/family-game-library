@@ -21,6 +21,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<string | null>;
   logout: () => Promise<void>;
   updateUserHousehold: (householdId: string) => Promise<void>;
+  updateDisplayName: (displayName: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -99,6 +100,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await setDoc(userRef, {
       email,
       displayName,
+      profileComplete: true,
       createdAt: Timestamp.now(),
     });
 
@@ -128,12 +130,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateUserHousehold = async (householdId: string): Promise<void> => {
     if (!currentUser) return;
-    
+
     const userRef = doc(db, 'users', currentUser.uid);
     await setDoc(userRef, { householdId }, { merge: true });
-    
+
     if (userProfile) {
       setUserProfile({ ...userProfile, householdId });
+    }
+  };
+
+  const updateDisplayName = async (displayName: string): Promise<void> => {
+    if (!currentUser) return;
+
+    const userRef = doc(db, 'users', currentUser.uid);
+    await setDoc(userRef, { displayName }, { merge: true });
+
+    if (userProfile) {
+      setUserProfile({ ...userProfile, displayName });
     }
   };
 
@@ -146,6 +159,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signInWithGoogle,
     logout,
     updateUserHousehold,
+    updateDisplayName,
   };
 
   return (

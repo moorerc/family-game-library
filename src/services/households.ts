@@ -100,4 +100,78 @@ export const householdsService = {
     });
     return newCode;
   },
+
+  // Get all households for a specific user
+  async getUserHouseholds(userId: string): Promise<Household[]> {
+    const householdsRef = collection(db, HOUSEHOLDS_COLLECTION);
+    const q = query(householdsRef, where('members', 'array-contains', userId));
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+    })) as Household[];
+  },
+
+  // Leave a household (remove user from members array)
+  async leaveHousehold(householdId: string, userId: string): Promise<void> {
+    const householdRef = doc(db, HOUSEHOLDS_COLLECTION, householdId);
+    const householdSnap = await getDoc(householdRef);
+
+    if (!householdSnap.exists()) {
+      throw new Error('Household not found');
+    }
+
+    const household = householdSnap.data() as Household;
+
+    // Prevent owner from leaving
+    if (household.createdBy === userId) {
+      throw new Error('Owner cannot leave the household');
+    }
+
+    // Remove user from members array
+    const updatedMembers = household.members.filter(id => id !== userId);
+    await updateDoc(householdRef, {
+      members: updatedMembers,
+    });
+  },
+
+  // Get count of games in a household
+  async getHouseholdGameCount(householdId: string): Promise<number> {
+    const ownershipRef = collection(db, 'ownership');
+    const q = query(ownershipRef, where('householdId', '==', householdId));
+    const snapshot = await getDocs(q);
+    return snapshot.size;
+  },
+
+  // Get member details for a household
+  async getHouseholdMembers(householdId: string): Promise<{ id: string; displayName: string; email: string }[]> {
+    const householdRef = doc(db, HOUSEHOLDS_COLLECTION, householdId);
+    const householdSnap = await getDoc(householdRef);
+
+    if (!householdSnap.exists()) {
+      return [];
+    }
+
+    const household = householdSnap.data() as Household;
+    const memberIds = household.members;
+
+    // Fetch user details for each member
+    const members: { id: string; displayName: string; email: string }[] = [];
+    for (const memberId of memberIds) {
+      const userRef = doc(db, 'users', memberId);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        members.push({
+          id: userSnap.id,
+          displayName: userData.displayName || 'Unknown',
+          email: userData.email || '',
+        });
+      }
+    }
+
+    return members;
+  },
 };

@@ -6,9 +6,12 @@ import {
   AddGamePage,
   LoginPage,
   SignUpPage,
+  ProfileSetupPage,
   HouseholdPage,
   GameNightPage,
   SplashPage,
+  ProfilePage,
+  ProfileEditPage,
 } from './pages';
 import { useAuth } from './context/AuthContext';
 
@@ -18,7 +21,7 @@ const App: React.FC = () => {
 
   // Show splash page for unauthenticated users on root path
   // but allow access to login/signup pages
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
+  const isAuthPage = ['/login', '/signup', '/profile-setup', '/household'].includes(location.pathname);
 
   if (!loading && !currentUser && !isAuthPage) {
     return <SplashPage />;
@@ -35,7 +38,10 @@ const App: React.FC = () => {
             <Route path="/add" element={<AddGamePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/profile-setup" element={<ProfileSetupPage />} />
             <Route path="/household" element={<HouseholdPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/edit" element={<ProfileEditPage />} />
           </Routes>
         </div>
       </main>

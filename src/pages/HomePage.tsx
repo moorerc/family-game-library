@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { NonIdealState, Spinner, Button } from '@blueprintjs/core';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { GameCard, GameFilters, GameDetailDialog, AddGameDialog } from '../components';
 import { useGames } from '../hooks/useGames';
 import { useUserPreferences } from '../hooks/useUserPreferences';
@@ -13,14 +13,52 @@ export const HomePage: React.FC = () => {
   const { currentUser, userProfile, loading: authLoading } = useAuth();
   const { games, filteredGames, loading, error, filters, setFilters, getOwnershipsByGame, refreshGames } = useGames();
   const {
+    preferences,
     getPreference,
     likeGame,
     dislikeGame,
     toggleFavorite,
   } = useUserPreferences();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [households, setHouseholds] = useState<Household[]>([]);
   const [selectedGame, setSelectedGame] = useState<OwnedGame | null>(null);
   const [isAddGameDialogOpen, setIsAddGameDialogOpen] = useState(false);
+
+  // Check URL params for favorites filter on mount
+  useEffect(() => {
+    const favoritesParam = searchParams.get('favorites');
+    if (favoritesParam === 'true' && !filters.favoritesOnly) {
+      setFilters({ ...filters, favoritesOnly: true });
+    }
+  }, [searchParams]);
+
+  // Update URL when favorites filter changes
+  const handleFiltersChange = useCallback((newFilters: typeof filters) => {
+    setFilters(newFilters);
+    if (newFilters.favoritesOnly) {
+      setSearchParams({ favorites: 'true' });
+    } else {
+      searchParams.delete('favorites');
+      setSearchParams(searchParams);
+    }
+  }, [setFilters, searchParams, setSearchParams]);
+
+  // Get favorite game IDs for filtering
+  const favoriteGameIds = useMemo(() => {
+    const ids: string[] = [];
+    preferences.forEach((pref, gameId) => {
+      if (pref.isFavorite) {
+        ids.push(gameId);
+      }
+    });
+    return new Set(ids);
+  }, [preferences]);
+
+  // Apply favorites filter on top of other filters
+  const displayedGames = useMemo(() => {
+    if (!filters.favoritesOnly) return filteredGames;
+    return filteredGames.filter(game => favoriteGameIds.has(game.id));
+  }, [filteredGames, filters.favoritesOnly, favoriteGameIds]);
 
   const handleGameAdded = useCallback(() => {
     refreshGames();
@@ -114,11 +152,11 @@ export const HomePage: React.FC = () => {
       <div className="home-page-filters">
         <GameFilters
           filters={filters}
-          onFiltersChange={setFilters}
+          onFiltersChange={handleFiltersChange}
           households={households}
           availableCategories={availableCategories}
           totalGames={games.length}
-          filteredGamesCount={filteredGames.length}
+          filteredGamesCount={displayedGames.length}
           actionButton={
             <button
               className="add-game-btn"
@@ -135,12 +173,12 @@ export const HomePage: React.FC = () => {
       </div>
 
       <div className="home-page-content">
-        {filteredGames.length === 0 ? (
+        {displayedGames.length === 0 ? (
           <NonIdealState
             icon="search"
             title="No games found"
             description={
-              filters.searchQuery || filters.playerCount || filters.householdIds || filters.categories || filters.playTime
+              filters.searchQuery || filters.playerCount || filters.householdIds || filters.categories || filters.playTime || filters.favoritesOnly
                 ? "Try adjusting your filters"
                 : "Be the first to add a game to the library!"
             }
@@ -158,7 +196,7 @@ export const HomePage: React.FC = () => {
           />
         ) : (
           <div className="games-grid">
-            {filteredGames.map((game) => (
+            {displayedGames.map((game) => (
               <GameCard
                 key={`${game.id}-${game.ownership.id}`}
                 game={game}
