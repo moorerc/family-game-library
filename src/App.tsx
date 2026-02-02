@@ -12,12 +12,16 @@ import {
   HouseholdEditPage,
   GuildPage,
   GuildEditPage,
-  GameNightPage,
+  GameNightLandingPage,
+  GameNightPlayersPage,
+  GameNightLocationPage,
+  GameNightSessionPage,
   SplashPage,
   ProfilePage,
   ProfileEditPage,
 } from './pages';
 import { useAuth } from './context/AuthContext';
+import { GameNightProvider } from './context/GameNightContext';
 
 const App: React.FC = () => {
   const { currentUser, loading } = useAuth();
@@ -32,28 +36,33 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="app">
-      <Navbar />
-      <main className="app-main">
-        <div className="app-container">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/game-night" element={<GameNightPage />} />
-            <Route path="/add" element={<AddGamePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/profile-setup" element={<ProfileSetupPage />} />
-            <Route path="/household" element={<HouseholdPage />} />
-            <Route path="/household/:id" element={<HouseholdDetailPage />} />
-            <Route path="/household/:id/edit" element={<HouseholdEditPage />} />
-            <Route path="/guild/:id" element={<GuildPage />} />
-            <Route path="/guild/:id/edit" element={<GuildEditPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/profile/edit" element={<ProfileEditPage />} />
-          </Routes>
-        </div>
-      </main>
-    </div>
+    <GameNightProvider>
+      <div className="app">
+        <Navbar />
+        <main className="app-main">
+          <div className="app-container">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/game-night" element={<GameNightLandingPage />} />
+              <Route path="/game-night/new/players" element={<GameNightPlayersPage />} />
+              <Route path="/game-night/new/location" element={<GameNightLocationPage />} />
+              <Route path="/game-night/session" element={<GameNightSessionPage />} />
+              <Route path="/add" element={<AddGamePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/profile-setup" element={<ProfileSetupPage />} />
+              <Route path="/household" element={<HouseholdPage />} />
+              <Route path="/household/:id" element={<HouseholdDetailPage />} />
+              <Route path="/household/:id/edit" element={<HouseholdEditPage />} />
+              <Route path="/guild/:id" element={<GuildPage />} />
+              <Route path="/guild/:id/edit" element={<GuildEditPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile/edit" element={<ProfileEditPage />} />
+            </Routes>
+          </div>
+        </main>
+      </div>
+    </GameNightProvider>
   );
 };
 

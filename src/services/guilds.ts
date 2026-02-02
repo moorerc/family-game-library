@@ -248,6 +248,83 @@ export const guildsService = {
     return members;
   },
 
+  // Get member details with household info for a guild
+  async getGuildMembersWithHouseholds(guildId: string): Promise<{
+    id: string;
+    displayName: string;
+    email: string;
+    householdId?: string;
+    householdName?: string;
+  }[]> {
+    const guildRef = doc(db, GUILDS_COLLECTION, guildId);
+    const guildSnap = await getDoc(guildRef);
+
+    if (!guildSnap.exists()) {
+      return [];
+    }
+
+    const guild = guildSnap.data();
+    const memberIds: string[] = guild.members;
+
+    // First, collect all household IDs we need to look up
+    const householdIds = new Set<string>();
+    const userDataMap = new Map<string, { displayName: string; email: string; householdId?: string }>();
+
+    for (const memberId of memberIds) {
+      const userRef = doc(db, 'users', memberId);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        // Handle both old (householdId) and new (householdIds) format
+        const primaryHouseholdId = userData.householdIds?.[0] || userData.householdId;
+        if (primaryHouseholdId) {
+          householdIds.add(primaryHouseholdId);
+        }
+        userDataMap.set(memberId, {
+          displayName: userData.displayName || 'Unknown',
+          email: userData.email || '',
+          householdId: primaryHouseholdId,
+        });
+      }
+    }
+
+    // Look up household names
+    const householdNameMap = new Map<string, string>();
+    for (const householdId of householdIds) {
+      const householdRef = doc(db, 'households', householdId);
+      const householdSnap = await getDoc(householdRef);
+      if (householdSnap.exists()) {
+        householdNameMap.set(householdId, householdSnap.data().name || 'Unknown');
+      }
+    }
+
+    // Build final member list
+    const members: {
+      id: string;
+      displayName: string;
+      email: string;
+      householdId?: string;
+      householdName?: string;
+    }[] = [];
+
+    for (const memberId of memberIds) {
+      const userData = userDataMap.get(memberId);
+      if (userData) {
+        members.push({
+          id: memberId,
+          displayName: userData.displayName,
+          email: userData.email,
+          householdId: userData.householdId,
+          householdName: userData.householdId
+            ? householdNameMap.get(userData.householdId)
+            : undefined,
+        });
+      }
+    }
+
+    return members;
+  },
+
   // Get all households for a guild (computed from members' households)
   async getGuildHouseholds(guildId: string): Promise<Household[]> {
     const guildRef = doc(db, GUILDS_COLLECTION, guildId);

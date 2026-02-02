@@ -18,7 +18,12 @@ export const Navbar: React.FC = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <BPNavbar className="app-navbar" fixedToTop>
