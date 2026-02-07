@@ -85,6 +85,12 @@ $shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
 }
 
+// Override Blueprint's blue focus outline with brand yellow for keyboard nav
+*:focus-visible {
+  outline: 2px solid $color-yellow;
+  outline-offset: 2px;
+}
+
 html {
   font-size: 16px;
 }
