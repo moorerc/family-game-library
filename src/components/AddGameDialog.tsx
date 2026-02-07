@@ -9,8 +9,11 @@ import { useBGGSearch } from '../hooks/useBGGSearch';
 import { useAuth } from '../context/AuthContext';
 import { gamesService } from '../services/games';
 import { ownershipService } from '../services/ownership';
+import { householdsService } from '../services/households';
 import type { BGGSearchResult, BGGGameDetails, Game, Household, Ownership } from '../types';
+import { getEntityColorHex } from '../types';
 import { stripHtml } from '../utils/text';
+import poweredByBgg from '../assets/powered-by-bgg.png';
 
 type StepId = 'search' | 'details' | 'household';
 
@@ -23,7 +26,7 @@ interface Step {
 const STEPS: Step[] = [
   { id: 'search', title: 'Search', number: 1 },
   { id: 'details', title: 'Game Details', number: 2 },
-  { id: 'household', title: 'Add to Collection', number: 3 },
+  { id: 'household', title: 'Your Copy', number: 3 },
 ];
 
 interface AddGameDialogProps {
@@ -71,9 +74,16 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
 
   // Household form state
   const [selectedHouseholdId, setSelectedHouseholdId] = useState(userHouseholdId || '');
+  const [selectedOwnerId, setSelectedOwnerId] = useState('');
+  const [householdMembers, setHouseholdMembers] = useState<{ id: string; displayName: string; email: string }[]>([]);
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCategoryInput, setShowCategoryInput] = useState(false);
+  const [householdDropdownOpen, setHouseholdDropdownOpen] = useState(false);
+  const [ownerDropdownOpen, setOwnerDropdownOpen] = useState(false);
+  const householdDropdownRef = useRef<HTMLDivElement>(null);
+  const ownerDropdownRef = useRef<HTMLDivElement>(null);
 
   // Track visited steps
   const [visitedSteps, setVisitedSteps] = useState<Set<StepId>>(new Set(['search']));
@@ -90,7 +100,12 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
       setError(null);
       setNotes('');
       setSelectedHouseholdId(userHouseholdId || '');
+      setSelectedOwnerId('');
+      setHouseholdMembers([]);
+      setHouseholdDropdownOpen(false);
+      setOwnerDropdownOpen(false);
       setVisitedSteps(new Set(['search']));
+      setShowCategoryInput(false);
       bggSearch.clearResults();
       bggSearch.clearSelection();
       resetForm();
@@ -222,6 +237,24 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
     }
   }, [bggSearch.selectedGame, isExistingGame]);
 
+  // Fetch household members when selection changes
+  useEffect(() => {
+    if (selectedHouseholdId) {
+      householdsService.getHouseholdMembers(selectedHouseholdId)
+        .then(members => {
+          setHouseholdMembers(members);
+          setSelectedOwnerId('');
+        })
+        .catch(() => {
+          setHouseholdMembers([]);
+          setSelectedOwnerId('');
+        });
+    } else {
+      setHouseholdMembers([]);
+      setSelectedOwnerId('');
+    }
+  }, [selectedHouseholdId, isOpen]);
+
   const availableHouseholds = isExistingGame
     ? households.filter(h => !existingOwnerships.some(o => o.householdId === h.id))
     : households;
@@ -279,7 +312,8 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
         gameId,
         selectedHouseholdId,
         currentUser.uid,
-        notes.trim() || undefined
+        notes.trim() || undefined,
+        selectedOwnerId || undefined
       );
 
       onGameAdded();
@@ -389,42 +423,47 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
         )}
 
         {!error && !bggSearch.error && bggSearch.searchResults.length > 0 && (
-          <div className="wizard-search-results">
-            {bggSearch.searchResults.map((result) => {
-              const isSelected = selectedResult?.bggId === result.bggId;
-              const isLoading = isSelected && checkingExisting;
-              return (
-                <div
-                  key={result.bggId}
-                  className={`search-result-item ${isSelected ? 'selected' : ''} ${isLoading ? 'loading' : ''}`}
-                  onClick={() => !checkingExisting && handleSelectResult(result)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && !checkingExisting && handleSelectResult(result)}
-                >
-                  <img
-                    src={result.thumbnail || 'https://placehold.co/48x48/e2e6ec/4a5568?text=?'}
-                    className="result-image"
-                    alt=""
-                  />
-                  <div className="result-info">
-                    <div className="result-name">{result.name}</div>
-                    {result.yearPublished && (
-                      <div className="result-year">{result.yearPublished}</div>
+          <div className="wizard-search-results-container">
+            <div className="wizard-search-results">
+              {bggSearch.searchResults.map((result) => {
+                const isSelected = selectedResult?.bggId === result.bggId;
+                const isLoading = isSelected && checkingExisting;
+                return (
+                  <div
+                    key={result.bggId}
+                    className={`search-result-item ${isSelected ? 'selected' : ''} ${isLoading ? 'loading' : ''}`}
+                    onClick={() => !checkingExisting && handleSelectResult(result)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && !checkingExisting && handleSelectResult(result)}
+                  >
+                    <img
+                      src={result.thumbnail || 'https://placehold.co/56x56/e2e6ec/4a5568?text=?'}
+                      className="result-image"
+                      alt=""
+                    />
+                    <div className="result-info">
+                      <div className="result-name">{result.name}</div>
+                      {result.yearPublished && (
+                        <div className="result-year">{result.yearPublished}</div>
+                      )}
+                    </div>
+                    {isLoading ? (
+                      <div className="result-spinner">
+                        <Spinner size={18} />
+                      </div>
+                    ) : (
+                      <div className="result-check">
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
                     )}
                   </div>
-                  {isLoading ? (
-                    <div className="result-spinner">
-                      <Spinner size={18} />
-                    </div>
-                  ) : (
-                    <div className="result-check">
-                      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
+            <div className="bgg-powered-by">
+              <img src={poweredByBgg} alt="Powered by BGG" className="bgg-logo-img" />
+            </div>
           </div>
         )}
 
@@ -500,200 +539,364 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
             </div>
           )}
 
-          {!isExistingGame && bggId && (
-            <div className="wizard-prefill-banner">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Pre-filled from BoardGameGeek</span>
-            </div>
-          )}
-
-          <div className="wizard-game-preview">
-            <img
-              src={imageUrl || 'https://placehold.co/80x80/e2e6ec/4a5568?text=?'}
-              className="game-preview-image"
-              alt=""
-            />
-            <div className="game-preview-info">
-              <div className="game-preview-name">{name}</div>
-              {yearPublished && <div className="game-preview-year">{yearPublished}</div>}
-              <div className="game-preview-meta">
-                <span className="meta-chip">
-                  <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                  {minPlayers === maxPlayers ? `${minPlayers} players` : `${minPlayers}-${maxPlayers} players`}
-                </span>
-                {playTimeMinutes != null && playTimeMinutes > 0 && (
+          <div className="wizard-form-scroll">
+            <div className="wizard-game-preview">
+              <img
+                src={imageUrl || 'https://placehold.co/100x100/e2e6ec/4a5568?text=?'}
+                className="game-preview-image"
+                alt=""
+              />
+              <div className="game-preview-info">
+                <div className="game-preview-name">{name}</div>
+                {yearPublished && <div className="game-preview-year">{yearPublished}</div>}
+                <div className="game-preview-meta">
                   <span className="meta-chip">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    {playTimeMinutes} min
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                    {minPlayers === maxPlayers ? `${minPlayers} players` : `${minPlayers}-${maxPlayers} players`}
                   </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {!isExistingGame && (
-            <div className="wizard-form-fields">
-              <div className="wizard-form-group">
-                <label className="wizard-form-label">Game Name</label>
-                <input
-                  type="text"
-                  className="wizard-form-input"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g., Settlers of Catan"
-                />
-              </div>
-
-              <div className="wizard-form-group">
-                <label className="wizard-form-label">Description <span className="optional">(optional)</span></label>
-                <textarea
-                  className="wizard-form-input wizard-form-textarea"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Brief description..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="wizard-form-row">
-                <div className="wizard-form-group">
-                  <label className="wizard-form-label">Min Players</label>
-                  <input
-                    type="number"
-                    className="wizard-form-input"
-                    value={minPlayers}
-                    onChange={(e) => setMinPlayers(parseInt(e.target.value) || 1)}
-                    min={1}
-                    max={99}
-                  />
-                </div>
-                <div className="wizard-form-group">
-                  <label className="wizard-form-label">Max Players</label>
-                  <input
-                    type="number"
-                    className="wizard-form-input"
-                    value={maxPlayers}
-                    onChange={(e) => setMaxPlayers(parseInt(e.target.value) || 1)}
-                    min={1}
-                    max={99}
-                  />
-                </div>
-                <div className="wizard-form-group">
-                  <label className="wizard-form-label">Play Time (min)</label>
-                  <input
-                    type="number"
-                    className="wizard-form-input"
-                    value={playTimeMinutes ?? ''}
-                    onChange={(e) => setPlayTimeMinutes(e.target.value ? parseInt(e.target.value) : undefined)}
-                    min={1}
-                  />
-                </div>
-              </div>
-
-              <div className="wizard-form-group">
-                <label className="wizard-form-label">Categories</label>
-                <div className="wizard-category-tags">
-                  {categories.map((category, index) => (
-                    <span key={index} className="category-tag">
-                      {category}
-                      <button onClick={() => setCategories(categories.filter((_, i) => i !== index))}>
-                        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                      </button>
+                  {playTimeMinutes != null && playTimeMinutes > 0 && (
+                    <span className="meta-chip">
+                      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      {playTimeMinutes} min
                     </span>
-                  ))}
-                  {categories.length === 0 && (
-                    <span className="category-placeholder">No categories</span>
                   )}
                 </div>
-                <input
-                  type="text"
-                  className="wizard-form-input"
-                  placeholder="Type a category and press Enter"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      const value = (e.target as HTMLInputElement).value.trim();
-                      if (value) {
-                        if (!categories.includes(value)) {
+              </div>
+            </div>
+
+            {!isExistingGame && bggId && (
+              <div className="wizard-bgg-banner">
+                <img src={poweredByBgg} alt="Powered by BGG" className="bgg-logo-img bgg-logo-img--small" />
+                <div className="bgg-banner-divider" />
+                <span className="bgg-banner-text">Edit any fields as desired</span>
+              </div>
+            )}
+
+          {!isExistingGame && (
+              <div className="wizard-form-fields">
+                <div className="wizard-form-group">
+                  <label className="wizard-form-label">Name</label>
+                  <input
+                    type="text"
+                    className="wizard-form-input"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="e.g., Settlers of Catan"
+                  />
+                </div>
+
+                <div className="wizard-form-row">
+                  <div className="wizard-form-group">
+                    <label className="wizard-form-label">Min Players</label>
+                    <input
+                      type="number"
+                      className="wizard-form-input"
+                      value={minPlayers}
+                      onChange={(e) => setMinPlayers(parseInt(e.target.value) || 1)}
+                      min={1}
+                      max={99}
+                    />
+                  </div>
+                  <div className="wizard-form-group">
+                    <label className="wizard-form-label">Max Players</label>
+                    <input
+                      type="number"
+                      className="wizard-form-input"
+                      value={maxPlayers}
+                      onChange={(e) => setMaxPlayers(parseInt(e.target.value) || 1)}
+                      min={1}
+                      max={99}
+                    />
+                  </div>
+                  <div className="wizard-form-group">
+                    <label className="wizard-form-label">Play Time (min)</label>
+                    <input
+                      type="number"
+                      className="wizard-form-input"
+                      value={playTimeMinutes ?? ''}
+                      onChange={(e) => setPlayTimeMinutes(e.target.value ? parseInt(e.target.value) : undefined)}
+                      min={1}
+                    />
+                  </div>
+                </div>
+
+                <h4 className="form-section-header">Description</h4>
+                <div className="wizard-form-group">
+                  <textarea
+                    className="wizard-form-input wizard-form-textarea"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Brief description..."
+                    rows={3}
+                  />
+                </div>
+
+                <h4 className="form-section-header">Categories</h4>
+                <div className="wizard-form-group">
+                  <div className="wizard-category-tags">
+                    {categories.map((category, index) => (
+                      <span key={index} className="category-tag">
+                        {category}
+                        <button onClick={() => setCategories(categories.filter((_, i) => i !== index))}>
+                          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </span>
+                    ))}
+                    {!showCategoryInput && (
+                      <button
+                        className="add-category-btn"
+                        onClick={() => setShowCategoryInput(true)}
+                      >
+                        + Add
+                      </button>
+                    )}
+                  </div>
+                  {showCategoryInput && (
+                    <input
+                      type="text"
+                      className="wizard-form-input"
+                      placeholder="Type a category and press Enter"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const value = (e.target as HTMLInputElement).value.trim();
+                          if (value) {
+                            if (!categories.includes(value)) {
+                              setCategories([...categories, value]);
+                            }
+                            (e.target as HTMLInputElement).value = '';
+                          }
+                        } else if (e.key === 'Escape') {
+                          setShowCategoryInput(false);
+                        }
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value.trim();
+                        if (value && !categories.includes(value)) {
                           setCategories([...categories, value]);
                         }
-                        (e.target as HTMLInputElement).value = '';
-                      }
-                    }
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {isExistingGame && availableHouseholds.length === 0 && (
-            <div className="warning-banner">
-              <div className="warning-banner-icon">
-                <svg viewBox="0 0 24 24">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                  <line x1="12" y1="9" x2="12" y2="13"/>
-                  <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-              </div>
-              <div className="warning-banner-content">
-                <div className="warning-banner-title">All households already own this game</div>
-                <div className="warning-banner-description">
-                  Every household in your family has a copy. You can still add another if someone has a second copy.
+                        setShowCategoryInput(false);
+                      }}
+                    />
+                  )}
                 </div>
               </div>
-            </div>
           )}
+
+            {isExistingGame && availableHouseholds.length === 0 && (
+              <div className="warning-banner">
+                <div className="warning-banner-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                </div>
+                <div className="warning-banner-content">
+                  <div className="warning-banner-title">All households already own this game</div>
+                  <div className="warning-banner-description">
+                    Every household in your family has a copy. You can still add another if someone has a second copy.
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
   );
 
-  // Household step
-  const renderHouseholdStep = () => (
-    <div className="wizard-step-content">
-      {error && (
-        <Callout intent={Intent.DANGER} className="wizard-callout">
-          {error}
-        </Callout>
-      )}
+  // Helper to get initials from display name
+  const getInitials = (displayName: string) => {
+    const parts = displayName.trim().split(/\s+/);
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    return displayName.slice(0, 2).toUpperCase();
+  };
 
-      <div className="wizard-collection-game-summary">
-        <img
-          src={imageUrl || 'https://placehold.co/56x56/e2e6ec/4a5568?text=?'}
-          className="collection-game-image"
-          alt=""
-        />
-        <div className="collection-game-name">{name}</div>
-      </div>
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (householdDropdownRef.current && !householdDropdownRef.current.contains(e.target as Node)) {
+        setHouseholdDropdownOpen(false);
+      }
+      if (ownerDropdownRef.current && !ownerDropdownRef.current.contains(e.target as Node)) {
+        setOwnerDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-      <div className="wizard-form-group">
-        <label className="wizard-form-label">Which household owns this game?</label>
-        <select
-          className="wizard-form-select"
-          value={selectedHouseholdId}
-          onChange={(e) => setSelectedHouseholdId(e.target.value)}
-        >
-          <option value="">Select a household...</option>
-          {availableHouseholds.map((h) => (
-            <option key={h.id} value={h.id}>
-              {h.name} {h.id === userHouseholdId ? '(yours)' : ''}
-            </option>
-          ))}
-        </select>
-      </div>
+  // Household step ("Your Copy")
+  const renderHouseholdStep = () => {
+    const selectedHousehold = availableHouseholds.find(h => h.id === selectedHouseholdId);
+    const householdColor = selectedHousehold ? getEntityColorHex(selectedHousehold.color) : '#1e3a5f';
+    const selectedOwner = householdMembers.find(m => m.id === selectedOwnerId);
 
-      <div className="wizard-form-group">
-        <label className="wizard-form-label">Notes about your copy <span className="optional">(optional)</span></label>
-        <textarea
-          className="wizard-form-input wizard-form-textarea"
-          placeholder="Condition, expansions included, missing pieces, etc."
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={4}
-        />
+    return (
+      <div className="wizard-step-content">
+        {error && (
+          <Callout intent={Intent.DANGER} className="wizard-callout">
+            {error}
+          </Callout>
+        )}
+
+        <div className="wizard-form-scroll">
+        <div className="wizard-collection-game-summary">
+          <img
+            src={imageUrl || 'https://placehold.co/64x64/e2e6ec/4a5568?text=?'}
+            className="collection-game-image"
+            alt=""
+          />
+          <div className="collection-game-info">
+            <div className="collection-game-name">{name}</div>
+            <div className="collection-game-subtitle">Adding to your library</div>
+          </div>
+        </div>
+
+        <div className="wizard-form-group">
+          <label className="wizard-form-label">
+            <svg className="label-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Household
+          </label>
+          <div className="custom-dropdown" ref={householdDropdownRef}>
+            <button
+              type="button"
+              className="custom-dropdown-trigger"
+              onClick={() => { setHouseholdDropdownOpen(!householdDropdownOpen); setOwnerDropdownOpen(false); }}
+            >
+              {selectedHousehold ? (
+                <>
+                  <div className="dropdown-avatar" style={{ background: householdColor }}>
+                    {selectedHousehold.name.slice(0, 1).toUpperCase()}
+                  </div>
+                  <span className="dropdown-trigger-text">{selectedHousehold.name}</span>
+                  {selectedHousehold.id === userHouseholdId && (
+                    <span className="dropdown-trigger-tag">(yours)</span>
+                  )}
+                </>
+              ) : (
+                <span className="dropdown-trigger-placeholder">Select a household...</span>
+              )}
+              <svg className="dropdown-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            {householdDropdownOpen && (
+              <div className="custom-dropdown-menu">
+                {availableHouseholds.map((h) => {
+                  const color = getEntityColorHex(h.color);
+                  const isSelected = h.id === selectedHouseholdId;
+                  return (
+                    <div
+                      key={h.id}
+                      className={`custom-dropdown-option ${isSelected ? 'selected' : ''}`}
+                      onClick={() => { setSelectedHouseholdId(h.id); setHouseholdDropdownOpen(false); }}
+                    >
+                      <div className="dropdown-avatar" style={{ background: color }}>
+                        {h.name.slice(0, 1).toUpperCase()}
+                      </div>
+                      <span className="dropdown-option-text">{h.name}</span>
+                      {h.id === userHouseholdId && (
+                        <span className="dropdown-option-tag">(yours)</span>
+                      )}
+                      {isSelected && (
+                        <svg className="dropdown-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {selectedHouseholdId && householdMembers.length > 0 && (
+          <div className="wizard-form-group">
+            <label className="wizard-form-label">
+              <svg className="label-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Owner
+            </label>
+            <div className="custom-dropdown" ref={ownerDropdownRef}>
+              <button
+                type="button"
+                className="custom-dropdown-trigger"
+                onClick={() => { setOwnerDropdownOpen(!ownerDropdownOpen); setHouseholdDropdownOpen(false); }}
+              >
+                {selectedOwner ? (
+                  <>
+                    <div className="dropdown-avatar dropdown-avatar--user" style={{ background: householdColor }}>
+                      {getInitials(selectedOwner.displayName)}
+                    </div>
+                    <span className="dropdown-trigger-text">{selectedOwner.displayName}</span>
+                    {selectedOwner.id === currentUser?.uid && (
+                      <span className="dropdown-trigger-tag">(you)</span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="dropdown-avatar" style={{ background: householdColor }}>
+                      {selectedHousehold ? selectedHousehold.name.slice(0, 1).toUpperCase() : '?'}
+                    </div>
+                    <span className="dropdown-trigger-text">Household (shared)</span>
+                  </>
+                )}
+                <svg className="dropdown-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              {ownerDropdownOpen && (
+                <div className="custom-dropdown-menu">
+                  <div
+                    className={`custom-dropdown-option ${selectedOwnerId === '' ? 'selected' : ''}`}
+                    onClick={() => { setSelectedOwnerId(''); setOwnerDropdownOpen(false); }}
+                  >
+                    <div className="dropdown-avatar" style={{ background: householdColor }}>
+                      {selectedHousehold ? selectedHousehold.name.slice(0, 1).toUpperCase() : '?'}
+                    </div>
+                    <span className="dropdown-option-text">Household (shared)</span>
+                    {selectedOwnerId === '' && (
+                      <svg className="dropdown-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                    )}
+                  </div>
+                  {householdMembers.map((m) => {
+                    const isSelected = m.id === selectedOwnerId;
+                    return (
+                      <div
+                        key={m.id}
+                        className={`custom-dropdown-option ${isSelected ? 'selected' : ''}`}
+                        onClick={() => { setSelectedOwnerId(m.id); setOwnerDropdownOpen(false); }}
+                      >
+                        <div className="dropdown-avatar dropdown-avatar--user" style={{ background: householdColor }}>
+                          {getInitials(m.displayName)}
+                        </div>
+                        <span className="dropdown-option-text">{m.displayName}</span>
+                        {m.id === currentUser?.uid && (
+                          <span className="dropdown-option-tag">(you)</span>
+                        )}
+                        {isSelected && (
+                          <svg className="dropdown-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="wizard-form-group">
+          <label className="wizard-form-label">Notes <span className="optional">(optional)</span></label>
+          <textarea
+            className="wizard-form-input wizard-form-textarea wizard-form-textarea--short"
+            placeholder="Condition, expansions included, missing pieces, etc."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+          />
+        </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Footer
   const renderFooter = () => {
@@ -702,7 +905,7 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
 
     return (
       <div className="wizard-footer">
-        <button className="wizard-footer-btn btn-secondary" onClick={onClose}>Close</button>
+        <button className="wizard-footer-btn btn-ghost" onClick={onClose}>Close</button>
         <div className="wizard-footer-actions">
           {!isFirstStep && (
             <button

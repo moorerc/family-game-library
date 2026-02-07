@@ -4199,12 +4199,15 @@ a {
 // Green color for success states
 $color-green: #059669;
 $color-green-light: #d1fae5;
+$color-teal: #0d9488;
+$color-teal-light: #d1fae5;
+$color-bgg-orange: #ff5100;
 
 // Dialog container override
 .add-game-wizard-dialog.bp5-dialog {
   width: 100%;
-  max-width: 720px;
-  height: 580px;
+  max-width: 840px;
+  height: 660px;
   max-height: 85vh;
   padding: 0;
   border-radius: 24px;
@@ -4235,7 +4238,7 @@ $color-green-light: #d1fae5;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
+  padding: 20px 24px;
   border-bottom: 1px solid $color-border;
   flex-shrink: 0;
 }
@@ -4300,14 +4303,14 @@ $color-green-light: #d1fae5;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: 10px;
   transition: all 0.15s ease;
   cursor: pointer;
 
   &.active {
     background: $color-white;
-    box-shadow: 0 2px 8px rgba(10, 22, 40, 0.08);
+    box-shadow: 0 2px 8px rgba(10, 22, 40, 0.06);
   }
 
   &.completed {
@@ -4327,7 +4330,7 @@ $color-green-light: #d1fae5;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
+    font-size: 12px;
     font-weight: 700;
     flex-shrink: 0;
     transition: all 0.15s ease;
@@ -4353,13 +4356,13 @@ $color-green-light: #d1fae5;
   }
 
   &.completed .step-number {
-    background: $color-green;
+    background: $color-teal;
     color: $color-white;
   }
 }
 
 .step-label {
-  font-size: 0.8rem;
+  font-size: 14px;
   font-weight: 500;
   color: $color-gray;
   transition: all 0.15s ease;
@@ -4370,16 +4373,21 @@ $color-green-light: #d1fae5;
   }
 
   .step-item.completed & {
-    color: $color-green;
+    color: $color-teal;
+  }
+
+  .step-item.pending & {
+    color: #a0aec0;
   }
 }
 
 // Wizard content area
 .wizard-content {
   flex: 1;
-  padding: 20px;
+  padding: 24px 28px;
   overflow-y: auto;
   min-width: 0;
+  background: $color-white;
 }
 
 // Step content
@@ -4464,21 +4472,36 @@ $color-green-light: #d1fae5;
   }
 }
 
-// Search results
-.wizard-search-results {
+// Search results container (white card with results + BGG footer)
+.wizard-search-results-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: $color-white;
   border: 1px solid $color-border;
   border-radius: 12px;
   overflow: hidden;
+}
+
+// Scrollable results list
+.wizard-search-results {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .search-result-item {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   cursor: pointer;
   transition: background 0.1s ease;
   border-bottom: 1px solid $color-border;
@@ -4497,7 +4520,7 @@ $color-green-light: #d1fae5;
   }
 
   &.selected {
-    background: rgba(30, 58, 95, 0.06);
+    background: $color-teal-light;
 
     .result-check {
       opacity: 1;
@@ -4506,8 +4529,8 @@ $color-green-light: #d1fae5;
 }
 
 .result-image {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 8px;
   object-fit: cover;
   background: $color-border;
@@ -4521,7 +4544,7 @@ $color-green-light: #d1fae5;
 
 .result-name {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 16px;
   color: $color-navy;
   margin-bottom: 2px;
 }
@@ -4532,10 +4555,10 @@ $color-green-light: #d1fae5;
 }
 
 .result-check {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: $color-green;
+  background: $color-teal;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4564,6 +4587,29 @@ $color-green-light: #d1fae5;
 .search-result-item.loading {
   pointer-events: none;
   opacity: 0.85;
+}
+
+// BGG Powered By badge
+.bgg-powered-by {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border-top: 1px solid $color-border;
+  flex-shrink: 0;
+}
+
+// BGG logo image
+.bgg-logo-img {
+  height: 28px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+
+  &.bgg-logo-img--small {
+    height: 22px;
+  }
 }
 
 // Empty state
@@ -4693,29 +4739,28 @@ $color-green-light: #d1fae5;
   }
 }
 
-// Prefill banner
-.wizard-prefill-banner {
+// BGG info banner (replaces old prefill banner)
+.wizard-bgg-banner {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
-  background: $color-green-light;
-  border-radius: 10px;
-  margin-bottom: 20px;
+  padding: 10px 14px;
+  background: $color-light-gray;
+  border: 1px solid $color-border;
+  border-radius: 8px;
+  margin-bottom: 16px;
 
-  svg {
-    width: 18px;
-    height: 18px;
-    stroke: $color-green;
-    stroke-width: 2.5;
-    fill: none;
+  .bgg-banner-divider {
+    width: 1px;
+    height: 20px;
+    background: $color-border;
     flex-shrink: 0;
   }
 
-  span {
-    font-size: 0.85rem;
+  .bgg-banner-text {
+    font-size: 12px;
     font-weight: 500;
-    color: $color-green;
+    color: #94a3b8;
   }
 }
 
@@ -5008,15 +5053,16 @@ $color-green-light: #d1fae5;
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid $color-border;
+  padding: 20px;
+  margin-bottom: 16px;
+  background: $color-light-gray;
+  border-radius: 12px;
 }
 
 .game-preview-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 12px;
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
   object-fit: cover;
   background: $color-border;
   flex-shrink: 0;
@@ -5024,24 +5070,26 @@ $color-green-light: #d1fae5;
 
 .game-preview-info {
   flex: 1;
+  min-width: 0;
 }
 
 .game-preview-name {
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 22px;
   color: $color-navy;
   margin-bottom: 4px;
 }
 
 .game-preview-year {
-  font-size: 0.85rem;
+  font-size: 15px;
   color: $color-gray;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .game-preview-meta {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
 
   .meta-chip {
     display: inline-flex;
@@ -5064,47 +5112,89 @@ $color-green-light: #d1fae5;
   }
 }
 
+// Form section headers
+.form-section-header {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  margin: 4px 0 10px;
+}
+
+// Scrollable form area
+.wizard-form-scroll {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0 -28px;
+  padding: 0 28px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 // Form fields
 .wizard-form-fields {
   flex: 1;
-  overflow-y: auto;
 }
 
 .wizard-form-group {
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .wizard-form-label {
   display: block;
-  font-size: 0.85rem;
+  font-size: 11px;
   font-weight: 600;
-  color: $color-navy;
-  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  margin-bottom: 5px;
 
   .optional {
     font-weight: 400;
-    color: $color-gray;
+    text-transform: none;
+    letter-spacing: normal;
   }
 }
 
 .wizard-form-input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: 1px solid $color-border;
-  border-radius: 10px;
+  border-radius: 8px;
   font-family: $font-body;
-  font-size: 0.9rem;
+  font-size: 14px;
+  color: $color-navy;
+  background: $color-white;
   transition: all 0.15s ease;
 
   &:focus {
     outline: none;
     border-color: $color-blue;
   }
+
+  &::placeholder {
+    color: #94a3b8;
+  }
 }
 
 .wizard-form-textarea {
-  min-height: 80px;
+  min-height: 160px;
   resize: vertical;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &.wizard-form-textarea--short {
+    min-height: 80px;
+  }
 }
 
 .wizard-form-row {
@@ -5139,19 +5229,17 @@ $color-green-light: #d1fae5;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 12px;
-  border: 1px solid $color-border;
-  border-radius: 10px;
-  min-height: 48px;
+  margin-bottom: 8px;
 }
 
 .category-tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
-  background: $color-blue;
-  color: $color-white;
+  padding: 6px 8px 6px 10px;
+  background: white;
+  color: $color-gray;
+  border: 1px solid $color-border;
   border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 500;
@@ -5163,22 +5251,44 @@ $color-green-light: #d1fae5;
     width: 16px;
     height: 16px;
     border: none;
-    background: rgba(255, 255, 255, 0.2);
+    background: $color-border;
     border-radius: 50%;
     cursor: pointer;
     padding: 0;
+    transition: background 0.1s ease;
 
     svg {
       width: 10px;
       height: 10px;
-      stroke: $color-white;
+      stroke: $color-gray;
       stroke-width: 2.5;
       fill: none;
     }
 
     &:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: darken($color-border, 10%);
     }
+  }
+}
+
+// Add category button
+.add-category-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px dashed $color-blue;
+  color: $color-blue;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: $font-body;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(30, 58, 95, 0.04);
   }
 }
 
@@ -5199,18 +5309,188 @@ $color-green-light: #d1fae5;
 }
 
 .collection-game-image {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 10px;
   object-fit: cover;
   background: $color-border;
   flex-shrink: 0;
 }
 
+.collection-game-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .collection-game-name {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 18px;
   color: $color-navy;
+}
+
+.collection-game-subtitle {
+  font-size: 13px;
+  color: $color-gray;
+  margin-top: 2px;
+}
+
+// Label icon (house, person SVGs)
+.label-icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: #94a3b8;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -2px;
+  margin-right: 4px;
+}
+
+// Custom dropdown
+.custom-dropdown {
+  position: relative;
+}
+
+.custom-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-radius: 8px;
+  font-family: $font-body;
+  font-size: 14px;
+  color: $color-navy;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+  text-align: left;
+
+  &:hover {
+    border-color: #c5ccd6;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $color-blue;
+    box-shadow: 0 0 0 3px rgba($color-blue, 0.1);
+  }
+}
+
+.dropdown-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+
+  &.dropdown-avatar--user {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 10px;
+  }
+}
+
+.dropdown-trigger-text {
+  flex: 1;
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-trigger-tag {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.dropdown-trigger-placeholder {
+  flex: 1;
+  color: #94a3b8;
+}
+
+.dropdown-chevron {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: #94a3b8;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: $color-white;
+  border: 1px solid $color-border;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(10, 22, 40, 0.12);
+  z-index: 10;
+  overflow: hidden;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.custom-dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: $color-light-gray;
+  }
+
+  &.selected {
+    background: rgba($color-blue, 0.06);
+  }
+}
+
+.dropdown-option-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: $color-navy;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-option-tag {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.dropdown-check {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: $color-teal;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
 }
 
 // Callout
@@ -5223,10 +5503,10 @@ $color-green-light: #d1fae5;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
+  padding: 16px 24px;
   border-top: 1px solid $color-border;
   flex-shrink: 0;
-  background: $color-white;
+  background: $color-light-gray;
 }
 
 .wizard-footer-actions {
@@ -5235,8 +5515,8 @@ $color-green-light: #d1fae5;
 }
 
 .wizard-footer-btn {
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
   font-family: $font-body;
   font-size: 0.85rem;
   font-weight: 600;
@@ -5260,14 +5540,37 @@ $color-green-light: #d1fae5;
   }
 }
 
-.btn-secondary {
+// Ghost style — Close button
+.btn-ghost {
   background: transparent;
   color: $color-gray;
+  border: none;
+
+  &:hover:not(:disabled) {
+    color: $color-navy;
+  }
+}
+
+// Outline style — Back button
+.btn-secondary {
+  background: white;
+  color: $color-navy;
   border: 1px solid $color-border;
 
   &:hover:not(:disabled) {
     background: $color-light-gray;
-    color: $color-navy;
+  }
+}
+
+// Primary style — Continue / Add
+.btn-primary {
+  background: $color-yellow;
+  color: $color-navy;
+  border: none;
+  box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+
+  &:hover:not(:disabled) {
+    background: $color-yellow-hover;
   }
 }
 
