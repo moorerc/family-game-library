@@ -37,12 +37,13 @@ const App: React.FC = () => {
   }
 
   // Redirect new users who haven't completed onboarding
+  // Use === false so existing users (where fields are undefined) are grandfathered in
   const needsOnboarding =
     !loading &&
     currentUser &&
     userProfile &&
-    !userProfile.onboardingComplete &&
-    !userProfile.profileComplete &&
+    userProfile.onboardingComplete === false &&
+    userProfile.profileComplete === false &&
     location.pathname !== '/onboarding';
 
   return (
