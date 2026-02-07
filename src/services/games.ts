@@ -178,7 +178,8 @@ export const gamesService = {
       }
 
       // Play time filter
-      if (filters.playTime && game.playTimeMinutes) {
+      if (filters.playTime) {
+        if (!game.playTimeMinutes) return false;
         switch (filters.playTime) {
           case 'short':
             if (game.playTimeMinutes >= 30) return false;

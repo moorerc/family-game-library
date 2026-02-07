@@ -22,6 +22,7 @@ export const HomePage: React.FC = () => {
   } = useUserPreferences();
   const [searchParams, setSearchParams] = useSearchParams();
   const [households, setHouseholds] = useState<Household[]>([]);
+  const [householdsLoading, setHouseholdsLoading] = useState(true);
   const [selectedGame, setSelectedGame] = useState<OwnedGame | null>(null);
   const [isAddGameDialogOpen, setIsAddGameDialogOpen] = useState(false);
 
@@ -57,13 +58,14 @@ export const HomePage: React.FC = () => {
 
   // Filter games by guild households first
   const guildFilteredGames = useMemo(() => {
-    // If we have guild households loaded, filter to only those
+    // Wait for households to load before filtering to avoid flash of unfiltered data
+    if (userProfile?.activeGuildId && householdsLoading) return [];
     if (userProfile?.activeGuildId && households.length > 0) {
       const householdIds = new Set(households.map(h => h.id));
       return filteredGames.filter(game => householdIds.has(game.ownership.householdId));
     }
     return filteredGames;
-  }, [filteredGames, households, userProfile?.activeGuildId]);
+  }, [filteredGames, households, householdsLoading, userProfile?.activeGuildId]);
 
   // Apply favorites filter on top of other filters
   const displayedGames = useMemo(() => {
@@ -76,14 +78,15 @@ export const HomePage: React.FC = () => {
   }, [refreshGames]);
 
   const availableCategories = useMemo(
-    () => gamesService.getUniqueCategories(games),
-    [games]
+    () => gamesService.getUniqueCategories(guildFilteredGames),
+    [guildFilteredGames]
   );
 
   useEffect(() => {
     if (!currentUser) return;
 
     const fetchHouseholds = async () => {
+      setHouseholdsLoading(true);
       try {
         // If user has an active guild, only show that guild's households
         if (userProfile?.activeGuildId) {
@@ -96,6 +99,8 @@ export const HomePage: React.FC = () => {
         }
       } catch (err) {
         console.error('Failed to fetch households:', err);
+      } finally {
+        setHouseholdsLoading(false);
       }
     };
     fetchHouseholds();

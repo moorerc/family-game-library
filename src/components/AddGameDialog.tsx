@@ -247,10 +247,12 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
           return;
         }
       } else {
+        const finalMin = Math.min(minPlayers, maxPlayers);
+        const finalMax = Math.max(minPlayers, maxPlayers);
         const gameData: Omit<Game, 'id'> = {
           name: name.trim(),
-          minPlayers,
-          maxPlayers,
+          minPlayers: finalMin,
+          maxPlayers: finalMax,
           createdBy: currentUser.uid,
           createdAt: new Date(),
         };
@@ -301,6 +303,7 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
   };
 
   const canNavigateToStep = (step: Step): boolean => {
+    if (step.id === 'household' && isExistingGame && availableHouseholds.length === 0) return false;
     return visitedSteps.has(step.id);
   };
 
@@ -610,8 +613,10 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       const value = (e.target as HTMLInputElement).value.trim();
-                      if (value && !categories.includes(value)) {
-                        setCategories([...categories, value]);
+                      if (value) {
+                        if (!categories.includes(value)) {
+                          setCategories([...categories, value]);
+                        }
                         (e.target as HTMLInputElement).value = '';
                       }
                     }
