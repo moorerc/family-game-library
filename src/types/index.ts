@@ -83,6 +83,7 @@ export interface User {
   householdIds?: string[];   // New: multiple households
   activeGuildId?: string;    // Currently selected guild
   profileComplete?: boolean;
+  onboardingComplete?: boolean;
   createdAt: Date;
 }
 

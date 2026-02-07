@@ -17,12 +17,13 @@ interface AuthContextType {
   userProfile: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, displayName: string) => Promise<string>;
+  signUp: (email: string, password: string, displayName?: string) => Promise<string>;
   signInWithGoogle: () => Promise<string | null>;
   logout: () => Promise<void>;
   updateUserHousehold: (householdId: string) => Promise<void>;
   updateActiveGuild: (guildId: string) => Promise<void>;
   updateDisplayName: (displayName: string) => Promise<void>;
+  markOnboardingComplete: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,6 +62,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const newUser: Omit<User, 'id'> = {
       email: firebaseUser.email || '',
       displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+      profileComplete: false,
+      onboardingComplete: false,
       createdAt: new Date(),
     };
 
@@ -93,15 +96,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
-  const signUp = async (email: string, password: string, displayName: string): Promise<string> => {
+  const signUp = async (email: string, password: string, displayName?: string): Promise<string> => {
     const credential = await createUserWithEmailAndPassword(auth, email, password);
 
-    // Create user profile with display name
+    // Create user profile - displayName defaults to email prefix
     const userRef = doc(db, 'users', credential.user.uid);
     await setDoc(userRef, {
       email,
-      displayName,
-      profileComplete: true,
+      displayName: displayName || email.split('@')[0] || 'User',
+      profileComplete: false,
+      onboardingComplete: false,
       createdAt: Timestamp.now(),
     });
 
@@ -162,6 +166,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const markOnboardingComplete = async (): Promise<void> => {
+    if (!currentUser) return;
+
+    const userRef = doc(db, 'users', currentUser.uid);
+    await setDoc(userRef, { onboardingComplete: true, profileComplete: true }, { merge: true });
+
+    if (userProfile) {
+      setUserProfile({ ...userProfile, onboardingComplete: true, profileComplete: true });
+    }
+  };
+
   const value: AuthContextType = {
     currentUser,
     userProfile,
@@ -173,6 +188,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateUserHousehold,
     updateActiveGuild,
     updateDisplayName,
+    markOnboardingComplete,
   };
 
   return (

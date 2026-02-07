@@ -66,6 +66,7 @@ export const householdsService = {
       name,
       members: [userId],
       owner: userId,
+      createdBy: userId,
       createdAt: Timestamp.now(),
       inviteCode: generateInviteCode(),
       color: getRandomColor(),

@@ -25,6 +25,8 @@ export const Navbar: React.FC = () => {
     return location.pathname.startsWith(path);
   };
 
+  const isAuthFlow = ['/login', '/signup', '/profile-setup', '/onboarding'].includes(location.pathname);
+
   return (
     <BPNavbar className="app-navbar" fixedToTop>
       <NavbarGroup align={Alignment.LEFT}>
@@ -39,7 +41,7 @@ export const Navbar: React.FC = () => {
       </NavbarGroup>
 
       <NavbarGroup align={Alignment.RIGHT}>
-        {currentUser ? (
+        {currentUser && !isAuthFlow ? (
           <>
             <nav className="nav">
               <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>

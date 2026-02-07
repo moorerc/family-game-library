@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Navbar } from './components';
 import {
   HomePage,
@@ -19,21 +19,31 @@ import {
   SplashPage,
   ProfilePage,
   ProfileEditPage,
+  OnboardingPage,
 } from './pages';
 import { useAuth } from './context/AuthContext';
 import { GameNightProvider } from './context/GameNightContext';
 
 const App: React.FC = () => {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, userProfile, loading } = useAuth();
   const location = useLocation();
 
   // Show splash page for unauthenticated users on root path
-  // but allow access to login/signup pages
-  const isAuthPage = ['/login', '/signup', '/profile-setup', '/household'].includes(location.pathname);
+  // but allow access to login/signup/onboarding pages
+  const isAuthPage = ['/login', '/signup', '/profile-setup', '/household', '/onboarding'].includes(location.pathname);
 
   if (!loading && !currentUser && !isAuthPage) {
     return <SplashPage />;
   }
+
+  // Redirect new users who haven't completed onboarding
+  const needsOnboarding =
+    !loading &&
+    currentUser &&
+    userProfile &&
+    !userProfile.onboardingComplete &&
+    !userProfile.profileComplete &&
+    location.pathname !== '/onboarding';
 
   return (
     <GameNightProvider>
@@ -42,7 +52,7 @@ const App: React.FC = () => {
         <main className="app-main">
           <div className="app-container">
             <Routes>
-              <Route path="/" element={<HomePage />} />
+              <Route path="/" element={needsOnboarding ? <Navigate to="/onboarding" replace /> : <HomePage />} />
               <Route path="/game-night" element={<GameNightLandingPage />} />
               <Route path="/game-night/new/players" element={<GameNightPlayersPage />} />
               <Route path="/game-night/new/location" element={<GameNightLocationPage />} />
@@ -51,6 +61,7 @@ const App: React.FC = () => {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />
               <Route path="/profile-setup" element={<ProfileSetupPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/household" element={<HouseholdPage />} />
               <Route path="/household/:id" element={<HouseholdDetailPage />} />
               <Route path="/household/:id/edit" element={<HouseholdEditPage />} />

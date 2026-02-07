@@ -192,26 +192,37 @@ export const HomePage: React.FC = () => {
 
       <div className="home-page-content">
         {displayedGames.length === 0 ? (
-          <NonIdealState
-            icon="search"
-            title="No games found"
-            description={
-              filters.searchQuery || filters.playerCount || filters.householdIds || filters.categories || filters.playTime || filters.favoritesOnly
-                ? "Try adjusting your filters"
-                : "Be the first to add a game to the library!"
-            }
-            action={
-              currentUser ? (
-                <Button
-                  intent="primary"
-                  icon="add"
-                  onClick={() => setIsAddGameDialogOpen(true)}
-                >
-                  Add a Game
-                </Button>
-              ) : undefined
-            }
-          />
+          <div className="library-empty-state">
+            <div className="empty-shelf">
+              <div className="shelf-container">
+                <div className="shelf-games">
+                  <div className="shelf-game" />
+                  <div className="shelf-game" />
+                  <div className="shelf-game" />
+                  <div className="shelf-game" />
+                  <div className="shelf-game" />
+                </div>
+                <div className="floating-shelf" />
+                <div className="shelf-brackets">
+                  <div className="bracket" />
+                  <div className="bracket" />
+                </div>
+              </div>
+            </div>
+            <h3 className="empty-title">No games found</h3>
+            <p className="empty-desc">
+              Try adjusting your search or filters, or add a new game to your library.
+            </p>
+            {currentUser && (
+              <button className="empty-btn" onClick={() => setIsAddGameDialogOpen(true)}>
+                <svg viewBox="0 0 24 24">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add Game
+              </button>
+            )}
+          </div>
         ) : (
           <div className="games-grid">
             {displayedGames.map((game) => (

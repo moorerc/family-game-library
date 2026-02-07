@@ -15,3 +15,4 @@ export { GameNightSessionPage } from './GameNightSessionPage';
 export { SplashPage } from './SplashPage';
 export { ProfilePage } from './ProfilePage';
 export { ProfileEditPage } from './ProfileEditPage';
+export { OnboardingPage } from './OnboardingPage';
