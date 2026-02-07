@@ -602,6 +602,21 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
                     <span className="category-placeholder">No categories</span>
                   )}
                 </div>
+                <input
+                  type="text"
+                  className="wizard-form-input"
+                  placeholder="Type a category and press Enter"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const value = (e.target as HTMLInputElement).value.trim();
+                      if (value && !categories.includes(value)) {
+                        setCategories([...categories, value]);
+                        (e.target as HTMLInputElement).value = '';
+                      }
+                    }
+                  }}
+                />
               </div>
             </div>
           )}

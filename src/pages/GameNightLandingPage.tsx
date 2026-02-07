@@ -9,7 +9,7 @@ import type { OwnedGame } from '../types';
 export const GameNightLandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser, userProfile, loading: authLoading } = useAuth();
-  const { games, loading: gamesLoading } = useGames();
+  const { games } = useGames();
   const { resetDraft } = useGameNight();
 
   // Casual play state
