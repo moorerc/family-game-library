@@ -197,9 +197,12 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
 
       if (existing) {
         const ownerships = await ownershipService.getOwnershipsByGame(existing.id);
+        // Filter to only ownerships within the user's guild households
+        const guildHouseholdIds = new Set(households.map(h => h.id));
+        const guildOwnerships = ownerships.filter(o => guildHouseholdIds.has(o.householdId));
         setExistingGame(existing);
-        setExistingOwnerships(ownerships);
-        setIsExistingGame(true);
+        setExistingOwnerships(guildOwnerships);
+        setIsExistingGame(guildOwnerships.length > 0);
         populateFormFromExisting(existing);
       } else {
         setIsExistingGame(false);
@@ -513,9 +516,9 @@ export const AddGameDialog: React.FC<AddGameDialogProps> = ({
               <div className="game-preview-meta">
                 <span className="meta-chip">
                   <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                  {minPlayers}-{maxPlayers} players
+                  {minPlayers === maxPlayers ? `${minPlayers} players` : `${minPlayers}-${maxPlayers} players`}
                 </span>
-                {playTimeMinutes && (
+                {playTimeMinutes != null && playTimeMinutes > 0 && (
                   <span className="meta-chip">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     {playTimeMinutes} min

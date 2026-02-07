@@ -97,7 +97,7 @@ export const GameNightLandingPage: React.FC = () => {
           <h2>Casual Play</h2>
           <p>Let fate decide! We'll randomly pick a game from your library.</p>
           <span className="card-btn">
-            {gamesLoading ? 'Loading...' : 'Pick a game'}
+            Pick a game
           </span>
         </div>
 
