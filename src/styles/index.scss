@@ -5868,19 +5868,16 @@ $color-bgg-orange: #ff5100;
 
 @media (max-width: 480px) {
   .wizard-footer {
-    flex-direction: column;
     gap: 8px;
   }
 
   .wizard-footer-actions {
-    width: 100%;
-    flex-direction: column;
     gap: 8px;
   }
 
   .wizard-footer-btn {
-    width: 100%;
-    justify-content: center;
+    padding: 10px 16px;
+    font-size: 0.8rem;
   }
 
   .wizard-game-preview {
