@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Icon } from '@blueprintjs/core';
 import type { OwnedGame, UserGamePreference } from '../types';
+import { getEntityColorHex } from '../types';
 
 interface GameCardProps {
   game: OwnedGame;
@@ -55,7 +56,15 @@ export const GameCard: React.FC<GameCardProps> = ({
       <div className="game-content">
         <div className="game-header">
           <h3 className="game-title">{game.name}</h3>
-          <span className="game-owner">{game.ownership.householdName}</span>
+          <span
+            className="game-owner-avatar"
+            data-tooltip={game.ownership.householdName}
+            style={{ backgroundColor: getEntityColorHex(game.ownership.householdColor) }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            </svg>
+          </span>
         </div>
 
         <div className="game-meta-row">

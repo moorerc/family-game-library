@@ -358,6 +358,12 @@ a {
     margin-left: -16px;
     margin-right: -16px;
     width: calc(100% + 32px);
+    margin-top: 4px;
+    padding: 12px;
+
+    .library-empty-state {
+      padding: 40px 16px;
+    }
   }
 }
 
@@ -548,7 +554,7 @@ a {
     }
 
     .user-menu {
-      padding: 6px 10px 6px 6px;
+      padding: 6px;
       gap: 6px;
 
       .user-name {
@@ -1513,8 +1519,31 @@ a {
   }
 }
 
-// Responsive Filter Dropdown
-@media (max-width: 700px) {
+// Horizontal scroll filter chips on mobile
+@media (max-width: 480px) {
+  .filters-results-row {
+    gap: 8px;
+  }
+
+  .active-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .filter-chip {
+    flex-shrink: 0;
+  }
+}
+
+// Search row wrapping — only between 601-700px (below 600px buttons go icon-only inline)
+@media (min-width: 601px) and (max-width: 700px) {
   .search-row {
     flex-wrap: wrap;
   }
@@ -1536,7 +1565,10 @@ a {
     flex: 1;
     justify-content: center;
   }
+}
 
+// Responsive Filter Dropdown
+@media (max-width: 700px) {
   .filter-dropdown {
     position: fixed !important;
     top: auto !important;
@@ -1600,6 +1632,40 @@ a {
   }
 }
 
+// Icon-only filter buttons on narrow screens — single row with search
+@media (max-width: 600px) {
+  .btn-label {
+    display: none;
+  }
+
+  .search-row {
+    gap: 6px;
+  }
+
+  .search-box {
+    min-width: 0;
+  }
+
+  .favorites-toggle-btn {
+    padding: 12px;
+    gap: 0;
+  }
+
+  .filter-btn {
+    padding: 12px;
+    gap: 0;
+
+    .filter-count {
+      margin-left: 6px;
+    }
+  }
+
+  .add-game-btn {
+    padding: 12px;
+    gap: 0;
+  }
+}
+
 // =============================================================================
 // GAMES GRID
 // =============================================================================
@@ -1609,7 +1675,7 @@ a {
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
 
-  @media (max-width: 480px) {
+  @media (max-width: 600px) {
     grid-template-columns: 1fr;
     gap: 12px;
   }
@@ -1676,19 +1742,46 @@ a {
     margin: 0;
     color: $color-navy;
     line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
 
-  .game-owner {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: $color-blue;
-    background: rgba(30, 58, 95, 0.1);
-    padding: 4px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
+  .game-owner-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $color-white;
     flex-shrink: 0;
-    margin-left: 12px;
+    margin-left: 8px;
+    cursor: default;
+    position: relative;
+
+    &::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: $color-navy;
+      color: $color-white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 10;
+    }
+
+    &:hover::after {
+      opacity: 1;
+    }
   }
 
   .game-meta-row {
@@ -1810,6 +1903,80 @@ a {
       svg {
         stroke: $color-yellow-hover;
         fill: $color-yellow;
+      }
+    }
+  }
+}
+
+// Mobile horizontal game cards
+@media (max-width: 600px) {
+  .game-card.bp5-card {
+    display: flex;
+    flex-direction: row;
+    border-radius: 12px;
+
+    &:hover {
+      transform: none;
+    }
+
+    .game-image {
+      width: 100px;
+      height: auto;
+      flex-shrink: 0;
+      border-radius: 12px 0 0 12px;
+      position: relative;
+      overflow: hidden;
+
+      img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .game-content {
+      flex: 1;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .game-header {
+      margin-bottom: 6px;
+    }
+
+    .game-title {
+      font-size: 0.95rem;
+    }
+
+    .game-owner-avatar {
+      width: 24px;
+      height: 24px;
+      margin-left: 6px;
+    }
+
+    .game-meta-row {
+      margin-bottom: 6px;
+      gap: 4px;
+
+      .meta-chip {
+        padding: 3px 6px;
+        font-size: 0.7rem;
+      }
+    }
+
+    .game-tags {
+      display: none;
+    }
+
+    .game-actions {
+      padding-top: 8px;
+      gap: 2px;
+
+      .action-btn {
+        width: 40px;
+        height: 40px;
       }
     }
   }
@@ -2370,11 +2537,26 @@ a {
 
 @media (max-width: 480px) {
   .game-dialog-backdrop {
-    padding: 16px;
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .game-dialog {
+    border-radius: 20px 20px 0 0;
+    max-height: 100vh;
+  }
+
+  .game-dialog-close {
+    z-index: 20;
   }
 
   .game-dialog-image-section {
     padding: 20px;
+  }
+
+  .game-dialog-image {
+    aspect-ratio: 2/1;
+    margin-bottom: 16px;
   }
 
   .game-dialog-details {
@@ -3753,15 +3935,6 @@ a {
   }
 
   .game-filters {
-    .search-row {
-      flex-direction: column;
-      align-items: stretch;
-
-      .bp5-button {
-        width: 100%;
-      }
-    }
-
     .filters-row {
       flex-direction: column;
 
@@ -5591,10 +5764,49 @@ $color-bgg-orange: #ff5100;
 
 // Responsive
 @media (max-width: 700px) {
+  // Push dialog container to bottom of screen, hide overflow during slide-up
+  .bp5-dialog-container:has(.add-game-wizard-dialog) {
+    align-items: flex-end !important;
+    overflow: hidden !important;
+  }
+
   .add-game-wizard-dialog.bp5-dialog {
     max-height: 95vh;
+    width: 100%;
+    max-width: 100%;
     border-radius: 20px 20px 0 0;
-    margin-top: auto;
+    margin: 0 !important;
+    padding-top: 8px;
+
+    // Drag handle indicator (matches filter sheet)
+    &::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 4px;
+      background: $color-border;
+      border-radius: 2px;
+      z-index: 1;
+    }
+  }
+
+  // Override Blueprint's scale animation with slide-up
+  .bp5-dialog-container.bp5-overlay-enter > .add-game-wizard-dialog.bp5-dialog,
+  .bp5-dialog-container.bp5-overlay-appear > .add-game-wizard-dialog.bp5-dialog {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  .bp5-dialog-container.bp5-overlay-enter-active > .add-game-wizard-dialog.bp5-dialog,
+  .bp5-dialog-container.bp5-overlay-appear-active > .add-game-wizard-dialog.bp5-dialog {
+    opacity: 1;
+    transform: translateY(0);
+    transition-property: opacity, transform;
+    transition-duration: 250ms;
+    transition-timing-function: ease;
   }
 
   .wizard-body {
@@ -5622,12 +5834,66 @@ $color-bgg-orange: #ff5100;
     display: none;
   }
 
+  .wizard-content {
+    padding: 16px 20px;
+  }
+
+  .wizard-header {
+    padding: 16px 20px;
+  }
+
+  .wizard-footer {
+    padding: 12px 20px;
+  }
+
+  .wizard-form-scroll {
+    margin: 0 -20px;
+    padding: 0 20px;
+  }
+
   .wizard-form-row {
     grid-template-columns: 1fr;
   }
 
+  .wizard-search-input {
+    padding: 12px 16px 12px 44px;
+  }
+
+  .search-result-item {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
   .game-preview-meta {
     flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .wizard-footer {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .wizard-footer-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .wizard-footer-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wizard-game-preview {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .game-preview-meta {
+    justify-content: center;
   }
 }
 
